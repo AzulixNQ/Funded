@@ -95,7 +95,7 @@ R.fmt = (v, f) => {
     case 'px': return F2.format(v);
     case 'min1': return F1.format(v) + ' min';
     case 'z': return sg(v) + F2.format(ab(v)) + 'σ';
-    case 'score': return F0.format(v) + '/10';
+    case 'score': return (Number.isInteger(v) ? F0 : F1).format(v) + '/10';
     case 'date': return R.dateLabel(v);
     case 'yn': return R.t(v ? 'yes' : 'no');
     case 'lbl': return R.t(v);
@@ -1004,7 +1004,7 @@ dash.draw('daychart', (el) => {
     const xa = x(tm[endAsia]);
     const items = lv.map((l) => ({ l, y: y(l.v) + 4 }));
     lv.forEach((l) => ln(svg, xa, w - mr, y(l.v), y(l.v), 'var(--asia)', l.k === 'poc' ? 1.6 : 1, l.k === 'hi' || l.k === 'lo' ? null : '3 3'));
-    spread(items, 12, 12, yb).forEach((it) => lab(svg, w - mr + 6, it.y, R.t(it.l.k), 'v'));
+    spread(items, 15, 12, yb).forEach((it) => lab(svg, w - mr + 6, it.y, R.t(it.l.k), 'v'));
   }
   const tip = R.tip(el);
   const cross = ln(svg, 0, 0, 18, yb, 'var(--muted)', 1, '2 3').style('opacity', 0);
@@ -1092,16 +1092,17 @@ dash.draw('scorechart', (el) => {
   const bars = svg.append('g').selectAll('rect').data(rows).join('rect').attr('class', (s) => 's-' + s.session)
     .attr('x', (s) => x(s.rid)).attr('width', x.bandwidth()).attr('y', (s) => y(Math.max(0, s[k])))
     .attr('height', (s) => Math.max(1, Math.abs(y(s[k]) - y(0)))).attr('rx', Math.min(4, x.bandwidth() / 2)).style('opacity', 0.85);
+  let lastDateX = -1e9;
   rows.forEach((s, i) => {
     const cx = x(s.rid) + x.bandwidth() / 2;
     if (typeof s.score === 'number') {
       svg.append('path').attr('d', d3.symbol(d3.symbolDiamond, 90)()).attr('transform', 'translate(' + cx + ',' + ys(s.score) + ')')
         .style('fill', 'var(--hl)').style('stroke', 'var(--bg)').style('stroke-width', 1.5);
-      lab(svg, cx + 10, ys(s.score) + 4, R.fmt(s.score, 'score'), 'hl');
+      lab(svg, cx, ys(s.score) - 12, R.fmt(s.score, 'score'), 'hl', 'middle');
     }
     if (x.step() >= 64) svg.append('text').attr('class', 'lab s-' + s.session).attr('x', cx).attr('y', yb + 16).attr('text-anchor', 'middle').text(R.t(s.session));
     else svg.append('rect').attr('class', 's-' + s.session).attr('x', x(s.rid)).attr('y', yb + 8).attr('width', x.bandwidth()).attr('height', 4).attr('rx', 2);
-    if (!i || rows[i - 1].session_date !== s.session_date) svg.append('text').attr('x', x(s.rid)).attr('y', H - 8).text(R.dateLabel(s.session_date));
+    if ((!i || rows[i - 1].session_date !== s.session_date) && x(s.rid) - lastDateX >= 52) { lastDateX = x(s.rid); svg.append('text').attr('x', x(s.rid)).attr('y', H - 8).text(R.dateLabel(s.session_date)); }
   });
   hover(el, tip, bars, (s) => [R.dateLabel(s.session_date) + ' · ' + R.t(s.session), [[R.t('score'), R.fmt(s.score, 'score')],
     [R.t('count'), R.fmt(s.trades, 'n0')], [R.t('pnl'), R.fmt(s[k], 'usds'), R.tone(s[k])], [R.t('maeL') + ' max', R.fmt(s.worst_mae, 'usd')]],
@@ -1192,7 +1193,7 @@ dash.draw('tradechart', (el) => {
     const v = lastB.vw + k * lastB.sd;
     if (v > yd[0] && v < yd[1]) right.push({ y: y(v) + 4, text: s, cls: c });
   });
-  spread(right, 12, 12, yb).forEach((it) => lab(svg, w - mr + 6, it.y, it.text, it.cls));
+  spread(right, 15, 12, yb).forEach((it) => lab(svg, w - mr + 6, it.y, it.text, it.cls));
   bs.forEach((b, i) => {
     const cx = x(tm[i] + 0.5), col = b.c >= b.o ? 'var(--up)' : 'var(--down)';
     gc.append('line').attr('x1', cx).attr('x2', cx).attr('y1', y(b.h)).attr('y2', y(b.l)).style('stroke', col).style('stroke-width', 1);

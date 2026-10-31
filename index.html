@@ -2,349 +2,40 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Road to Funded</title>
-<meta name="description" content="Live journal of a $25K prop firm evaluation (LucidPro 25K, MNQ): balance, stats, every trade with its chart. Updated every evening.">
-<meta property="og:title" content="Road to Funded">
-<meta property="og:description" content="Live journal of a $25K prop firm evaluation, updated every evening.">
-<meta name="theme-color" content="#0A0E15">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230A0E15'/%3E%3Cpath d='M12 46 L26 32 L36 40 L52 18' stroke='%232BD47E' stroke-width='7' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<style>:root{--font-anthropic-sans:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;--cds-dur-slow:.45s;--cds-ease-out:cubic-bezier(.2,.7,.2,1)}html,body{margin:0;background:#0A0E15}body{min-height:100vh}</style>
-<link rel="stylesheet" href="rtf.css">
-<script src="d3.min.js"></script>
-<script src="dash-shim.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Road to 5 Live</title>
+<meta name="description" content="My live trading journal: from one Lucid Trading 25K evaluation to five live accounts. Every trade logged, nothing deleted. Updated every evening.">
+<meta property="og:title" content="Road to 5 Live">
+<meta property="og:description" content="My live trading journal: from one 25K evaluation to five live accounts. Every trade logged, nothing deleted.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23000'/%3E%3Crect x='10' y='10' width='44' height='44' fill='%23FFA41C'/%3E%3Ctext x='32' y='46' font-family='monospace' font-weight='700' font-size='38' text-anchor='middle' fill='%23000'%3E5%3C/text%3E%3C/svg%3E">
+<link rel="preload" href="fonts/PlexMono-400.woff" as="font" type="font/woff" crossorigin>
+<link rel="preload" href="fonts/PlexMono-700.woff" as="font" type="font/woff" crossorigin>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="rtf" id="rtf">
-<div class="rtf-wrap">
-<header class="rtf-head" id="top">
-  <div>
-    <p class="rtf-eyebrow"><span lang="fr">LucidPro 25K · évaluation · MNQ / NQ</span><span lang="en">LucidPro 25K · evaluation · MNQ / NQ</span></p>
-    <h1 class="rtf-title">Road to <em>Funded</em></h1>
-    <p class="rtf-take" lang="en" style="margin-top:6px">Live journal of my $25K prop firm evaluation, updated every evening after the session.</p>
-    <p class="rtf-take" lang="fr" style="margin-top:6px">Journal en direct de mon évaluation prop firm de 25 000 $, mis à jour chaque soir après la séance.</p>
-    <p class="rtf-take" lang="fr">Solde <b data-draw="v" data-source="challenge" data-field="balance" data-where="kind=now" data-fmt="usd">—</b> : <b data-draw="v" data-source="challenge" data-field="progress" data-where="kind=now" data-fmt="pct1">—</b> de l’objectif atteint, encore <b data-draw="v" data-source="challenge" data-field="to_target" data-where="kind=now" data-fmt="usd">—</b> à faire. Coussin au-dessus du seuil MLL : <b data-draw="v" data-source="challenge" data-field="cushion" data-where="kind=now" data-fmt="usd">—</b>.</p>
-    <p class="rtf-take" lang="en">Balance <b data-draw="v" data-source="challenge" data-field="balance" data-where="kind=now" data-fmt="usd">—</b>: <b data-draw="v" data-source="challenge" data-field="progress" data-where="kind=now" data-fmt="pct1">—</b> of the target done, <b data-draw="v" data-source="challenge" data-field="to_target" data-where="kind=now" data-fmt="usd">—</b> to go. Cushion above the MLL floor: <b data-draw="v" data-source="challenge" data-field="cushion" data-where="kind=now" data-fmt="usd">—</b>.</p>
-  </div>
-  <div class="rtf-controls">
-    <div class="seg" role="group" aria-label="Langue / Language"><button type="button" class="rtf-lang" data-lang="fr" aria-pressed="true">FR</button><button type="button" class="rtf-lang" data-lang="en" aria-pressed="false">EN</button></div>
-    <div class="seg" role="group" aria-label="P&amp;L net / brut"><button type="button" class="rtf-mode" data-mode="net" aria-pressed="true">Net</button><button type="button" class="rtf-mode" data-mode="gross" aria-pressed="false"><span lang="fr">Brut</span><span lang="en">Gross</span></button></div>
-    <span class="selwrap"><select data-draw="dayselect" data-source="days" aria-label="Jour / Day"></select></span>
+<div id="boot" aria-hidden="true"><pre id="bootTxt"></pre></div>
+
+<header class="top">
+  <div class="brand" id="brand">ROAD TO 5 LIVE<i class="bc" aria-hidden="true"></i></div>
+  <div class="status" id="status"></div>
+  <div class="lang" role="group" aria-label="Language">
+    <button type="button" data-lang="en">EN</button><button type="button" data-lang="fr">FR</button>
   </div>
 </header>
+<nav class="keys" id="keys" aria-label="Sections"></nav>
 
-<nav class="rtf-tabs" role="tablist" aria-label="Sections">
-  <button type="button" role="tab" class="rtf-tab" data-tab="challenge" aria-selected="true"><span class="n">01</span>Challenge</button>
-  <button type="button" role="tab" class="rtf-tab" data-tab="performance" aria-selected="false"><span class="n">02</span>Performance</button>
-  <button type="button" role="tab" class="rtf-tab" data-tab="execution" aria-selected="false"><span class="n">03</span><span lang="fr">Exécution</span><span lang="en">Execution</span></button>
-  <button type="button" role="tab" class="rtf-tab" data-tab="timing" aria-selected="false"><span class="n">04</span><span lang="fr">Timing &amp; contexte</span><span lang="en">Timing &amp; context</span></button>
-  <button type="button" role="tab" class="rtf-tab" data-tab="discipline" aria-selected="false"><span class="n">05</span><span lang="fr">Discipline &amp; mental</span><span lang="en">Discipline &amp; mindset</span></button>
-  <button type="button" role="tab" class="rtf-tab" data-tab="trades" aria-selected="false"><span class="n">06</span>Trades</button>
-</nav>
+<main class="screen">
+  <p class="intro" id="intro"></p>
+  <section id="acc" class="panel"><h2 data-k="1"></h2><div id="accBody"></div></section>
+  <section id="bal" class="panel"><h2 data-k="2"></h2><div id="balBody"></div></section>
+  <section id="log" class="panel"><h2 data-k="3"></h2><div id="logBody"></div></section>
+  <section id="tr" class="panel"><h2 data-k="4"></h2><div id="trBody"></div></section>
+  <section id="st" class="panel"><h2 data-k="5"></h2><div id="stBody"></div></section>
+  <footer class="foot" id="foot"></footer>
+</main>
 
-<!-- 01 CHALLENGE -->
-<section class="rtf-pane" id="challenge" role="tabpanel">
-  <div class="kpis">
-    <div class="kpi hero"><span class="k"><span lang="fr">Solde</span><span lang="en">Balance</span></span><span class="v"><b data-draw="v" data-source="challenge" data-field="balance" data-where="kind=now" data-fmt="usd">—</b></span><span class="s"><span lang="fr">Plus haut solde de clôture</span><span lang="en">Highest close</span> <b><b data-draw="v" data-source="challenge" data-field="hwm" data-where="kind=now" data-fmt="usd">—</b></b></span></div>
-    <div class="kpi"><span class="k"><span lang="fr">Profit (net)</span><span lang="en">Profit (net)</span></span><span class="v"><b data-draw="v" data-source="challenge" data-field="profit" data-where="kind=now" data-fmt="usds" data-tone>—</b></span><span class="s"><span lang="fr">sur</span><span lang="en">of</span> <b><b data-draw="v" data-source="rules" data-field="profit_target" data-row="0" data-fmt="usd0">—</b></b></span></div>
-    <div class="kpi"><span class="k"><span lang="fr">Seuil MLL</span><span lang="en">MLL floor</span></span><span class="v"><b data-draw="v" data-source="challenge" data-field="mll" data-where="kind=now" data-fmt="usd">—</b></span><span class="s"><span lang="fr">Suit le plus haut solde de clôture, -</span><span lang="en">Trails the highest close, -</span><b><b data-draw="v" data-source="rules" data-field="max_loss" data-row="0" data-fmt="usd0">—</b></b></span></div>
-    <div class="kpi"><span class="k"><span lang="fr">Coussin MLL</span><span lang="en">MLL cushion</span></span><span class="v"><b data-draw="v" data-source="challenge" data-field="cushion" data-where="kind=now" data-fmt="usd">—</b></span><span class="s"><span lang="fr">Au plus bas (latent)</span><span lang="en">At its lowest (open)</span> <b><b data-draw="v" data-source="challenge" data-field="worst_cushion" data-where="kind=now" data-fmt="usd">—</b></b></span></div>
-    <div class="kpi"><span class="k"><span lang="fr">Jours tradés</span><span lang="en">Days traded</span></span><span class="v"><b data-draw="v" data-source="challenge" data-field="days" data-where="kind=now" data-fmt="n0">—</b></span><span class="s"><b><b data-draw="v" data-source="challenge" data-field="trades" data-where="kind=now" data-fmt="n0">—</b></b> trades</span></div>
-    <div class="kpi"><span class="k"><span lang="fr">Reste à faire</span><span lang="en">Still to make</span></span><span class="v"><b data-draw="v" data-source="challenge" data-field="to_target" data-where="kind=now" data-fmt="usd">—</b></span><span class="s"><span lang="fr">≈</span><span lang="en">≈</span> <b><b data-draw="v" data-source="challenge" data-field="est_days" data-where="kind=now" data-fmt="n1">—</b></b> <span lang="fr">jours à ce rythme</span><span lang="en">days at this pace</span></span></div>
-  </div>
-
-  <div class="grid g2">
-    <div class="card" id="target-card">
-      <h2><span lang="fr">Objectif de profit</span><span lang="en">Profit target</span></h2>
-      <p class="note"><span lang="fr">Solde Lucid, net de frais, depuis le début de l’évaluation. Une fois l’objectif atteint, le compte passe funded en 5 à 30 min.</span><span lang="en">Lucid balance, net of fees, since the evaluation started. Once the target is hit, the account goes funded within 5 to 30 min.</span></p>
-      <div class="bigrow"><span class="big"><b data-draw="v" data-source="challenge" data-field="profit" data-where="kind=now" data-fmt="usds" data-tone>—</b></span><span class="of"><span lang="fr">sur</span><span lang="en">of</span> <b data-draw="v" data-source="rules" data-field="profit_target" data-row="0" data-fmt="usd0">—</b></span></div>
-      <div data-draw="progress" data-source="challenge rules" class="dash-skeleton"></div>
-      <div class="chips">
-        <span class="chip"><span lang="fr">Atteint</span><span lang="en">Done</span> <b><b data-draw="v" data-source="challenge" data-field="progress" data-where="kind=now" data-fmt="pct1">—</b></b></span>
-        <span class="chip"><span lang="fr">Moyenne par jour</span><span lang="en">Average per day</span> <b><b data-draw="v" data-source="challenge" data-field="avg_day" data-where="kind=now" data-fmt="usds" data-tone>—</b></b></span>
-        <span class="chip"><span lang="fr">Meilleur jour</span><span lang="en">Best day</span> <b><b data-draw="v" data-source="challenge" data-field="best_day" data-where="kind=now" data-fmt="usds" data-tone>—</b></b></span>
-      </div>
-    </div>
-    <div class="card" id="rules-card">
-      <h2><span lang="fr">Règles de l’évaluation</span><span lang="en">Evaluation rules</span></h2>
-      <p class="note"><span lang="fr">Vérifiées sur tous tes trades, au trade près.</span><span lang="en">Checked on every trade you took.</span></p>
-      <ul class="rules">
-        <li><span data-draw="ok" data-source="challenge" data-field="passed" data-where="kind=now" data-soft class="ok is-na">—</span><span class="lbl"><span lang="fr">Objectif de profit</span><span lang="en">Profit target</span> <b><b data-draw="v" data-source="rules" data-field="profit_target" data-row="0" data-fmt="usd0s">—</b></b><small lang="fr">Pas de minimum de jours, pas de règle de consistance en évaluation.</small><small lang="en">No minimum days, no consistency rule during the evaluation.</small></span><span class="val"><b data-draw="v" data-source="challenge" data-field="progress" data-where="kind=now" data-fmt="pct1">—</b></span></li>
-        <li><span data-draw="ok" data-source="challenge" data-field="mll_ok" data-where="kind=now" class="ok is-na">—</span><span class="lbl"><span lang="fr">Perte max (MLL) en EOD trailing</span><span lang="en">Max loss (MLL), EOD trailing</span> <b><b data-draw="v" data-source="rules" data-field="max_loss" data-row="0" data-fmt="usd0">—</b></b><small lang="fr">Bloquée à <b data-draw="v" data-source="rules" data-field="mll_lock_level" data-row="0" data-fmt="usd0">—</b> dès qu’une clôture dépasse <b data-draw="v" data-source="rules" data-field="mll_lock_trigger" data-row="0" data-fmt="usd0">—</b>. Valeur : pire coussin, latent compris.</small><small lang="en">Locks at <b data-draw="v" data-source="rules" data-field="mll_lock_level" data-row="0" data-fmt="usd0">—</b> once a close is above <b data-draw="v" data-source="rules" data-field="mll_lock_trigger" data-row="0" data-fmt="usd0">—</b>. Value: worst cushion, open P&amp;L included.</small></span><span class="val"><b data-draw="v" data-source="challenge" data-field="worst_cushion" data-where="kind=now" data-fmt="usd">—</b></span></li>
-        <li><span data-draw="ok" data-source="challenge" data-field="size_ok" data-where="kind=now" class="ok is-na">—</span><span class="lbl"><span lang="fr">Taille max</span><span lang="en">Max size</span> <b><b data-draw="v" data-source="rules" data-field="max_minis" data-row="0" data-fmt="n0">—</b></b> minis / <b><b data-draw="v" data-source="rules" data-field="max_micros" data-row="0" data-fmt="n0">—</b></b> micros<small lang="fr">Ta plus grosse position : NQ / MNQ</small><small lang="en">Your largest position: NQ / MNQ</small></span><span class="val"><b data-draw="v" data-source="challenge" data-field="max_minis" data-where="kind=now" data-fmt="n0">—</b> / <b data-draw="v" data-source="challenge" data-field="max_micros" data-where="kind=now" data-fmt="n0">—</b></span></li>
-        <li><span data-draw="ok" data-source="challenge" data-field="flat_ok" data-where="kind=now" class="ok is-na">—</span><span class="lbl"><span lang="fr">À plat avant</span><span lang="en">Flat by</span> <b><b data-draw="v" data-source="rules" data-field="flat_by_et" data-row="0" data-fmt="text">—</b></b> ET<small lang="fr">Ta sortie la plus tardive en séance US (heure ET). Paris : 21:45 jusqu’au 1er nov., 22:45 ensuite.</small><small lang="en">Your latest exit in the US session (ET). Paris: 21:45 until Nov 1, 22:45 after.</small></span><span class="val"><b data-draw="v" data-source="challenge" data-field="last_exit_et" data-where="kind=now" data-fmt="text">—</b></span></li>
-        <li><span data-draw="ok" data-source="challenge" data-field="microscalp_ok" data-where="kind=now" class="ok is-na">—</span><span class="lbl"><span lang="fr">Microscalping : gains des trades de</span><span lang="en">Microscalping: profit from trades of</span> <b><b data-draw="v" data-source="rules" data-field="microscalp_max_s" data-row="0" data-fmt="n0">—</b></b> s <span lang="fr">ou moins, limite</span><span lang="en">or less, limit</span> <b><b data-draw="v" data-source="rules" data-field="microscalp_max_share" data-row="0" data-fmt="pct0">—</b></b></span><span class="val"><b data-draw="v" data-source="challenge" data-field="microscalp_share" data-where="kind=now" data-fmt="pct1">—</b></span></li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="card span" id="balance-card" style="margin-bottom: var(--gap)">
-    <h2><span lang="fr">Ton solde trade par trade</span><span lang="en">Your balance, trade by trade</span></h2>
-    <p class="note"><span lang="fr">Chaque point est un trade fermé. Les traits rouges descendent jusqu’au pire latent pendant le trade (MAE). Zone rouge : sous le seuil MLL en vigueur ce jour-là. Clique un point pour ouvrir le trade.</span><span lang="en">Each dot is a closed trade. Red whiskers go down to the worst open P&amp;L during the trade (MAE). Red zone: below the MLL floor in force that day. Click a dot to open the trade.</span></p>
-    <div class="legend"><span style="color:var(--hl)"><i class="sw"></i><span lang="fr">Solde</span><span lang="en">Balance</span></span><span style="color:var(--gain)"><i class="sw dash"></i><span lang="fr">Objectif</span><span lang="en">Target</span></span><span style="color:var(--loss)"><i class="sw"></i><span lang="fr">Seuil MLL</span><span lang="en">MLL floor</span></span><span style="color:var(--muted)"><i class="sw dash"></i><span lang="fr">Verrou MLL</span><span lang="en">MLL lock</span></span></div>
-    <div class="chart dash-skeleton" id="balance-chart" data-draw="balpath" data-source="curve challenge rules trades days"></div>
-  </div>
-
-  <div class="grid g2">
-    <div class="card" id="payout-card">
-      <h2><span lang="fr">Payouts (une fois funded)</span><span lang="en">Payouts (once funded)</span></h2>
-      <p class="note"><span lang="fr">Règles Lucid de la phase funded, pour préparer la suite.</span><span lang="en">Lucid funded-phase rules, to plan ahead.</span></p>
-      <ul class="defs">
-        <li><span lang="fr">Solde minimum à garder (buffer) :</span><span lang="en">Balance to keep (buffer):</span> <b><b data-draw="v" data-source="rules" data-field="payout_buffer" data-row="0" data-fmt="usd0">—</b></b>. <span lang="fr">Au-dessus aujourd’hui :</span><span lang="en">Above it today:</span> <b><b data-draw="v" data-source="challenge" data-field="payout_room" data-where="kind=now" data-fmt="usd">—</b></b></li>
-        <li><span lang="fr">Demande minimum</span><span lang="en">Minimum request</span> <b><b data-draw="v" data-source="rules" data-field="payout_min_request" data-row="0" data-fmt="usd0">—</b></b> · <span lang="fr">maximum</span><span lang="en">maximum</span> <b><b data-draw="v" data-source="rules" data-field="payout_max_first" data-row="0" data-fmt="usd0">—</b></b> <span lang="fr">au 1er payout puis</span><span lang="en">for the first payout, then</span> <b><b data-draw="v" data-source="rules" data-field="payout_max_next" data-row="0" data-fmt="usd0">—</b></b></li>
-        <li><span lang="fr">Profit minimum par cycle</span><span lang="en">Minimum profit per cycle</span> <b><b data-draw="v" data-source="rules" data-field="payout_min_profit" data-row="0" data-fmt="usd0">—</b></b> · <span lang="fr">partage</span><span lang="en">split</span> <b><b data-draw="v" data-source="rules" data-field="profit_split" data-row="0" data-fmt="pct0">—</b></b> <span lang="fr">pour toi</span><span lang="en">to you</span> · <span lang="fr">versé sous</span><span lang="en">paid within</span> <b><b data-draw="v" data-source="rules" data-field="payout_business_days" data-row="0" data-fmt="n0">—</b></b> <span lang="fr">jours ouvrés, en crypto (BTC, ETH, LTC, USDT, USDC) ou WorkMarket</span><span lang="en">business days, in crypto (BTC, ETH, LTC, USDT, USDC) or WorkMarket</span></li>
-      </ul>
-    </div>
-    <div class="card" id="consistency-card">
-      <h2><span lang="fr">Consistance des payouts</span><span lang="en">Payout consistency</span></h2>
-      <p class="note"><span lang="fr">En funded, ton meilleur jour ne doit pas dépasser</span><span lang="en">Once funded, your best day must stay under</span> <b><b data-draw="v" data-source="rules" data-field="payout_consistency" data-row="0" data-fmt="pct0">—</b></b> <span lang="fr">du profit total. Ça ne compte pas pour l’évaluation.</span><span lang="en">of total profit. It does not count for the evaluation.</span></p>
-      <div class="bigrow"><span class="big"><b data-draw="v" data-source="challenge" data-field="best_day_share" data-where="kind=now" data-fmt="pct1">—</b></span><span class="of"><span lang="fr">du profit fait sur le meilleur jour</span><span lang="en">of profit made on the best day</span></span></div>
-      <div data-draw="consist" data-source="challenge rules" class="dash-skeleton"></div>
-    </div>
-  </div>
-</section>
-
-<!-- 02 PERFORMANCE -->
-<section class="rtf-pane" id="performance" role="tabpanel" hidden>
-  <div class="kpis">
-    <div class="kpi hero"><span class="k">P&amp;L</span><span class="v"><b data-draw="v" data-source="perf" data-field="pnl" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="usds" data-tone>—</b></span><span class="s"><b><b data-draw="v" data-source="perf" data-field="trades" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="n0">—</b></b> trades · <span lang="fr">frais</span><span lang="en">fees</span> <b><b data-draw="v" data-source="perf" data-field="fees" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="usd">—</b></b></span></div>
-    <div class="kpi"><span class="k">Win rate</span><span class="v"><b data-draw="v" data-source="perf" data-field="win_rate" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="pct1">—</b></span><span class="s"><b><b data-draw="v" data-source="perf" data-field="wins" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="n0">—</b></b> <span lang="fr">gagnants</span><span lang="en">winners</span> · <b><b data-draw="v" data-source="perf" data-field="losses" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="n0">—</b></b> <span lang="fr">perdants</span><span lang="en">losers</span></span></div>
-    <div class="kpi"><span class="k">Profit factor</span><span class="v"><b data-draw="v" data-source="perf" data-field="profit_factor" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="x2">—</b></span><span class="s"><b><b data-draw="v" data-source="perf" data-field="gross_profit" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="usd">—</b></b> / <b><b data-draw="v" data-source="perf" data-field="gross_loss" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="usd">—</b></b></span></div>
-    <div class="kpi"><span class="k"><span lang="fr">Espérance par trade</span><span lang="en">Expectancy per trade</span></span><span class="v"><b data-draw="v" data-source="perf" data-field="expectancy" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="usds" data-tone>—</b></span><span class="s"><b><b data-draw="v" data-source="perf" data-field="expectancy_r" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="r2">—</b></b> · SQN <b><b data-draw="v" data-source="perf" data-field="sqn" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="n2">—</b></b></span></div>
-    <div class="kpi"><span class="k"><span lang="fr">R (perte moyenne)</span><span lang="en">R (average loss)</span></span><span class="v"><b data-draw="v" data-source="perf" data-field="r_unit" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="usd">—</b></span><span class="s"><span lang="fr">Gain moyen / perte moyenne</span><span lang="en">Avg win / avg loss</span> <b><b data-draw="v" data-source="perf" data-field="payoff" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="x2">—</b></b></span></div>
-    <div class="kpi"><span class="k"><span lang="fr">Drawdown max</span><span lang="en">Max drawdown</span></span><span class="v"><b data-draw="v" data-source="perf" data-field="max_dd" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="usd">—</b></span><span class="s"><span lang="fr">Série de pertes max</span><span lang="en">Longest losing streak</span> <b><b data-draw="v" data-source="perf" data-field="max_loss_streak" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="n0">—</b></b></span></div>
-    <div class="kpi"><span class="k"><span lang="fr">Gain moyen</span><span lang="en">Average win</span></span><span class="v"><b data-draw="v" data-source="perf" data-field="avg_win" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="usds" data-tone>—</b></span><span class="s"><span lang="fr">Meilleur</span><span lang="en">Best</span> <b><b data-draw="v" data-source="perf" data-field="best" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="usds">—</b></b></span></div>
-    <div class="kpi"><span class="k"><span lang="fr">Perte moyenne</span><span lang="en">Average loss</span></span><span class="v"><b data-draw="v" data-source="perf" data-field="avg_loss" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="usds" data-tone>—</b></span><span class="s"><span lang="fr">Pire</span><span lang="en">Worst</span> <b><b data-draw="v" data-source="perf" data-field="worst" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="usds">—</b></b></span></div>
-  </div>
-
-  <div class="card span" id="pnl-card" style="margin-bottom: var(--gap)">
-    <h2><span lang="fr">Courbe de P&amp;L et P&amp;L par trade</span><span lang="en">P&amp;L curve and P&amp;L per trade</span></h2>
-    <p class="note"><span lang="fr">En haut : P&amp;L cumulé, avec en rouge le drawdown depuis le dernier pic. En bas : le P&amp;L de chaque trade. Avec un jour choisi, le cumul repart de zéro ce jour-là.</span><span lang="en">Top: cumulative P&amp;L, with the drawdown from the last peak in red. Bottom: each trade’s P&amp;L. With a day picked, the running total starts from zero that day.</span></p>
-    <div class="legend"><span style="color:var(--gain)"><i class="sw"></i><span lang="fr">Cumul</span><span lang="en">Cumulative</span></span><span style="color:var(--loss)"><i class="sw box"></i>Drawdown</span><span style="color:var(--gain)"><i class="sw box"></i><span lang="fr">Trade gagnant</span><span lang="en">Winning trade</span></span><span style="color:var(--loss)"><i class="sw box"></i><span lang="fr">Trade perdant</span><span lang="en">Losing trade</span></span></div>
-    <div class="chart dash-skeleton" id="pnl-chart" data-draw="pnlchart" data-source="curve trades"></div>
-  </div>
-
-  <div class="grid g2">
-    <div class="card" id="rdist-card">
-      <h2><span lang="fr">Résultats en R</span><span lang="en">Results in R</span></h2>
-      <p class="note"><span lang="fr">Nombre de trades par tranche de 0,5 R. 1 R = ta perte moyenne (</span><span lang="en">Trades per 0.5 R bucket. 1 R = your average loss (</span><b data-draw="v" data-source="perf" data-field="r_unit" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="usd">—</b>).</p>
-      <div class="chart dash-skeleton" id="rdist-chart" data-draw="rdist" data-source="curve"></div>
-    </div>
-    <div class="card" id="side-card">
-      <h2><span lang="fr">Long vs short, micro vs mini</span><span lang="en">Long vs short, micro vs mini</span></h2>
-      <p class="note"><span lang="fr">Même tableau pour chaque découpage.</span><span lang="en">Same table for each split.</span></p>
-      <div class="tbox"><table data-source="groups" data-row-key="rid"><thead><tr><th class="l" data-field="key"><span lang="fr">Sens</span><span lang="en">Side</span></th><th data-field="trades">Trades</th><th data-field="win_rate">Win rate</th><th data-field="pnl">P&amp;L</th><th data-field="avg"><span lang="fr">Moy.</span><span lang="en">Avg</span></th><th class="hide-s" data-field="profit_factor">PF</th><th class="hide-m" data-field="avg_mae_pts">MAE pts</th><th class="hide-m" data-field="avg_mfe_pts">MFE pts</th><th class="hide-m" data-field="avg_dur_min"><span lang="fr">Durée</span><span lang="en">Hold</span></th></tr></thead><tbody data-draw="gtable" data-dim="side"></tbody></table></div>
-      <div style="height:14px"></div>
-      <div class="tbox"><table data-source="groups" data-row-key="rid"><thead><tr><th class="l" data-field="key"><span lang="fr">Instrument</span><span lang="en">Instrument</span></th><th data-field="trades">Trades</th><th data-field="win_rate">Win rate</th><th data-field="pnl">P&amp;L</th><th data-field="avg"><span lang="fr">Moy.</span><span lang="en">Avg</span></th><th class="hide-s" data-field="profit_factor">PF</th><th class="hide-m" data-field="avg_mae_pts">MAE pts</th><th class="hide-m" data-field="avg_mfe_pts">MFE pts</th><th class="hide-m" data-field="avg_dur_min"><span lang="fr">Durée</span><span lang="en">Hold</span></th></tr></thead><tbody data-draw="gtable" data-dim="instrument"></tbody></table></div>
-    </div>
-  </div>
-
-  <div class="grid g2">
-    <div class="card" id="days-card">
-      <h2><span lang="fr">Bilan par jour</span><span lang="en">Day by day</span></h2>
-      <p class="note"><span lang="fr">Pic : meilleur cumul atteint dans la journée. Rendu : ce que tu as reperdu après ce pic.</span><span lang="en">Peak: best running total of the day. Given back: what you lost again after that peak.</span></p>
-      <div class="tbox"><table data-source="daily" data-row-key="rid"><thead><tr>
-        <th class="l" data-field="session_date"><span lang="fr">Jour</span><span lang="en">Day</span></th><th data-field="trades">Trades</th><th data-field="win_rate">Win rate</th><th data-field="pnl">P&amp;L</th><th class="hide-s" data-field="fees"><span lang="fr">Frais</span><span lang="en">Fees</span></th>
-        <th class="hide-m" data-field="best"><span lang="fr">Meilleur</span><span lang="en">Best</span></th><th class="hide-m" data-field="worst"><span lang="fr">Pire</span><span lang="en">Worst</span></th><th class="hide-m" data-field="peak"><span lang="fr">Pic</span><span lang="en">Peak</span></th><th class="hide-m" data-field="giveback"><span lang="fr">Rendu</span><span lang="en">Given back</span></th><th class="hide-m" data-field="after_peak"><span lang="fr">Trades après</span><span lang="en">Trades after</span></th>
-      </tr></thead><tbody data-draw="daytable"></tbody></table></div>
-    </div>
-    <div class="card" id="result-card">
-      <h2><span lang="fr">Classes de résultat</span><span lang="en">Result classes</span></h2>
-      <p class="note"><span lang="fr">Par micro : BE entre</span><span lang="en">Per micro: BE between</span> -<b data-draw="v" data-source="rules" data-field="be_usd" data-row="0" data-fmt="usd0">—</b> <span lang="fr">et</span><span lang="en">and</span> +<b data-draw="v" data-source="rules" data-field="be_usd" data-row="0" data-fmt="usd0">—</b> · <span lang="fr">petite perte jusqu’à</span><span lang="en">small loss down to</span> -<b data-draw="v" data-source="rules" data-field="stop_min_usd" data-row="0" data-fmt="usd0">—</b> · stop -<b data-draw="v" data-source="rules" data-field="stop_min_usd" data-row="0" data-fmt="usd0">—</b> <span lang="fr">à</span><span lang="en">to</span> -<b data-draw="v" data-source="rules" data-field="stop_max_usd" data-row="0" data-fmt="usd0">—</b> · <span lang="fr">grosse perte au-delà</span><span lang="en">big loss beyond that</span>.</p>
-      <div class="tbox"><table data-source="groups" data-row-key="rid"><thead><tr><th class="l" data-field="key"><span lang="fr">Classe</span><span lang="en">Class</span></th><th data-field="trades">Trades</th><th data-field="win_rate">Win rate</th><th data-field="pnl">P&amp;L</th><th data-field="avg"><span lang="fr">Moy.</span><span lang="en">Avg</span></th><th class="hide-s" data-field="profit_factor">PF</th><th class="hide-m" data-field="avg_mae_pts">MAE pts</th><th class="hide-m" data-field="avg_mfe_pts">MFE pts</th><th class="hide-m" data-field="avg_dur_min"><span lang="fr">Durée</span><span lang="en">Hold</span></th></tr></thead><tbody data-draw="gtable" data-dim="result"></tbody></table></div>
-    </div>
-  </div>
-</section>
-
-<!-- 03 EXECUTION -->
-<section class="rtf-pane" id="execution" role="tabpanel" hidden>
-  <div class="kpis">
-    <div class="kpi"><span class="k"><span lang="fr">MAE moyen</span><span lang="en">Average MAE</span></span><span class="v"><b data-draw="v" data-source="perf" data-field="avg_mae_pts" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="pts">—</b></span><span class="s"><span lang="fr">Contre toi avant la sortie</span><span lang="en">Against you before the exit</span></span></div>
-    <div class="kpi"><span class="k"><span lang="fr">MFE moyen</span><span lang="en">Average MFE</span></span><span class="v"><b data-draw="v" data-source="perf" data-field="avg_mfe_pts" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="pts">—</b></span><span class="s"><span lang="fr">En ta faveur au mieux</span><span lang="en">In your favour at best</span></span></div>
-    <div class="kpi"><span class="k"><span lang="fr">Capture moyenne</span><span lang="en">Average capture</span></span><span class="v"><b data-draw="v" data-source="perf" data-field="capture" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="pct0">—</b></span><span class="s"><span lang="fr">P&amp;L ÷ MFE des gagnants</span><span lang="en">P&amp;L ÷ MFE of winners</span></span></div>
-    <div class="kpi"><span class="k"><span lang="fr">MFE non capturée</span><span lang="en">MFE not captured</span></span><span class="v"><b data-draw="v" data-source="perf" data-field="etd_total" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="usd">—</b></span><span class="s"><span lang="fr">Somme des ETD MotiveWave</span><span lang="en">Sum of MotiveWave ETD</span></span></div>
-    <div class="kpi"><span class="k"><span lang="fr">Durée moyenne</span><span lang="en">Average hold</span></span><span class="v"><b data-draw="v" data-source="perf" data-field="avg_dur_min" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="min1">—</b></span><span class="s"><span lang="fr">Gagnants</span><span lang="en">Winners</span> <b><b data-draw="v" data-source="perf" data-field="avg_dur_win_min" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="min1">—</b></b> · <span lang="fr">perdants</span><span lang="en">losers</span> <b><b data-draw="v" data-source="perf" data-field="avg_dur_loss_min" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="min1">—</b></b></span></div>
-  </div>
-  <div class="grid g2">
-    <div class="card" id="maemfe-card">
-      <h2><span lang="fr">MAE vs MFE</span><span lang="en">MAE vs MFE</span></h2>
-      <p class="note"><span lang="fr">Horizontal : points contre toi (MAE). Vertical : points en ta faveur (MFE). Taille : P&amp;L. Au-dessus de la diagonale, le trade est allé plus loin pour toi que contre toi.</span><span lang="en">Across: points against you (MAE). Up: points in your favour (MFE). Size: P&amp;L. Above the diagonal, the trade went further for you than against you.</span></p>
-      <div class="legend"><span><i class="dot win"></i><span lang="fr">Gain</span><span lang="en">Win</span></span><span><i class="dot be"></i>BE</span><span><i class="dot loss"></i><span lang="fr">Perte</span><span lang="en">Loss</span></span></div>
-      <div class="chart dash-skeleton" id="maemfe-chart" data-draw="maemfe" data-source="trades"></div>
-    </div>
-    <div class="card" id="capture-card">
-      <h2><span lang="fr">Ce que tu gardes de chaque gagnant</span><span lang="en">What you keep from each winner</span></h2>
-      <p class="note"><span lang="fr">Barre claire : MFE en $. Barre verte : P&amp;L brut encaissé. Le pourcentage est la part capturée.</span><span lang="en">Light bar: MFE in $. Green bar: gross P&amp;L banked. The percentage is the share captured.</span></p>
-      <div class="chart dash-skeleton" id="capture-chart" data-draw="capture" data-source="trades"></div>
-    </div>
-  </div>
-  <div class="grid g2">
-    <div class="card" id="duration-card">
-      <h2><span lang="fr">Durée vs P&amp;L</span><span lang="en">Hold time vs P&amp;L</span></h2>
-      <p class="note"><span lang="fr">Échelle logarithmique : de 1 seconde à 1 heure.</span><span lang="en">Log scale: from 1 second to 1 hour.</span></p>
-      <div class="chart dash-skeleton" id="duration-chart" data-draw="durscatter" data-source="trades"></div>
-    </div>
-    <div class="card" id="durtable-card">
-      <h2><span lang="fr">Par durée de trade</span><span lang="en">By hold time</span></h2>
-      <p class="note"><span lang="fr">MAE et MFE de MotiveWave sont calculés sur bougies 1 min : un trade de quelques secondes hérite de toute la bougie.</span><span lang="en">MotiveWave MAE and MFE are computed on 1-min candles: a trade of a few seconds gets the whole candle.</span></p>
-      <div class="tbox"><table data-source="groups" data-row-key="rid"><thead><tr><th class="l" data-field="key"><span lang="fr">Durée</span><span lang="en">Hold time</span></th><th data-field="trades">Trades</th><th data-field="win_rate">Win rate</th><th data-field="pnl">P&amp;L</th><th data-field="avg"><span lang="fr">Moy.</span><span lang="en">Avg</span></th><th class="hide-s" data-field="profit_factor">PF</th><th class="hide-m" data-field="avg_mae_pts">MAE pts</th><th class="hide-m" data-field="avg_mfe_pts">MFE pts</th><th class="hide-m" data-field="avg_dur_min"><span lang="fr">Durée</span><span lang="en">Hold</span></th></tr></thead><tbody data-draw="gtable" data-dim="dur"></tbody></table></div>
-    </div>
-  </div>
-</section>
-
-<!-- 04 TIMING -->
-<section class="rtf-pane" id="timing" role="tabpanel" hidden>
-  <div class="grid g3">
-    <div class="card" id="asia-card"><h3><i class="dot asia"></i> <span lang="fr">Asie</span><span lang="en">Asia</span> <small style="color:var(--muted)"><b data-draw="v" data-source="rules" data-field="asia_et" data-row="0" data-fmt="text">—</b> ET</small></h3><div class="bigrow"><span class="big" style="font-size:34px"><b data-draw="v" data-source="groups" data-field="pnl" data-where="scope=all&amp;mode=net&amp;dim=session&amp;key=asia" data-pick="scope mode" data-fmt="usds" data-tone>—</b></span></div><div class="chips"><span class="chip">Trades <b><b data-draw="v" data-source="groups" data-field="trades" data-where="scope=all&amp;mode=net&amp;dim=session&amp;key=asia" data-pick="scope mode" data-fmt="n0">—</b></b></span><span class="chip">Win rate <b><b data-draw="v" data-source="groups" data-field="win_rate" data-where="scope=all&amp;mode=net&amp;dim=session&amp;key=asia" data-pick="scope mode" data-fmt="pct0">—</b></b></span><span class="chip">PF <b><b data-draw="v" data-source="groups" data-field="profit_factor" data-where="scope=all&amp;mode=net&amp;dim=session&amp;key=asia" data-pick="scope mode" data-fmt="x2">—</b></b></span></div></div>
-    <div class="card" id="london-card"><h3><i class="dot london"></i> <span lang="fr">Londres</span><span lang="en">London</span> <small style="color:var(--muted)"><b data-draw="v" data-source="rules" data-field="london_et" data-row="0" data-fmt="text">—</b> ET</small></h3><div class="bigrow"><span class="big" style="font-size:34px"><b data-draw="v" data-source="groups" data-field="pnl" data-where="scope=all&amp;mode=net&amp;dim=session&amp;key=london" data-pick="scope mode" data-fmt="usds" data-tone>—</b></span></div><div class="chips"><span class="chip">Trades <b><b data-draw="v" data-source="groups" data-field="trades" data-where="scope=all&amp;mode=net&amp;dim=session&amp;key=london" data-pick="scope mode" data-fmt="n0">—</b></b></span><span class="chip">Win rate <b><b data-draw="v" data-source="groups" data-field="win_rate" data-where="scope=all&amp;mode=net&amp;dim=session&amp;key=london" data-pick="scope mode" data-fmt="pct0">—</b></b></span><span class="chip">PF <b><b data-draw="v" data-source="groups" data-field="profit_factor" data-where="scope=all&amp;mode=net&amp;dim=session&amp;key=london" data-pick="scope mode" data-fmt="x2">—</b></b></span></div></div>
-    <div class="card" id="ny-card"><h3><i class="dot ny"></i> New York <small style="color:var(--muted)"><b data-draw="v" data-source="rules" data-field="ny_et" data-row="0" data-fmt="text">—</b> ET</small></h3><div class="bigrow"><span class="big" style="font-size:34px"><b data-draw="v" data-source="groups" data-field="pnl" data-where="scope=all&amp;mode=net&amp;dim=session&amp;key=ny" data-pick="scope mode" data-fmt="usds" data-tone>—</b></span></div><div class="chips"><span class="chip">Trades <b><b data-draw="v" data-source="groups" data-field="trades" data-where="scope=all&amp;mode=net&amp;dim=session&amp;key=ny" data-pick="scope mode" data-fmt="n0">—</b></b></span><span class="chip">Win rate <b><b data-draw="v" data-source="groups" data-field="win_rate" data-where="scope=all&amp;mode=net&amp;dim=session&amp;key=ny" data-pick="scope mode" data-fmt="pct0">—</b></b></span><span class="chip">PF <b><b data-draw="v" data-source="groups" data-field="profit_factor" data-where="scope=all&amp;mode=net&amp;dim=session&amp;key=ny" data-pick="scope mode" data-fmt="x2">—</b></b></span></div></div>
-  </div>
-
-  <div class="card span" id="session-card" style="margin-bottom: var(--gap)">
-    <h2><span lang="fr">La séance et tes trades</span><span lang="en">The session and your trades</span> · <span data-draw="daylabel" data-source="days">—</span></h2>
-    <p class="note"><span lang="fr">Clôtures 1 min MNQ. VWAP de séance calculé comme ton MotiveWave : volumes NQ, depuis</span><span lang="en">MNQ 1-min closes. Session VWAP computed like your MotiveWave: NQ volume, from</span> <b data-draw="v" data-source="rules" data-field="vwap_anchor" data-row="0" data-fmt="text">—</b> <span lang="fr">(Paris), bandes</span><span lang="en">(Paris), bands</span> ±<b data-draw="v" data-source="rules" data-field="band1" data-row="0" data-fmt="n0">—</b>σ / ±<b data-draw="v" data-source="rules" data-field="band2" data-row="0" data-fmt="n0">—</b>σ. <span lang="fr">Niveaux Asie : profil de volume de la session asiatique. Triangle = entrée, rond = sortie.</span><span lang="en">Asia levels: volume profile of the Asian session. Triangle = entry, dot = exit.</span></p>
-    <div class="legend"><span style="color:var(--fg2)"><i class="sw"></i><span lang="fr">Prix</span><span lang="en">Price</span></span><span style="color:var(--hl)"><i class="sw dash"></i>VWAP</span><span style="color:var(--pink)"><i class="sw dash"></i>±1σ / ±2σ</span><span style="color:var(--warn)"><i class="sw box" style="opacity:.5"></i><span lang="fr">Zone 1σ à 2σ</span><span lang="en">1σ to 2σ zone</span></span><span style="color:var(--asia)"><i class="sw"></i><span lang="fr">Niveaux Asie</span><span lang="en">Asia levels</span></span></div>
-    <div class="chart dash-skeleton" id="session-chart" data-draw="daychart" data-source="bars days trades"></div>
-  </div>
-
-  <div class="grid g2">
-    <div class="card" id="hour-card">
-      <h2><span lang="fr">P&amp;L par heure d’entrée (Paris)</span><span lang="en">P&amp;L by entry hour (Paris)</span></h2>
-      <p class="note"><span lang="fr">Chiffre sur la barre : nombre de trades. Trait de couleur : session.</span><span lang="en">Number on the bar: trade count. Colour strip: session.</span></p>
-      <div class="chart dash-skeleton" id="hour-chart" data-draw="hourbars" data-source="groups trades"></div>
-    </div>
-    <div class="card" id="zone-card">
-      <h2><span lang="fr">Tes entrées face au VWAP</span><span lang="en">Your entries vs the VWAP</span></h2>
-      <p class="note"><span lang="fr">Écart du prix d’entrée au VWAP, en écarts-types. Bandes orange : ta zone (1σ à 2σ). Un long y est « dans la zone » sous le VWAP, un short au-dessus.</span><span lang="en">Entry price distance to the VWAP, in standard deviations. Orange bands: your zone (1σ to 2σ). A long is “in the zone” below the VWAP, a short above it.</span></p>
-      <div class="chart dash-skeleton" id="zone-chart" data-draw="zplot" data-source="trades"></div>
-    </div>
-  </div>
-  <div class="grid">
-    <div class="card" id="band-card"><h2><span lang="fr">Par position vs VWAP</span><span lang="en">By position vs VWAP</span></h2><p class="note"><span lang="fr">Dans la zone :</span><span lang="en">In the zone:</span> <b><b data-draw="v" data-source="perf" data-field="in_zone" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="n0">—</b></b> <span lang="fr">trades sur</span><span lang="en">trades out of</span> <b><b data-draw="v" data-source="perf" data-field="trades" data-where="scope=all&amp;mode=net" data-pick="scope mode" data-fmt="n0">—</b></b>.</p><div class="tbox"><table data-source="groups" data-row-key="rid"><thead><tr><th class="l" data-field="key"><span lang="fr">Position vs VWAP</span><span lang="en">Position vs VWAP</span></th><th data-field="trades">Trades</th><th data-field="win_rate">Win rate</th><th data-field="pnl">P&amp;L</th><th data-field="avg"><span lang="fr">Moy.</span><span lang="en">Avg</span></th><th class="hide-s" data-field="profit_factor">PF</th><th class="hide-m" data-field="avg_mae_pts">MAE pts</th><th class="hide-m" data-field="avg_mfe_pts">MFE pts</th><th class="hide-m" data-field="avg_dur_min"><span lang="fr">Durée</span><span lang="en">Hold</span></th></tr></thead><tbody data-draw="gtable" data-dim="band"></tbody></table></div><div style="height:14px"></div><div class="tbox"><table data-source="groups" data-row-key="rid"><thead><tr><th class="l" data-field="key"><span lang="fr">Zone</span><span lang="en">Zone</span></th><th data-field="trades">Trades</th><th data-field="win_rate">Win rate</th><th data-field="pnl">P&amp;L</th><th data-field="avg"><span lang="fr">Moy.</span><span lang="en">Avg</span></th><th class="hide-s" data-field="profit_factor">PF</th><th class="hide-m" data-field="avg_mae_pts">MAE pts</th><th class="hide-m" data-field="avg_mfe_pts">MFE pts</th><th class="hide-m" data-field="avg_dur_min"><span lang="fr">Durée</span><span lang="en">Hold</span></th></tr></thead><tbody data-draw="gtable" data-dim="zone"></tbody></table></div></div>
-    <div class="card" id="level-card"><h2><span lang="fr">Près d’un niveau Asie</span><span lang="en">Near an Asia level</span></h2><p class="note"><span lang="fr">Entrées de Londres et New York à</span><span lang="en">London and New York entries within</span> <b data-draw="v" data-source="rules" data-field="level_near_pts" data-row="0" data-fmt="n0">—</b> pts <span lang="fr">ou moins d’un niveau de la session asiatique (haut, bas, POC, VAH, VAL).</span><span lang="en">of an Asian session level (high, low, POC, VAH, VAL).</span></p><div class="tbox"><table data-source="groups" data-row-key="rid"><thead><tr><th class="l" data-field="key"><span lang="fr">Niveau Asie</span><span lang="en">Asia level</span></th><th data-field="trades">Trades</th><th data-field="win_rate">Win rate</th><th data-field="pnl">P&amp;L</th><th data-field="avg"><span lang="fr">Moy.</span><span lang="en">Avg</span></th><th class="hide-s" data-field="profit_factor">PF</th><th class="hide-m" data-field="avg_mae_pts">MAE pts</th><th class="hide-m" data-field="avg_mfe_pts">MFE pts</th><th class="hide-m" data-field="avg_dur_min"><span lang="fr">Durée</span><span lang="en">Hold</span></th></tr></thead><tbody data-draw="gtable" data-dim="level"></tbody></table></div></div>
-  </div>
-</section>
-
-<!-- 05 DISCIPLINE -->
-<section class="rtf-pane" id="discipline" role="tabpanel" hidden>
-  <div class="card span" id="mood-card" style="margin-bottom: var(--gap)">
-    <h2><span lang="fr">Ressenti</span><span lang="en">How it felt</span> · <span data-draw="daylabel" data-source="days">—</span></h2>
-    <blockquote class="quote" data-draw="note" data-source="days" data-field="note_fr" data-where="session_date=2026-10-29">—</blockquote>
-    <div class="scorebox">
-      <div><span><i class="dot asia"></i><span lang="fr">Asie</span><span lang="en">Asia</span></span><b><b data-draw="v" data-source="days" data-field="score_asia" data-where="session_date=2026-10-29" data-pick="session_date" data-fmt="score">—</b></b><small><b data-draw="v" data-source="sessions" data-fieldm="pnl" data-field="pnl_net" data-where="session_date=2026-10-29&amp;session=asia" data-pick="session_date" data-fmt="usds" data-tone>—</b></small></div>
-      <div><span><i class="dot london"></i><span lang="fr">Londres</span><span lang="en">London</span></span><b><b data-draw="v" data-source="days" data-field="score_london" data-where="session_date=2026-10-29" data-pick="session_date" data-fmt="score">—</b></b><small><b data-draw="v" data-source="sessions" data-fieldm="pnl" data-field="pnl_net" data-where="session_date=2026-10-29&amp;session=london" data-pick="session_date" data-fmt="usds" data-tone>—</b></small></div>
-      <div><span><i class="dot ny"></i>New York</span><b><b data-draw="v" data-source="days" data-field="score_ny" data-where="session_date=2026-10-29" data-pick="session_date" data-fmt="score">—</b></b><small><b data-draw="v" data-source="sessions" data-fieldm="pnl" data-field="pnl_net" data-where="session_date=2026-10-29&amp;session=ny" data-pick="session_date" data-fmt="usds" data-tone>—</b></small></div>
-    </div>
-  </div>
-  <div class="grid g2">
-    <div class="card" id="score-card">
-      <h2><span lang="fr">Ta note vs ton P&amp;L, par session</span><span lang="en">Your score vs your P&amp;L, by session</span></h2>
-      <p class="note"><span lang="fr">Barres : P&amp;L de la session. Losanges : ta note sur 10.</span><span lang="en">Bars: session P&amp;L. Diamonds: your score out of 10.</span></p>
-      <div class="chart dash-skeleton" id="score-chart" data-draw="scorechart" data-source="sessions"></div>
-    </div>
-    <div class="card" id="sess-card">
-      <h2><span lang="fr">Sessions en détail</span><span lang="en">Sessions in detail</span></h2>
-      <p class="note"><span lang="fr">À risque : excursion contre toi d’au moins</span><span lang="en">Risky: an excursion against you of at least</span> <b data-draw="v" data-source="rules" data-field="risky_mae_usd" data-row="0" data-fmt="usd0">—</b>, <span lang="fr">taille NQ, perte au-delà du stop ou réentrée moins de</span><span lang="en">NQ size, a loss beyond the stop, or a re-entry less than</span> <b data-draw="v" data-source="rules" data-field="revenge_min" data-row="0" data-fmt="n0">—</b> min <span lang="fr">après une perte.</span><span lang="en">after a loss.</span></p>
-      <div class="tbox"><table data-source="sessions" data-row-key="rid"><thead><tr>
-        <th class="l" data-field="session">Session</th><th data-field="score"><span lang="fr">Note</span><span lang="en">Score</span></th><th data-field="trades">Trades</th><th data-field="win_rate">Win rate</th><th data-field="pnl_net">P&amp;L net</th><th class="hide-m" data-field="pnl_gross"><span lang="fr">Brut</span><span lang="en">Gross</span></th><th class="hide-m" data-field="worst_mae"><span lang="fr">Pire MAE</span><span lang="en">Worst MAE</span></th><th class="hide-m" data-field="risky"><span lang="fr">À risque</span><span lang="en">Risky</span></th>
-      </tr></thead><tbody data-draw="sesstable"></tbody></table></div>
-    </div>
-  </div>
-  <div class="grid g2">
-    <div class="card" id="intraday-card">
-      <h2><span lang="fr">Ta journée trade après trade</span><span lang="en">Your day, trade after trade</span> · <span data-draw="daylabel" data-source="days">—</span></h2>
-      <p class="note"><span lang="fr">Pic du jour</span><span lang="en">Day peak</span> <b><b data-draw="v" data-source="daily" data-field="peak" data-where="session_date=2026-10-29&amp;mode=net" data-pick="session_date mode" data-fmt="usds">—</b></b> <span lang="fr">au trade</span><span lang="en">at trade</span> <b><b data-draw="v" data-source="daily" data-field="peak_at" data-where="session_date=2026-10-29&amp;mode=net" data-pick="session_date mode" data-fmt="n0">—</b></b>, <span lang="fr">puis</span><span lang="en">then</span> <b><b data-draw="v" data-source="daily" data-field="giveback" data-where="session_date=2026-10-29&amp;mode=net" data-pick="session_date mode" data-fmt="usd">—</b></b> <span lang="fr">rendus sur le(s)</span><span lang="en">given back over the next</span> <b><b data-draw="v" data-source="daily" data-field="after_peak" data-where="session_date=2026-10-29&amp;mode=net" data-pick="session_date mode" data-fmt="n0">—</b></b> <span lang="fr">trade(s) suivant(s).</span><span lang="en">trade(s).</span> <span lang="fr">Couleur des points : session.</span><span lang="en">Dot colour: session.</span></p>
-      <div class="chart dash-skeleton" id="intraday-chart" data-draw="intraday" data-source="curve daily trades"></div>
-    </div>
-    <div class="card" id="nth-card">
-      <h2><span lang="fr">P&amp;L selon le rang du trade dans la journée</span><span lang="en">P&amp;L by the trade’s rank in the day</span></h2>
-      <p class="note"><span lang="fr">Pour voir si les derniers trades de la journée coûtent plus qu’ils ne rapportent.</span><span lang="en">To see whether the last trades of the day cost more than they bring.</span></p>
-      <div class="chart dash-skeleton" id="nth-chart" data-draw="nthbars" data-source="groups trades"></div>
-    </div>
-  </div>
-  <div class="grid g2">
-    <div class="card" id="risk-card">
-      <h2><span lang="fr">Trades à risque</span><span lang="en">Risky trades</span></h2>
-      <p class="note"><span lang="fr">Clique une ligne pour voir le trade sur le graphique.</span><span lang="en">Click a row to see the trade on the chart.</span></p>
-      <div class="tbox"><table data-source="trades" data-row-key="id"><thead><tr>
-        <th class="l" data-field="id">#</th><th class="l hide-m" data-field="session_date"><span lang="fr">Quand</span><span lang="en">When</span></th><th class="l" data-field="session">Session</th><th class="l" data-field="side">Position</th><th data-field="mae_usd">MAE</th><th data-field="pnl_net">P&amp;L net</th><th class="l wrap" data-field="risk_flags"><span lang="fr">Pourquoi</span><span lang="en">Why</span></th>
-      </tr></thead><tbody data-draw="risktable"></tbody></table></div>
-    </div>
-    <div class="card" id="prev-card">
-      <h2><span lang="fr">Après un gain, après une perte</span><span lang="en">After a win, after a loss</span></h2>
-      <p class="note"><span lang="fr">Résultat d’un trade selon le trade précédent du même jour.</span><span lang="en">A trade’s result depending on the previous trade of the same day.</span></p>
-      <div class="tbox"><table data-source="groups" data-row-key="rid"><thead><tr><th class="l" data-field="key"><span lang="fr">Trade précédent</span><span lang="en">Previous trade</span></th><th data-field="trades">Trades</th><th data-field="win_rate">Win rate</th><th data-field="pnl">P&amp;L</th><th data-field="avg"><span lang="fr">Moy.</span><span lang="en">Avg</span></th><th class="hide-s" data-field="profit_factor">PF</th><th class="hide-m" data-field="avg_mae_pts">MAE pts</th><th class="hide-m" data-field="avg_mfe_pts">MFE pts</th><th class="hide-m" data-field="avg_dur_min"><span lang="fr">Durée</span><span lang="en">Hold</span></th></tr></thead><tbody data-draw="gtable" data-dim="prev"></tbody></table></div>
-    </div>
-  </div>
-</section>
-
-<!-- 06 TRADES -->
-<section class="rtf-pane" id="trades" role="tabpanel" hidden>
-  <div class="card span" id="trade-card" style="margin-bottom: var(--gap)">
-    <div class="tp-head">
-      <div><span class="tp-title" data-draw="tradetitle" data-source="trades" data-where="id=24">—</span> <span class="pill" data-draw="pill" data-source="trades" data-where="id=24">—</span></div>
-      <div><button type="button" class="btn rtf-step" data-step="-1" aria-label="Trade précédent / Previous trade">◀</button> <button type="button" class="btn rtf-step" data-step="1" aria-label="Trade suivant / Next trade">▶</button></div>
-    </div>
-    <p class="note"><span lang="fr">Bougies 1 min MNQ autour du trade, VWAP de séance et bandes ±1σ / ±2σ, MFE et MAE du trade, niveaux Asie (et Londres pour un trade de New York). Zone jaune : le temps en position.</span><span lang="en">MNQ 1-min candles around the trade, session VWAP and ±1σ / ±2σ bands, the trade’s MFE and MAE, Asia levels (and London for a New York trade). Yellow area: time in the trade.</span></p>
-    <div class="chart dash-skeleton" id="trade-chart" data-draw="tradechart" data-source="bars trades days"></div>
-    <div class="facts">
-      <div><span lang="fr">Entrée</span><span lang="en">Entry</span><b><b data-draw="tv" data-source="trades" data-field="entry_hms" data-where="id=24" data-pick="id" data-fmt="text">—</b> · <b data-draw="tv" data-source="trades" data-field="entry_price" data-where="id=24" data-pick="id" data-fmt="px">—</b></b></div>
-      <div><span lang="fr">Sortie</span><span lang="en">Exit</span><b><b data-draw="tv" data-source="trades" data-field="exit_hms" data-where="id=24" data-pick="id" data-fmt="text">—</b> · <b data-draw="tv" data-source="trades" data-field="exit_price" data-where="id=24" data-pick="id" data-fmt="px">—</b></b></div>
-      <div><span lang="fr">Durée</span><span lang="en">Hold</span><b><b data-draw="tv" data-source="trades" data-field="dur_s_txt" data-where="id=24" data-pick="id" data-fmt="text">—</b></b></div>
-      <div><span>Points</span><b><b data-draw="tv" data-source="trades" data-field="points" data-where="id=24" data-pick="id" data-fmt="ptss" data-tone>—</b></b></div>
-      <div><span>P&amp;L</span><b><b data-draw="tv" data-source="trades" data-fieldm="pnl" data-field="pnl_net" data-where="id=24" data-pick="id" data-fmt="usds" data-tone>—</b></b></div>
-      <div><span lang="fr">Frais</span><span lang="en">Fees</span><b><b data-draw="tv" data-source="trades" data-field="fees" data-where="id=24" data-pick="id" data-fmt="usd">—</b></b></div>
-      <div><span>R multiple</span><b><b data-draw="tv" data-source="curve" data-fieldm="r" data-field="r_net" data-where="id=24" data-pick="id" data-fmt="r2" data-tone>—</b></b></div>
-      <div><span>MAE</span><b><b data-draw="tv" data-source="trades" data-field="mae_usd" data-where="id=24" data-pick="id" data-fmt="usd">—</b> · <b data-draw="tv" data-source="trades" data-field="mae_pts" data-where="id=24" data-pick="id" data-fmt="pts">—</b></b></div>
-      <div><span>MFE</span><b><b data-draw="tv" data-source="trades" data-field="mfe_usd" data-where="id=24" data-pick="id" data-fmt="usd">—</b> · <b data-draw="tv" data-source="trades" data-field="mfe_pts" data-where="id=24" data-pick="id" data-fmt="pts">—</b></b></div>
-      <div><span lang="fr">MFE non capturée</span><span lang="en">MFE not captured</span><b><b data-draw="tv" data-source="trades" data-field="etd_usd" data-where="id=24" data-pick="id" data-fmt="usd">—</b></b></div>
-      <div><span lang="fr">Capturé</span><span lang="en">Captured</span><b><b data-draw="tv" data-source="trades" data-field="capture" data-where="id=24" data-pick="id" data-fmt="pct0">—</b></b></div>
-      <div><span lang="fr">Écart au VWAP</span><span lang="en">Distance to VWAP</span><b><b data-draw="tv" data-source="trades" data-field="vwap_z" data-where="id=24" data-pick="id" data-fmt="z">—</b></b></div>
-      <div><span lang="fr">Position vs bandes</span><span lang="en">Position vs bands</span><b><b data-draw="tv" data-source="trades" data-field="band" data-where="id=24" data-pick="id" data-fmt="lbl">—</b></b></div>
-      <div><span lang="fr">Dans la zone</span><span lang="en">In the zone</span><b><b data-draw="tv" data-source="trades" data-field="in_zone" data-where="id=24" data-pick="id" data-fmt="yn">—</b></b></div>
-      <div><span>Session</span><b><b data-draw="tv" data-source="trades" data-field="session" data-where="id=24" data-pick="id" data-fmt="lbl">—</b></b></div>
-      <div><span lang="fr">Rang dans la journée</span><span lang="en">Rank in the day</span><b><b data-draw="tv" data-source="trades" data-field="nth" data-where="id=24" data-pick="id" data-fmt="n0">—</b></b></div>
-      <div><span lang="fr">Trade précédent</span><span lang="en">Previous trade</span><b><b data-draw="tv" data-source="trades" data-field="prev" data-where="id=24" data-pick="id" data-fmt="lbl">—</b></b></div>
-      <div><span lang="fr">Depuis la sortie précédente</span><span lang="en">Since the previous exit</span><b><b data-draw="tv" data-source="trades" data-field="gap_min" data-where="id=24" data-pick="id" data-fmt="min1">—</b></b></div>
-      <div><span lang="fr">Niveau Asie le plus proche</span><span lang="en">Nearest Asia level</span><b><b data-draw="tv" data-source="trades" data-field="asia_lvl" data-where="id=24" data-pick="id" data-fmt="lbl">—</b> · <b data-draw="tv" data-source="trades" data-field="asia_dist" data-where="id=24" data-pick="id" data-fmt="ptss">—</b></b></div>
-      <div><span lang="fr">Drapeaux</span><span lang="en">Flags</span><b><b data-draw="tv" data-source="trades" data-field="risk_flags" data-where="id=24" data-pick="id" data-fmt="flags">—</b></b></div>
-    </div>
-  </div>
-
-  <div class="card span" id="list-card">
-    <h2><span lang="fr">Tous tes trades</span><span lang="en">All your trades</span></h2>
-    <p class="note"><span lang="fr">Clique un en-tête pour trier, une ligne pour afficher le trade au-dessus.</span><span lang="en">Click a header to sort, a row to show the trade above.</span></p>
-    <div class="rtf-searchbox"><label for="rtf-q"><span lang="fr">Rechercher (session, sens, résultat, heure…)</span><span lang="en">Search (session, side, result, time…)</span></label><input id="rtf-q" class="rtf-search" type="search" autocomplete="off"></div>
-    <div class="tbox"><table data-source="trades" data-row-key="id"><thead><tr>
-      <th class="l" data-field="id" aria-sort="none"><button type="button" class="rtf-sort" data-sort="id" data-num="1">#</button></th>
-      <th class="l hide-s" data-field="session_date" aria-sort="none"><button type="button" class="rtf-sort" data-sort="session_date"><span lang="fr">Jour</span><span lang="en">Day</span></button></th>
-      <th class="l" data-field="entry_hms" aria-sort="descending"><button type="button" class="rtf-sort" data-sort="entry_time"><span lang="fr">Entrée</span><span lang="en">Entry</span></button></th>
-      <th class="l hide-s" data-field="session" aria-sort="none"><button type="button" class="rtf-sort" data-sort="session">Session</button></th>
-      <th class="l" data-field="side" aria-sort="none"><button type="button" class="rtf-sort" data-sort="side"><span lang="fr">Sens</span><span lang="en">Side</span></button></th>
-      <th class="l hide-s" data-field="instrument" aria-sort="none"><button type="button" class="rtf-sort" data-sort="instrument">Instr.</button></th>
-      <th class="hide-s" data-field="qty" aria-sort="none"><button type="button" class="rtf-sort" data-sort="qty" data-num="1"><span lang="fr">Qté</span><span lang="en">Qty</span></button></th>
-      <th class="hide-s" data-field="entry_price" aria-sort="none"><button type="button" class="rtf-sort" data-sort="entry_price" data-num="1"><span lang="fr">Prix entrée</span><span lang="en">Entry price</span></button></th>
-      <th class="hide-s" data-field="exit_price" aria-sort="none"><button type="button" class="rtf-sort" data-sort="exit_price" data-num="1"><span lang="fr">Prix sortie</span><span lang="en">Exit price</span></button></th>
-      <th data-field="dur_s_txt" aria-sort="none"><button type="button" class="rtf-sort" data-sort="duration_s" data-num="1"><span lang="fr">Durée</span><span lang="en">Hold</span></button></th>
-      <th class="hide-s" data-field="points" aria-sort="none"><button type="button" class="rtf-sort" data-sort="points" data-num="1">Pts</button></th>
-      <th data-field="pnl_net" aria-sort="none"><button type="button" class="rtf-sort" data-sort="pnl_net" data-num="1">P&amp;L net</button></th>
-      <th class="hide-s" data-field="pnl_gross" aria-sort="none"><button type="button" class="rtf-sort" data-sort="pnl_gross" data-num="1"><span lang="fr">Brut</span><span lang="en">Gross</span></button></th>
-      <th class="hide-s" data-field="mae_usd" aria-sort="none"><button type="button" class="rtf-sort" data-sort="mae_usd" data-num="1">MAE</button></th>
-      <th class="hide-s" data-field="mfe_usd" aria-sort="none"><button type="button" class="rtf-sort" data-sort="mfe_usd" data-num="1">MFE</button></th>
-      <th class="hide-s" data-field="capture" aria-sort="none"><button type="button" class="rtf-sort" data-sort="capture" data-num="1">Capture</button></th>
-      <th class="hide-s" data-field="vwap_z" aria-sort="none"><button type="button" class="rtf-sort" data-sort="vwap_z" data-num="1">z VWAP</button></th>
-      <th class="l" data-field="result_class" aria-sort="none"><button type="button" class="rtf-sort" data-sort="result_class"><span lang="fr">Résultat</span><span lang="en">Result</span></button></th>
-    </tr></thead><tbody data-draw="tradetable"></tbody></table></div>
-  </div>
-</section>
-
-<footer class="rtf-foot">
-  <p lang="fr"><b>Sources.</b> Rapport de trades MotiveWave (prix, heures, P&amp;L, MAE, MFE, ETD) ; soldes Lucid ; bougies 1 min Yahoo Finance (MNQ=F) ; VWAP de séance recalculé sur NQ=F. Frais déduits de tes soldes Lucid : <b data-draw="v" data-source="rules" data-field="fee_mnq_rt" data-row="0" data-fmt="usd">—</b> par aller-retour MNQ, <b data-draw="v" data-source="rules" data-field="fee_nq_rt" data-row="0" data-fmt="usd">—</b> par NQ. Journée Lucid : de 18:00 à 17:00 ET (23:00 à 22:00 à Paris jusqu’au 1er nov., minuit à 23:00 ensuite). Heures affichées : Paris. Gagnant = P&amp;L &gt; 0. Pas un conseil financier.</p>
-  <p lang="en"><b>Sources.</b> MotiveWave trade report (prices, times, P&amp;L, MAE, MFE, ETD); Lucid balances; Yahoo Finance 1-min candles (MNQ=F); session VWAP recomputed on NQ=F. Fees inferred from your Lucid balances: <b data-draw="v" data-source="rules" data-field="fee_mnq_rt" data-row="0" data-fmt="usd">—</b> per MNQ round trip, <b data-draw="v" data-source="rules" data-field="fee_nq_rt" data-row="0" data-fmt="usd">—</b> per NQ. Lucid day: 18:00 to 17:00 ET (23:00 to 22:00 in Paris until Nov 1, midnight to 23:00 after). Times shown: Paris. Winner = P&amp;L &gt; 0. Not financial advice.</p>
-</footer>
-</div>
-</div>
-<script src="rtf.js"></script>
-<script>RTFSHIM.load();</script>
+<noscript><p class="intro">This journal needs JavaScript to show the trades.</p></noscript>
+<script src="app.js"></script>
 </body>
 </html>

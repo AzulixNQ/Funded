@@ -127,8 +127,10 @@
   function typeIn(el, txt, speed = 14) {
     if (!ANIM) { el.textContent = txt; return; }
     el.textContent = ''; const t0 = performance.now();
-    const step = now => { const k = Math.min(txt.length, Math.floor((now - t0) / speed) + 1); el.textContent = txt.slice(0, k); if (k < txt.length) requestAnimationFrame(step); };
+    let fin = false;
+    const step = now => { if (fin) return; const k = Math.min(txt.length, Math.floor((now - t0) / speed) + 1); el.textContent = txt.slice(0, k); if (k < txt.length) requestAnimationFrame(step); else fin = true; };
     requestAnimationFrame(step);
+    setTimeout(() => { fin = true; el.textContent = txt; }, txt.length * speed + 500); // safety net if frames are paused
   }
   function printRows(box, gap = 32) {
     if (!box) return; const kids = [...box.children];
@@ -139,8 +141,10 @@
   function countTo(el, to, fmt, dur = 900) {
     if (!ANIM) { el.textContent = fmt(to); return; }
     const t0 = performance.now(), from = 0;
-    const step = now => { const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = fmt(from + (to - from) * e); if (k < 1) requestAnimationFrame(step); else el.textContent = fmt(to); };
+    let fin = false;
+    const step = now => { if (fin) return; const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = fmt(from + (to - from) * e); if (k < 1) requestAnimationFrame(step); else { fin = true; el.textContent = fmt(to); } };
     el.textContent = fmt(from); requestAnimationFrame(step);
+    setTimeout(() => { fin = true; el.textContent = fmt(to); }, dur + 400);
   }
   function blockBar(el, n, ch = '█') {
     if (!ANIM) { el.textContent = ch.repeat(n); return; }
@@ -409,7 +413,7 @@
   }
   function boot(done) {
     const ov = $('#boot'), pre = $('#bootTxt');
-    if (!ANIM || sess.get('r5l-boot')) { done(); return; }
+    if (!ANIM || document.hidden || sess.get('r5l-boot')) { done(); return; }
     sess.set('r5l-boot', '1'); BOOTING = true; ov.classList.add('on');
     const lines = t().boot({ n: M.trades.length, s: M.days.length, last: M.days.length ? dayLabel(M.days[M.days.length - 1].date) : '' });
     const full = lines.join('\n'); let k = 0, fin = false;

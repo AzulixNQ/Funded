@@ -418,7 +418,9 @@
     const lines = t().boot({ n: M.trades.length, s: M.days.length, last: M.days.length ? dayLabel(M.days[M.days.length - 1].date) : '' });
     const full = lines.join('\n'); let k = 0, fin = false;
     const end = () => { if (fin) return; fin = true; pre.innerHTML = esc(full); ov.classList.add('done'); BOOTING = false; setTimeout(() => ov.remove(), 400); done(); };
-    const id = setInterval(() => { k += 3; pre.innerHTML = esc(full.slice(0, k)) + '<i></i>'; if (k >= full.length) { clearInterval(id); setTimeout(end, 260); } }, 16);
+    const t0 = performance.now(), total = 1000; // typed by elapsed time, so a slow or throttled timer cannot stretch it
+    const id = setInterval(() => { k = Math.min(full.length, Math.ceil((performance.now() - t0) / total * full.length)); pre.innerHTML = esc(full.slice(0, k)) + '<i></i>'; if (k >= full.length) { clearInterval(id); setTimeout(end, 260); } }, 16);
+    setTimeout(() => { clearInterval(id); end(); }, total + 900);
     ov.addEventListener('click', () => { clearInterval(id); end(); }); addEventListener('keydown', () => { clearInterval(id); end(); }, { once: true });
   }
   function bind() {

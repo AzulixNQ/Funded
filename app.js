@@ -25,7 +25,8 @@
       logR: 'newest first', day: 'DAY', tw: (n, w) => `${n} trade${n > 1 ? 's' : ''}, ${w} won`,
       sess: { asia: 'Asia', london: 'London', ny: 'New York' }, sessS: { asia: 'ASIA', london: 'LDN', ny: 'NY' },
       score: 'my discipline, out of 10', readAll: 'Read all', less: 'Less', showDay: n => (n === 1 ? 'Show the trade' : `Show the ${n} trades`), hideDay: n => (n === 1 ? 'Hide the trade' : 'Hide the trades'),
-      cols5: ['TIME', 'SESS', 'SIDE', 'ENTRY', 'NET'], cols6: ['#', 'DATE', 'TIME', 'SIDE', 'POINTS', 'NET'],
+      cols5: ['TIME', 'SESS', 'SIDE', 'ENTRY', 'EXIT', 'HELD', 'POINTS', 'NET'], cols6: ['#', 'DATE', 'TIME', 'SESS', 'SIDE', 'ENTRY', 'EXIT', 'HELD', 'POINTS', 'NET'],
+      next: 'scroll or press',
       fRes: [['all', 'ALL'], ['win', 'WINS'], ['loss', 'LOSSES']], fSess: [['all', 'ALL'], ['asia', 'ASIA'], ['london', 'LDN'], ['ny', 'NY']],
       trR: n => `${n} trades`, showAll: n => `Show all ${n}`, showLess: 'Show fewer', none: 'No trade matches these filters.',
       entry: 'ENTRY', exit: 'EXIT', held: 'HELD', points: 'POINTS', net: 'NET', fees: 'FEES', session: 'SESSION', vwap: 'VWAP DIST',
@@ -49,7 +50,8 @@
       logR: 'récent d’abord', day: 'JOUR', tw: (n, w) => `${n} trade${n > 1 ? 's' : ''}, ${w} gagnant${w > 1 ? 's' : ''}`,
       sess: { asia: 'Asie', london: 'Londres', ny: 'New York' }, sessS: { asia: 'ASIE', london: 'LDN', ny: 'NY' },
       score: 'ma discipline, sur 10', readAll: 'Tout lire', less: 'Moins', showDay: n => (n === 1 ? 'Voir le trade' : `Voir les ${n} trades`), hideDay: n => (n === 1 ? 'Masquer le trade' : 'Masquer les trades'),
-      cols5: ['HEURE', 'SESS', 'SENS', 'ENTRÉE', 'NET'], cols6: ['#', 'DATE', 'HEURE', 'SENS', 'POINTS', 'NET'],
+      cols5: ['HEURE', 'SESS', 'SENS', 'ENTRÉE', 'SORTIE', 'DURÉE', 'POINTS', 'NET'], cols6: ['#', 'DATE', 'HEURE', 'SESS', 'SENS', 'ENTRÉE', 'SORTIE', 'DURÉE', 'POINTS', 'NET'],
+      next: 'fais défiler ou appuie sur',
       fRes: [['all', 'TOUS'], ['win', 'GAGNANTS'], ['loss', 'PERDANTS']], fSess: [['all', 'TOUTES'], ['asia', 'ASIE'], ['london', 'LDN'], ['ny', 'NY']],
       trR: n => `${n} trades`, showAll: n => `Tout voir (${n})`, showLess: 'En voir moins', none: 'Aucun trade avec ces filtres.',
       entry: 'ENTRÉE', exit: 'SORTIE', held: 'DURÉE', points: 'POINTS', net: 'NET', fees: 'FRAIS', session: 'SESSION', vwap: 'DIST. VWAP',
@@ -242,7 +244,7 @@
   }
   function drawEq(redraw) {
     const host = $('#eqc'); if (!host) return;
-    const w = Math.max(300, Math.round(host.clientWidth || 358)), h = w > 600 ? 300 : 236, pl = 4, pr = 64, pt = 18, pb = 26;
+    const w = Math.max(300, Math.round(host.clientWidth || 358)), h = w > 760 ? Math.round(Math.max(340, Math.min(560, innerHeight - 330))) : w > 600 ? 300 : 236, pl = 4, pr = 64, pt = 18, pb = 26;
     const P = M.eq, last = P[P.length - 1].b;
     const lo = Math.min(M.floor, ...P.map(p => p.b)) - 90, hi = Math.max(M.start + M.target, ...P.map(p => p.b)) + 70;
     const X = i => pl + (w - pl - pr) * i / Math.max(1, P.length - 1), Y = v => pt + (h - pt - pb) * (hi - v) / (hi - lo);
@@ -287,8 +289,9 @@
 
   /* ---------- 3 log ---------- */
   function tradeRow5(x) {
-    return `<div class="row c5 t" role="button" tabindex="0" data-go="${x.id}"><span>${x.entry_hms.slice(0, 5)}</span><span class="s">${t().sessS[x.session] || ''}</span><span>${x.side === 'long' ? t().long : t().short}</span><span>${num(x.entry_price)}</span><span class="x ${cls(x.pnl_net)}">${sg(x.pnl_net)}</span></div>`;
+    return `<div class="row c5 t" role="button" tabindex="0" data-go="${x.id}"><span>${x.entry_hms.slice(0, 5)}</span><span class="s">${t().sessS[x.session] || ''}</span><span>${x.side === 'long' ? t().long : t().short}</span><span>${num(x.entry_price)}</span><span class="wd">${num(x.exit_price)}</span><span class="wd s">${esc(x.dur_s_txt || '')}</span><span class="wd ${cls(x.points)}">${sg(x.points)}</span><span class="x ${cls(x.pnl_net)}">${sg(x.pnl_net)}</span></div>`;
   }
+  const WD5 = [4, 5, 6], WD6 = [3, 5, 6, 7];
   function log() {
     const box = $('#logBody'), L = M.days.slice().reverse();
     box.innerHTML = L.map((d, i) => {
@@ -301,7 +304,7 @@
         h += `<p class="quote">${esc(noteOpen ? note : short)}</p>${full ? `<button class="more" data-note="${d.date}">${noteOpen ? t().less : t().readAll}</button>` : ''}`;
       }
       if (d.n) {
-        if (open) h += `<div class="tape"><div class="row c5 h">${t().cols5.map((c, j) => `<span class="${j === 4 ? 'x' : ''}">${c}</span>`).join('')}</div><div class="rows">${d.ts.map(tradeRow5).join('')}</div></div>`;
+        if (open) h += `<div class="tape"><div class="row c5 h">${t().cols5.map((c, j) => `<span class="${j === 7 ? 'x' : ''} ${WD5.includes(j) ? 'wd' : ''}">${c}</span>`).join('')}</div><div class="rows">${d.ts.map(tradeRow5).join('')}</div></div>`;
         if (i > 0 || !open) h += ` <button class="more" data-tog="${d.date}">${open ? t().hideDay(d.n) : t().showDay(d.n)}</button>`;
       }
       return h + '</article>';
@@ -323,8 +326,8 @@
     const list = M.trades.slice().reverse().filter(x => (ui.res === 'all' || (ui.res === 'win' ? x.pnl_net > 0 : x.pnl_net < 0)) && (ui.sess === 'all' || x.session === ui.sess));
     const N = 12, shown = ui.all ? list : list.slice(0, N);
     let h = `<div class="fl">${flt(t().fRes, 'res')}${flt(t().fSess, 'sess')}</div>`;
-    h += `<div class="row c6 h">${t().cols6.map((c, j) => `<span class="${j === 5 ? 'x' : ''}">${c}</span>`).join('')}</div><div class="rows" id="trRows" data-an>`;
-    h += shown.map(x => `<div class="row c6 t" role="button" tabindex="0" aria-expanded="${ui.open === x.id}" data-id="${x.id}"><span class="s">${x.id}</span><span>${shortDate(x.session_date)}</span><span>${x.entry_hms.slice(0, 5)}</span><span>${x.side === 'long' ? t().long : t().short}</span><span>${sg(x.points)}</span><span class="x ${cls(x.pnl_net)}">${sg(x.pnl_net)}</span></div>${ui.open === x.id ? detailBox(x) : ''}`).join('');
+    h += `<div class="row c6 h">${t().cols6.map((c, j) => `<span class="${j === 9 ? 'x' : ''} ${WD6.includes(j) ? 'wd' : ''}">${c}</span>`).join('')}</div><div class="rows" id="trRows" data-an>`;
+    h += shown.map(x => `<div class="row c6 t" role="button" tabindex="0" aria-expanded="${ui.open === x.id}" data-id="${x.id}"><span class="s">${x.id}</span><span>${shortDate(x.session_date)}</span><span>${x.entry_hms.slice(0, 5)}</span><span class="wd s">${t().sessS[x.session] || ''}</span><span>${x.side === 'long' ? t().long : t().short}</span><span class="wd">${num(x.entry_price)}</span><span class="wd">${num(x.exit_price)}</span><span class="wd s">${esc(x.dur_s_txt || '')}</span><span class="${cls(x.points)}">${sg(x.points)}</span><span class="x ${cls(x.pnl_net)}">${sg(x.pnl_net)}</span></div>${ui.open === x.id ? detailBox(x) : ''}`).join('');
     if (!list.length) h += `<div class="row"><span class="mu">${t().none}</span></div>`;
     h += '</div>';
     if (list.length > N) h += `<button class="more" id="trMore">${ui.all ? t().showLess : t().showAll(list.length)}</button>`;
@@ -363,7 +366,7 @@
     const e0 = minOf(x.entry_time), e1 = minOf(x.exit_time), a = Math.floor(e0) - 25, b = Math.ceil(e1) + 15;
     const bs = (BARS || []).filter(q => q.d === x.session_date).map(q => ({ ...q, m: minOf(q.t) })).filter(q => q.m >= a && q.m <= b);
     if (bs.length < 4) return `<div class="na">${t().noBars}</div>`;
-    const h = w > 520 ? 270 : 220, pl = 2, pr = 62, pt = 10, pb = 22;
+    const h = w > 760 ? 340 : w > 520 ? 270 : 220, pl = 2, pr = 62, pt = 10, pb = 22;
     let lo = Math.min(...bs.map(q => q.l), x.entry_price, x.exit_price), hi = Math.max(...bs.map(q => q.h), x.entry_price, x.exit_price);
     const pad = (hi - lo) * 0.1 + 1; lo -= pad; hi += pad;
     const m0 = bs[0].m, m1 = bs[bs.length - 1].m + 1, X = m => pl + (w - pl - pr) * (m - m0) / (m1 - m0), Y = v => pt + (h - pt - pb) * (hi - v) / (hi - lo), cw = (w - pl - pr) / (m1 - m0);
@@ -403,12 +406,20 @@
   }
 
   /* ---------- page ---------- */
+  function nexts() {
+    const ids = ['acc', 'bal', 'log', 'tr', 'st'];
+    ids.slice(0, -1).forEach((id, i) => {
+      const sec = document.getElementById(id); let a = $('.next', sec);
+      if (!a) { a = document.createElement('a'); a.className = 'next'; sec.appendChild(a); a.addEventListener('click', e => { e.preventDefault(); go(ids[i + 1]); }); }
+      a.href = '#' + ids[i + 1]; a.innerHTML = `<span class="ar">\u25BC</span> ${t().next} <b>${i + 2}</b> ${t().heads[i + 1]}`;
+    });
+  }
   function render() {
     if (io) { pending.forEach(el => io.unobserve(el)); pending.clear(); }
     document.documentElement.lang = LANG;
     $$('.lang button').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === LANG ? 'true' : 'false'));
     $('#intro').textContent = t().intro; $('#foot').textContent = t().foot;
-    heads(); keys(); status(); accounts(); balance(); log(); trades(); stats();
+    heads(); keys(); status(); accounts(); balance(); log(); trades(); stats(); nexts();
     $$('.panel').forEach(sec => when(sec, instant => headIn(sec), () => headPrep(sec)));
   }
   function boot(done) {

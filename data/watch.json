@@ -12,7 +12,9 @@
      "key": "banks",
      "items": [
       {
-       "src": "Morgan Stanley (Mike Wilson)", "stance": -1, "date": "2026-10-26",
+       "src": "Morgan Stanley (Mike Wilson)",
+       "stance": -1,
+       "date": "2026-10-26",
        "url": "https://investinglive.com/stock-market-update/roadmap-morgan-stanley-sees-three-catalysts-ending-the-correction-to-~7150-then-s-p-500-to-8-000/",
        "text": {
         "en": "Sees the correction in its final stage, but expects one more leg down, to 7,100–7,200 on the S&P 500, while doubts on AI, the midterms and tighter liquidity play out. Keeps 8,000 for year-end.",
@@ -20,7 +22,9 @@
        }
       },
       {
-       "src": "JPMorgan (Mislav Matejka)", "stance": 1, "date": "2026-10-07",
+       "src": "JPMorgan (Mislav Matejka)",
+       "stance": 1,
+       "date": "2026-10-07",
        "url": "https://www.thestreet.com/investing/stocks/jpmorgan-just-put-a-different-spin-on-the-stock-market-selloff",
        "text": {
         "en": "Called the early-October selloff overdone and sentiment too bearish, and expects a rebound into year-end, with chips as the top pick. Written before the late-October drop.",
@@ -28,7 +32,9 @@
        }
       },
       {
-       "src": "Goldman Sachs (Ben Snider)", "stance": 0, "date": "2026-09-19",
+       "src": "Goldman Sachs (Ben Snider)",
+       "stance": 0,
+       "date": "2026-09-19",
        "url": "https://uk.finance.yahoo.com/news/ai-capex-boom-wont-sustain-093002410.html",
        "text": {
         "en": "AI spending made up nearly half of S&P 500 earnings growth this year. That support should fade in 2027 and chip margins are a risk, but he does not expect the AI boom to burst soon.",
@@ -41,7 +47,9 @@
      "key": "funds",
      "items": [
       {
-       "src": "Goldman Sachs prime book", "stance": -1, "date": "2026-10-20",
+       "src": "Goldman Sachs prime book",
+       "stance": -1,
+       "date": "2026-10-20",
        "url": "https://finance.yahoo.com/markets/stocks/articles/hedge-funds-dumped-tech-stocks-133527326.html",
        "text": {
         "en": "Hedge funds sold tech at the fastest pace in at least a decade in the week to October 15, mostly by dumping shares they owned. Their net leverage fell to 48.6%, a one-year low.",
@@ -49,7 +57,9 @@
        }
       },
       {
-       "src": "Hedge fund flows (Forbes)", "stance": -1, "date": "2026-10-26",
+       "src": "Hedge fund flows (Forbes)",
+       "stance": -1,
+       "date": "2026-10-26",
        "url": "https://www.forbes.com/sites/jonmarkman/2026/10/26/hedge-funds-sold-20-billion-of-tech-in-two-weeks-as-ai-leverage-unwound/",
        "text": {
         "en": "About $20 billion of tech sold in two weeks. Goldman’s basket of hedge funds’ favourite stocks fell 4.2% on October 22, its worst day since 2011, and 10.4% in October.",
@@ -57,7 +67,9 @@
        }
       },
       {
-       "src": "CFTC, Nasdaq E-mini futures", "stance": 0, "date": "2026-10-20",
+       "src": "CFTC, Nasdaq E-mini futures",
+       "stance": 0,
+       "date": "2026-10-20",
        "url": "https://www.cftc.gov/dea/futures/financial_lf.htm",
        "text": {
         "en": "Latest report, positions on October 20 (the October 27 report was not out yet): leveraged funds were flat on NQ, about 51,700 contracts long against 50,800 short, after covering 8,900 shorts. Asset managers stay net long about 77,800.",
@@ -70,7 +82,9 @@
      "key": "surveys",
      "items": [
       {
-       "src": "AAII sentiment survey", "stance": -1, "date": "2026-10-28",
+       "src": "AAII sentiment survey",
+       "stance": -1,
+       "date": "2026-10-28",
        "url": "https://www.aaii.com/sentimentsurvey",
        "text": {
         "en": "Bears 41.4%, bulls 37.8% in the week to October 28, before Friday’s drop. Bearishness stays well above its long-term average of 31.5%.",
@@ -78,7 +92,9 @@
        }
       },
       {
-       "src": "BofA Fund Manager Survey", "stance": -1, "date": "2026-10-13",
+       "src": "BofA Fund Manager Survey",
+       "stance": -1,
+       "date": "2026-10-13",
        "url": "https://www.xtb.com/en/market-analysis/us500-near-record-highs-weaker-bofa-survey-and-nfib-data-fail-to-dent-sentiment",
        "text": {
         "en": "October survey: fund managers’ optimism fell to its lowest since June. Their top tail risk is a disorderly rise in bond yields, ahead of an AI bubble bursting.",
@@ -91,7 +107,9 @@
      "key": "events",
      "items": [
       {
-       "src": "The Fed and US data", "stance": -1, "date": "2026-10-30",
+       "src": "The Fed and US data",
+       "stance": -1,
+       "date": "2026-10-30",
        "url": "https://www.yardeniquicktakes.com/economic-week-ahead-november-2-6/",
        "text": {
         "en": "The Fed held at 3.75–4.00% with two votes for a hike, and a December hike is now expected. The ISM surveys (Monday, Wednesday) and the jobs report (Friday, about +55,000 expected after +29,000) can push that further.",
@@ -99,7 +117,9 @@
        }
       },
       {
-       "src": "US midterm elections", "stance": 0, "date": "2026-11-03",
+       "src": "US midterm elections",
+       "stance": 0,
+       "date": "2026-11-03",
        "url": "https://investinglive.com/stock-market-update/roadmap-morgan-stanley-sees-three-catalysts-ending-the-correction-to-~7150-then-s-p-500-to-8-000/",
        "text": {
         "en": "Tuesday, with results overnight in Paris. The uncertainty can move futures, but stocks have historically done well after midterms: about +17% on average over the next 12 months, per Morgan Stanley.",
@@ -107,7 +127,9 @@
        }
       },
       {
-       "src": "Earnings", "stance": 0, "date": "2026-11-02",
+       "src": "Earnings",
+       "stance": 0,
+       "date": "2026-11-02",
        "url": "https://www.cmcmarkets.com/en-ie/news-and-analysis/the-week-ahead-ism-pmi-reports-us-jobs-report-apple-earnings",
        "text": {
         "en": "Apple and Palantir on Monday, AMD and Arista on Tuesday, Qualcomm on Wednesday, Arm on Thursday, all after the US close. After the misses at Alphabet and Amazon, AI spending is on trial again.",
@@ -120,23 +142,29 @@
      "key": "nq",
      "items": [
       {
-       "src": "Nasdaq Composite in October", "stance": -1, "date": "2026-10-30",
+       "src": "Nasdaq Composite in October",
+       "stance": -1,
+       "date": "2026-10-30",
        "url": "https://finance.yahoo.com/markets/live/stock-market-today-friday-october-30-dow-sp-500-nasdaq-amazon-intel-ai-sell-off-191429143.html",
        "text": {
-        "en": "Down 5.2% in October, its worst month since March 2025. Friday’s −2.86% was its worst day since June, after misses at Amazon and Alphabet and a weak outlook from Intel.",
-        "fr": "−5,2 % en octobre, son pire mois depuis mars 2025. Le −2,86 % de vendredi est sa pire séance depuis juin, après les déceptions d’Amazon et d’Alphabet et des prévisions faibles d’Intel."
+        "en": "Down 5.3% in October, its worst month since March 2025. Friday’s −2.86% was its worst day since June, after misses at Amazon and Alphabet and a weak outlook from Intel.",
+        "fr": "−5,3 % en octobre, son pire mois depuis mars 2025. Le −2,86 % de vendredi est sa pire séance depuis juin, après les déceptions d’Amazon et d’Alphabet et des prévisions faibles d’Intel."
        }
       },
       {
-       "src": "Nasdaq-100, last week", "stance": -1, "date": "2026-10-30",
+       "src": "Nasdaq-100",
+       "stance": -1,
+       "date": "2026-10-30",
        "url": "https://theglassdesk.substack.com/p/weekly-market-review-oct-30-2026",
        "text": {
-        "en": "Down 1.98% on the week to 28,384.85. The chip index (SOX) fell 7.2% on Friday alone, and the VIX closed at 19.4.",
-        "fr": "−1,98 % sur la semaine, à 28 384,85. L’indice des semi-conducteurs (SOX) a perdu 7,2 % rien que vendredi, et le VIX a fini à 19,4."
+        "en": "Down 1.98% last week to 28,384.85, down 6.7% in October and 9.1% below its October 6 high. The chip index (SOX) fell 7.2% on Friday alone.",
+        "fr": "−1,98 % la semaine dernière, à 28 384,85 : −6,7 % sur octobre et 9,1 % sous son plus haut du 6 octobre. L’indice des semi-conducteurs (SOX) a perdu 7,2 % rien que vendredi."
        }
       },
       {
-       "src": "Rates and oil", "stance": -1, "date": "2026-10-30",
+       "src": "Rates and oil",
+       "stance": -1,
+       "date": "2026-10-30",
        "url": "https://theglassdesk.substack.com/p/weekly-market-review-oct-30-2026",
        "text": {
         "en": "The US 10-year yield sits at 4.94%, close to 5%. Brent ended its December contract at $117.64 after a tanker was hit in the Strait of Hormuz. Both weigh on tech valuations.",
@@ -147,20 +175,132 @@
     }
    ],
    "events": [
-    {"d": "2026-11-02", "t": "15:30", "imp": 1, "what": {"en": "Clocks changed: New York opens at 15:30 Paris time again", "fr": "Changement d’heure : New York ouvre de nouveau à 15 h 30 (Paris)"}},
-    {"d": "2026-11-02", "t": "16:00", "imp": 2, "what": {"en": "ISM manufacturing (October)", "fr": "ISM manufacturier (octobre)"}},
-    {"d": "2026-11-02", "t": "~22:00", "imp": 3, "what": {"en": "Apple and Palantir earnings, after the US close", "fr": "Résultats d’Apple et de Palantir, après la clôture"}},
-    {"d": "2026-11-03", "t": "16:00", "imp": 2, "what": {"en": "JOLTS job openings and factory orders (September)", "fr": "Offres d’emploi JOLTS et commandes à l’industrie (septembre)"}},
-    {"d": "2026-11-03", "t": "", "imp": 3, "what": {"en": "US midterm elections, results overnight", "fr": "Midterms américaines, résultats dans la nuit"}},
-    {"d": "2026-11-03", "t": "~22:00", "imp": 3, "what": {"en": "AMD and Arista earnings", "fr": "Résultats d’AMD et d’Arista"}},
-    {"d": "2026-11-04", "t": "14:15", "imp": 2, "what": {"en": "ADP private payrolls (October)", "fr": "Emplois privés ADP (octobre)"}},
-    {"d": "2026-11-04", "t": "16:00", "imp": 2, "what": {"en": "ISM services (October)", "fr": "ISM des services (octobre)"}},
-    {"d": "2026-11-04", "t": "~22:00", "imp": 2, "what": {"en": "Qualcomm earnings", "fr": "Résultats de Qualcomm"}},
-    {"d": "2026-11-05", "t": "13:00", "imp": 1, "what": {"en": "Bank of England decision", "fr": "Décision de la Banque d’Angleterre"}},
-    {"d": "2026-11-05", "t": "14:30", "imp": 2, "what": {"en": "Jobless claims", "fr": "Inscriptions au chômage"}},
-    {"d": "2026-11-05", "t": "~22:00", "imp": 2, "what": {"en": "Arm and Airbnb earnings", "fr": "Résultats d’Arm et d’Airbnb"}},
-    {"d": "2026-11-06", "t": "14:30", "imp": 3, "what": {"en": "US jobs report (October): payrolls, unemployment, wages", "fr": "Emploi américain (octobre) : créations d’emplois, chômage, salaires"}},
-    {"d": "2026-11-06", "t": "16:00", "imp": 1, "what": {"en": "University of Michigan sentiment (November, first estimate)", "fr": "Moral des ménages, université du Michigan (novembre, 1re estimation)"}}
+    {
+     "d": "2026-11-02",
+     "t": "15:30",
+     "imp": 1,
+     "what": {
+      "en": "Clocks changed: New York opens at 15:30 Paris time again",
+      "fr": "Changement d’heure : New York ouvre de nouveau à 15 h 30 (Paris)"
+     }
+    },
+    {
+     "d": "2026-11-02",
+     "t": "16:00",
+     "imp": 2,
+     "what": {
+      "en": "ISM manufacturing (October)",
+      "fr": "ISM manufacturier (octobre)"
+     }
+    },
+    {
+     "d": "2026-11-02",
+     "t": "~22:00",
+     "imp": 3,
+     "what": {
+      "en": "Apple and Palantir earnings, after the US close",
+      "fr": "Résultats d’Apple et de Palantir, après la clôture"
+     }
+    },
+    {
+     "d": "2026-11-03",
+     "t": "16:00",
+     "imp": 2,
+     "what": {
+      "en": "JOLTS job openings and factory orders (September)",
+      "fr": "Offres d’emploi JOLTS et commandes à l’industrie (septembre)"
+     }
+    },
+    {
+     "d": "2026-11-03",
+     "t": "",
+     "imp": 3,
+     "what": {
+      "en": "US midterm elections, results overnight",
+      "fr": "Midterms américaines, résultats dans la nuit"
+     }
+    },
+    {
+     "d": "2026-11-03",
+     "t": "~22:00",
+     "imp": 3,
+     "what": {
+      "en": "AMD and Arista earnings",
+      "fr": "Résultats d’AMD et d’Arista"
+     }
+    },
+    {
+     "d": "2026-11-04",
+     "t": "14:15",
+     "imp": 2,
+     "what": {
+      "en": "ADP private payrolls (October)",
+      "fr": "Emplois privés ADP (octobre)"
+     }
+    },
+    {
+     "d": "2026-11-04",
+     "t": "16:00",
+     "imp": 2,
+     "what": {
+      "en": "ISM services (October)",
+      "fr": "ISM des services (octobre)"
+     }
+    },
+    {
+     "d": "2026-11-04",
+     "t": "~22:00",
+     "imp": 2,
+     "what": {
+      "en": "Qualcomm earnings",
+      "fr": "Résultats de Qualcomm"
+     }
+    },
+    {
+     "d": "2026-11-05",
+     "t": "13:00",
+     "imp": 1,
+     "what": {
+      "en": "Bank of England decision",
+      "fr": "Décision de la Banque d’Angleterre"
+     }
+    },
+    {
+     "d": "2026-11-05",
+     "t": "14:30",
+     "imp": 2,
+     "what": {
+      "en": "Jobless claims",
+      "fr": "Inscriptions au chômage"
+     }
+    },
+    {
+     "d": "2026-11-05",
+     "t": "~22:00",
+     "imp": 2,
+     "what": {
+      "en": "Arm and Airbnb earnings",
+      "fr": "Résultats d’Arm et d’Airbnb"
+     }
+    },
+    {
+     "d": "2026-11-06",
+     "t": "14:30",
+     "imp": 3,
+     "what": {
+      "en": "US jobs report (October): payrolls, unemployment, wages",
+      "fr": "Emploi américain (octobre) : créations d’emplois, chômage, salaires"
+     }
+    },
+    {
+     "d": "2026-11-06",
+     "t": "16:00",
+     "imp": 1,
+     "what": {
+      "en": "University of Michigan sentiment (November, first estimate)",
+      "fr": "Moral des ménages, université du Michigan (novembre, 1re estimation)"
+     }
+    }
    ]
   }
  ]

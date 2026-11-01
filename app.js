@@ -14,7 +14,7 @@
   const W = {
     en: {
       intro: 'My live trading journal. The goal: five live 25K accounts at Lucid Trading. Every trade goes here, nothing gets deleted.',
-      keys: ['ACCTS', 'CHART', 'LOG', 'TRADES', 'STATS'], heads: ['ACCOUNTS', 'BALANCE', 'LOG', 'TRADES', 'STATS'],
+      keys: ['ACCTS', 'CHART', 'LOG', 'TRADES', 'STATS', 'WATCH'], heads: ['ACCOUNTS', 'BALANCE', 'LOG', 'TRADES', 'STATS', 'WEEKLY WATCH'],
       last: 'LAST SESSION', paris: 'PARIS', cmeO: 'CME OPEN', cmeC: 'CME CLOSED',
       started: n => `${n} of 5 started`, stages: ['EVAL', 'FUNDED', 'PAYOUT', 'LIVE'],
       leadEval: (net, tgt, go) => `Account 1 is in its evaluation: <b>${net}</b> of the ${tgt} target. <b>${go}</b> to go.`,
@@ -26,7 +26,7 @@
       sess: { asia: 'Asia', london: 'London', ny: 'New York' }, sessS: { asia: 'ASIA', london: 'LDN', ny: 'NY' },
       score: 'my discipline, out of 10', readAll: 'Read all', less: 'Less', showDay: n => (n === 1 ? 'Show the trade' : `Show the ${n} trades`), hideDay: n => (n === 1 ? 'Hide the trade' : 'Hide the trades'),
       cols5: ['TIME', 'SESS', 'SIDE', 'ENTRY', 'EXIT', 'HELD', 'POINTS', 'NET'], cols6: ['#', 'DATE', 'TIME', 'SESS', 'SIDE', 'ENTRY', 'EXIT', 'HELD', 'POINTS', 'NET'],
-      next: 'scroll or press',
+      next: 'scroll or press', accOpen: 'Open this account: rules, payouts and its own stats',
       fRes: [['all', 'ALL'], ['win', 'WINS'], ['loss', 'LOSSES']], fSess: [['all', 'ALL'], ['asia', 'ASIA'], ['london', 'LDN'], ['ny', 'NY']],
       trR: n => `${n} trades`, showAll: n => `Show all ${n}`, showLess: 'Show fewer', none: 'No trade matches these filters.',
       entry: 'ENTRY', exit: 'EXIT', held: 'HELD', points: 'POINTS', net: 'NET', fees: 'FEES', session: 'SESSION', vwap: 'VWAP DIST',
@@ -39,7 +39,7 @@
     },
     fr: {
       intro: 'Mon journal de trading en direct. L’objectif : cinq comptes live de 25K chez Lucid Trading. Chaque trade est ici, rien n’est supprimé.',
-      keys: ['COMPTES', 'COURBE', 'JOURNAL', 'TRADES', 'STATS'], heads: ['COMPTES', 'SOLDE', 'JOURNAL', 'TRADES', 'STATS'],
+      keys: ['COMPTES', 'COURBE', 'JOURNAL', 'TRADES', 'STATS', 'VEILLE'], heads: ['COMPTES', 'SOLDE', 'JOURNAL', 'TRADES', 'STATS', 'VEILLE'],
       last: 'DERNIÈRE SÉANCE', paris: 'PARIS', cmeO: 'CME OUVERT', cmeC: 'CME FERMÉ',
       started: n => `${n} sur 5 lancé${n > 1 ? 's' : ''}`, stages: ['ÉVAL', 'FUNDED', 'PAYOUT', 'LIVE'],
       leadEval: (net, tgt, go) => `Le compte 1 est en évaluation : <b>${net}</b> sur l’objectif de ${tgt}. Encore <b>${go}</b>.`,
@@ -51,7 +51,7 @@
       sess: { asia: 'Asie', london: 'Londres', ny: 'New York' }, sessS: { asia: 'ASIE', london: 'LDN', ny: 'NY' },
       score: 'ma discipline, sur 10', readAll: 'Tout lire', less: 'Moins', showDay: n => (n === 1 ? 'Voir le trade' : `Voir les ${n} trades`), hideDay: n => (n === 1 ? 'Masquer le trade' : 'Masquer les trades'),
       cols5: ['HEURE', 'SESS', 'SENS', 'ENTRÉE', 'SORTIE', 'DURÉE', 'POINTS', 'NET'], cols6: ['#', 'DATE', 'HEURE', 'SESS', 'SENS', 'ENTRÉE', 'SORTIE', 'DURÉE', 'POINTS', 'NET'],
-      next: 'fais défiler ou appuie sur',
+      next: 'fais défiler ou appuie sur', accOpen: 'Ouvrir ce compte : règles, payouts et ses propres stats',
       fRes: [['all', 'TOUS'], ['win', 'GAGNANTS'], ['loss', 'PERDANTS']], fSess: [['all', 'TOUTES'], ['asia', 'ASIE'], ['london', 'LDN'], ['ny', 'NY']],
       trR: n => `${n} trades`, showAll: n => `Tout voir (${n})`, showLess: 'En voir moins', none: 'Aucun trade avec ces filtres.',
       entry: 'ENTRÉE', exit: 'SORTIE', held: 'DURÉE', points: 'POINTS', net: 'NET', fees: 'FRAIS', session: 'SESSION', vwap: 'DIST. VWAP',
@@ -83,7 +83,8 @@
 
   /* ---------- model ---------- */
   let M = null, BARS = null, barsP = null, BOOTING = false, ANIM = !RM;
-  const ui = { res: 'all', sess: 'all', all: false, open: null, dayOpen: {}, noteOpen: {} };
+  const ui = { res: 'all', sess: 'all', all: false, open: null, dayOpen: {}, noteOpen: {}, acc: null };
+  const IDS = ['acc', 'bal', 'log', 'tr', 'st', 'wt'];
 
   function model(raw) {
     const R = raw.rules[0], start = R.start_balance, target = R.profit_target, ML = R.max_loss, lock = R.mll_lock_level;
@@ -109,7 +110,7 @@
     const group = key => { const o = {}; trades.forEach(x => { const k = x[key]; o[k] = o[k] || { n: 0, net: 0, w: 0 }; o[k].n++; o[k].net = +(o[k].net + x.pnl_net).toFixed(2); if (x.pnl_net > 0) o[k].w++; }); return o; };
     return {
       R, start, target, ML, balance, net, pct: Math.max(0, net / target * 100), toGo: Math.max(0, +(target - net).toFixed(2)), floor, cushion: +(balance - floor).toFixed(2),
-      trades, days: D, eq, accounts: raw.accounts, meta: raw.meta || {},
+      trades, days: D, eq, accounts: raw.accounts, meta: raw.meta || {}, rawDays: days,
       stats: { n: trades.length, w: wins.length, wr: trades.length ? wins.length / trades.length * 100 : 0, pf: gl ? gw / gl : 0, aw: wins.length ? gw / wins.length : 0, al: losses.length ? -gl / losses.length : 0,
         best: trades.reduce((a, b) => (b.pnl_net > (a?.pnl_net ?? -1e9) ? b : a), null), worst: trades.reduce((a, b) => (b.pnl_net < (a?.pnl_net ?? 1e9) ? b : a), null),
         hold: mid, fees: trades.reduce((s, x) => s + (x.fees || 0), 0), sess: group('session'), side: group('side') }
@@ -176,7 +177,7 @@
     el.innerHTML = `<span>${t().last} <b>${last}</b></span><span>${t().paris} <b>${clock}</b></span><span class="${open ? 'open' : ''}">${open ? t().cmeO : t().cmeC}</span>`;
   }
   function keys() {
-    const k = $('#keys'), ids = ['acc', 'bal', 'log', 'tr', 'st'];
+    const k = $('#keys'), ids = IDS;
     k.innerHTML = ids.map((id, i) => `<a href="#${id}" data-i="${i}"><b>${i + 1}</b>${t().keys[i]}</a>`).join('');
     $$('a', k).forEach(a => a.addEventListener('click', e => { e.preventDefault(); go(a.getAttribute('href').slice(1)); }));
     markKey(curKey);
@@ -189,19 +190,19 @@
     if (history.replaceState) history.replaceState(null, '', '#' + id);
   }
   function spy() {
-    const ids = ['acc', 'bal', 'log', 'tr', 'st'];
+    const ids = IDS;
     const pick = () => {
       const mid = innerHeight * 0.35; let best = ids[0], bt = -1e9;
       ids.forEach(id => { const r = document.getElementById(id).getBoundingClientRect(); if (r.top <= mid && r.top > bt + 1) { best = id; bt = r.top; } });
-      if (innerWidth < 1080 && innerHeight + scrollY >= document.documentElement.scrollHeight - 4) best = 'st';
+      if (innerWidth < 1080 && innerHeight + scrollY >= document.documentElement.scrollHeight - 4) best = IDS[IDS.length - 1];
       if (best !== curKey) markKey(best);
     };
     addEventListener('scroll', pick, { passive: true }); pick();
   }
   function heads() {
-    ['acc', 'bal', 'log', 'tr', 'st'].forEach((id, i) => {
-      const h = $(`#${id} h2`);
-      const right = { acc: t().started(M.accounts.filter(a => a.stage !== 'none').length), bal: t().balR, log: t().logR, tr: t().trR(M.trades.length), st: t().stR }[id];
+    IDS.forEach((id, i) => {
+      const h = $(`#${id} h2`); if (!h) return;
+      const right = { acc: t().started(M.accounts.filter(a => a.stage !== 'none').length), bal: t().balR, log: t().logR, tr: t().trR(M.trades.length), st: t().stR, wt: window.R5S ? R5S.watchMeta() : '' }[id];
       h.innerHTML = `<span class="k">${i + 1}</span><span class="tt" data-t="${t().heads[i]}">${t().heads[i]}</span><span class="r" data-t="${esc(right)}">${esc(right)}</span>`;
     });
   }
@@ -212,7 +213,7 @@
     let g = `<div class="hd"></div>` + st.map(s => `<div class="hd">${s}</div>`).join('');
     M.accounts.forEach(a => {
       const k = order.indexOf(a.stage);
-      g += `<div class="n ${a.stage === 'none' ? 'off' : ''}">#${a.n}</div>`;
+      g += `<button type="button" class="n ${a.stage === 'none' ? 'off' : ''}" data-acc="${a.n}" aria-expanded="${ui.acc === a.n}" title="${esc(t().accOpen)}">#${a.n}<span class="chev">\u25B8</span></button>`;
       for (let j = 0; j < 4; j++) {
         if (k >= 0 && j < k) g += `<div class="done">✓</div>`;
         else if (k >= 0 && j === k && a.stage === 'eval') g += `<div class="cur"><span class="fill"></span><b class="pc">0%</b><i></i></div>`;
@@ -221,7 +222,7 @@
       }
     });
     const lead = M.net >= M.target ? t().leadDone : t().leadEval(usd(M.net, 2, true), usd(M.target, 0), usd(M.toGo));
-    box.innerHTML = `<div class="grid" id="accGrid" data-an>${g}</div><p class="lead">${lead}</p>
+    box.innerHTML = `<div class="grid" id="accGrid" data-an>${g}</div><div id="accDet"></div><p class="lead">${lead}</p>
       <div class="kvs" id="accKv" data-an>
         <div class="kv"><span class="l">${t().floor}</span><span><span class="dn">${num(M.floor)}</span> <span class="mu">${t().floorNote}</span></span></div>
         <div class="kv"><span class="l">${t().cushion}</span><span>${num(M.cushion)}</span></div>
@@ -234,6 +235,14 @@
       if (cur) { if (instant || !ANIM) { cur.style.setProperty('--w', pct + '%'); pc.textContent = Math.round(pct) + '%'; } else { setTimeout(() => cur.style.setProperty('--w', pct + '%'), 450); setTimeout(() => countTo(pc, pct, v => Math.round(v) + '%', 1000), 450); } }
     }, () => hide(grid));
     when($('#accKv'), () => printRows($('#accKv'), 90), () => hide($('#accKv')));
+    $$('[data-acc]', box).forEach(b => b.addEventListener('click', () => { const n = +b.dataset.acc; ui.acc = ui.acc === n ? null : n; $$('[data-acc]', box).forEach(x => x.setAttribute('aria-expanded', String(+x.dataset.acc === ui.acc))); accDet(true); }));
+    accDet(false);
+  }
+  function accDet(anim) {
+    const el = $('#accDet'); if (!el) return;
+    if (ui.acc == null || !window.R5S) { el.innerHTML = ''; return; }
+    el.innerHTML = R5S.accDetail(ui.acc); R5S.wire(el);
+    if (anim && ANIM) $$('.blk', el).forEach(b => printRows(b, 24));
   }
 
   /* ---------- 2 balance chart ---------- */
@@ -392,6 +401,7 @@
 
   /* ---------- 5 stats ---------- */
   function stats() {
+    if (window.R5S) { R5S.stats(); return; }
     const S = M.stats, box = $('#stBody');
     const rows = [[t().wr, `${nf(S.wr, 0)}%  <span class="mu">${S.w}/${S.n}</span>`], [t().pf, nf(S.pf, 2)], [t().aw, `<span class="up">${sg(S.aw)}</span>`], [t().al, `<span class="dn">${sg(S.al)}</span>`],
       [t().best, S.best ? `<span class="up">${sg(S.best.pnl_net)}</span>  <span class="mu">#${S.best.id}</span>` : '—'], [t().worst, S.worst ? `<span class="dn">${sg(S.worst.pnl_net)}</span>  <span class="mu">#${S.worst.id}</span>` : '—'],
@@ -407,7 +417,7 @@
 
   /* ---------- page ---------- */
   function nexts() {
-    const ids = ['acc', 'bal', 'log', 'tr', 'st'];
+    const ids = IDS;
     ids.slice(0, -1).forEach((id, i) => {
       const sec = document.getElementById(id); let a = $('.next', sec);
       if (!a) { a = document.createElement('a'); a.className = 'next'; sec.appendChild(a); a.addEventListener('click', e => { e.preventDefault(); go(ids[i + 1]); }); }
@@ -419,7 +429,7 @@
     document.documentElement.lang = LANG;
     $$('.lang button').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === LANG ? 'true' : 'false'));
     $('#intro').textContent = t().intro; $('#foot').textContent = t().foot;
-    heads(); keys(); status(); accounts(); balance(); log(); trades(); stats(); nexts();
+    heads(); keys(); status(); accounts(); balance(); log(); trades(); stats(); if (window.R5S) R5S.watch(); nexts();
     $$('.panel').forEach(sec => when(sec, instant => headIn(sec), () => headPrep(sec)));
   }
   function boot(done) {
@@ -438,7 +448,7 @@
     $$('.lang button').forEach(b => b.addEventListener('click', () => { if (b.dataset.lang === LANG) return; LANG = b.dataset.lang; local.set('r5l-lang', LANG); const a = ANIM; ANIM = false; render(); ANIM = a; }));
     addEventListener('keydown', e => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      const i = '12345'.indexOf(e.key); if (i >= 0 && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || '')) { go(['acc', 'bal', 'log', 'tr', 'st'][i]); }
+      const i = '123456'.indexOf(e.key); if (i >= 0 && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || '')) { go(IDS[i]); }
       if (e.key === 'Escape' && ui.open != null) { ui.open = null; trades(); }
     });
     let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (M) { drawEq(true); if (ui.open != null) fillDetail(ui.open); } }, 200); });
@@ -449,12 +459,15 @@
     try {
       const [trades, days, rules, accounts] = await Promise.all(['trades', 'days', 'rules', 'accounts'].map(get));
       const meta = await get('meta').catch(() => ({}));
-      M = model({ trades, days, rules, accounts, meta });
+      const watch = await get('watch').catch(() => null);
+      M = model({ trades, days, rules, accounts, meta }); M.watch = watch;
     } catch (e) { $('#intro').textContent = 'The journal could not load its data. Refresh the page to try again.'; return; }
     bind(); boot(() => { kick(); });
     render(); spy();
     if (location.hash) { const id = location.hash.slice(1); if (document.getElementById(id)) setTimeout(() => go(id), 50); }
     setTimeout(loadBars, 2500);
   }
-  main();
+  // shared with stats.js (statistics, account rules, weekly watch)
+  window.R5 = { get M() { return M; }, get LANG() { return LANG; }, get ANIM() { return ANIM; }, get BARS() { return BARS; }, ui, t, nf, num, sg, usd, cls, esc, $, $$, when, hide, printRows, countTo, blockBar, typeIn, openTrade, go, loadBars, dayLabel, shortDate, minOf, ymd, firstSentences, rerender: () => { const a = ANIM; ANIM = false; render(); ANIM = a; } };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', main); else main();
 })();

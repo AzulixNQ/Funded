@@ -537,13 +537,13 @@
       }).join('') + '</div>';
     });
     if ((wk.events || []).length) {
-      h += sub(w().events) + table([[w().date, '88px'], [X.LANG === 'fr' ? 'HEURE' : 'TIME', '54px'], ['', '1fr'], ['', '62px', 1]],
-        wk.events.map(e => [shortDay(e.d), esc(e.t || ''), esc(tr(e.what)), `<span class="${e.imp >= 3 ? 'dn' : e.imp === 2 ? 'am' : 'mu'}">${w().imp[e.imp] || ''}</span>`]), 380);
+      h += sub(w().events) + table([[w().date, '58px'], [X.LANG === 'fr' ? 'HEURE' : 'TIME', '52px'], ['', '1fr'], ['', '52px', 1]],
+        wk.events.map(e => [shortDay(e.d), esc(e.t || ''), esc(tr(e.what)), `<span class="${e.imp >= 3 ? 'dn' : e.imp === 2 ? 'am' : 'mu'}">${w().imp[e.imp] || ''}</span>`]), 280);
     }
     if (ws.length > 1 || (wk.result && wk.result.chg_pct != null)) {
-      h += sub(w().history) + table([[X.LANG === 'fr' ? 'SEMAINE' : 'WEEK', '84px'], ['SCORE', '1fr'], [w().nqWeek.toUpperCase(), '84px', 1], [w().right.toUpperCase(), '62px', 1]],
+      h += sub(w().history) + table([[X.LANG === 'fr' ? 'SEMAINE' : 'WEEK', '64px'], ['SCORE', '1fr'], [w().nqWeek.toUpperCase(), '70px', 1], [w().right.toUpperCase(), '50px', 1]],
         ws.slice().reverse().map(x => { const s = weekScore(x), v = verdict(s), ch = x.result && x.result.chg_pct, ok = ch == null ? null : v === 'neutral' ? Math.abs(ch) < 1 : (v === 'bull') === (ch > 0);
-          return [shortDay(x.week), `<span class="${v === 'bull' ? 'up' : v === 'bear' ? 'dn' : 'am'}">${s > 0 ? '+' : s < 0 ? MINUS : ''}${Math.abs(s)} ${w()[v]}</span>`, ch == null ? '—' : `<span class="${cl(ch)}">${sg(ch, 2)}%</span>`, ok == null ? '—' : ok ? '<span class="up">✓</span>' : '<span class="dn">✗</span>']; }), 380);
+          return [shortDay(x.week), `<span class="${v === 'bull' ? 'up' : v === 'bear' ? 'dn' : 'am'}">${s > 0 ? '+' : s < 0 ? MINUS : ''}${Math.abs(s)} ${w()[v]}</span>`, ch == null ? '—' : `<span class="${cl(ch)}">${sg(ch, 2)}%</span>`, ok == null ? '—' : ok ? '<span class="up">✓</span>' : '<span class="dn">✗</span>']; }), 280);
     }
     box.innerHTML = h + how;
     if (X.ANIM) $$('.blk', box).forEach(b => X.when(b, () => X.printRows(b, 30), () => X.hide(b)));

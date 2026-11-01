@@ -14,6 +14,7 @@
   const W = {
     en: {
       intro: 'My live trading journal. The goal: five live 25K accounts at Lucid Trading. Every trade goes here, nothing gets deleted.',
+      dcStrip: 'AZULIX COMMUNITY · JOIN THE DISCORD',
       keys: ['ACCTS', 'CHART', 'LOG', 'TRADES', 'STATS', 'WATCH'], heads: ['ACCOUNTS', 'BALANCE', 'LOG', 'TRADES', 'STATS', 'WEEKLY WATCH'],
       last: 'LAST SESSION', paris: 'PARIS', cmeO: 'CME OPEN', cmeC: 'CME CLOSED',
       started: n => `${n} of 5 started`, stages: ['EVAL', 'FUNDED', 'PAYOUT', 'LIVE'],
@@ -39,6 +40,7 @@
     },
     fr: {
       intro: 'Mon journal de trading en direct. L’objectif : cinq comptes live de 25K chez Lucid Trading. Chaque trade est ici, rien n’est supprimé.',
+      dcStrip: 'AZULIX COMMUNITY · REJOINS LE DISCORD',
       keys: ['COMPTES', 'COURBE', 'JOURNAL', 'TRADES', 'STATS', 'VEILLE'], heads: ['COMPTES', 'SOLDE', 'JOURNAL', 'TRADES', 'STATS', 'VEILLE'],
       last: 'DERNIÈRE SÉANCE', paris: 'PARIS', cmeO: 'CME OUVERT', cmeC: 'CME FERMÉ',
       started: n => `${n} sur 5 lancé${n > 1 ? 's' : ''}`, stages: ['ÉVAL', 'FUNDED', 'PAYOUT', 'LIVE'],
@@ -429,6 +431,7 @@
     document.documentElement.lang = LANG;
     $$('.lang button').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === LANG ? 'true' : 'false'));
     $('#intro').textContent = t().intro; $('#foot').textContent = t().foot;
+    const dc = $('#dcStrip'); if (dc) dc.textContent = t().dcStrip;
     heads(); keys(); status(); accounts(); balance(); log(); trades(); stats(); if (window.R5S) R5S.watch(); nexts();
     $$('.panel').forEach(sec => when(sec, instant => headIn(sec), () => headPrep(sec)));
   }

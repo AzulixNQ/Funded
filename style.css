@@ -29,6 +29,11 @@ a{color:inherit}
 .lang button{padding:2px 7px;color:var(--mute)}
 .lang button[aria-pressed=true]{background:var(--amb);color:#000}
 
+/* discord strip, above the header */
+.dc-strip{display:block;background:var(--amb);color:#000;font-weight:700;font-size:12px;letter-spacing:.06em;text-align:center;padding:9px 16px;text-decoration:none}
+.dc-strip:hover{background:var(--txt)}
+.dc-strip:focus-visible{outline:2px solid #000;outline-offset:-5px}
+
 /* section keys: phone = bottom bar */
 .keys{position:fixed;z-index:20;left:0;right:0;bottom:0;background:#000;border-top:1px solid var(--ambd);display:grid;grid-template-columns:repeat(6,1fr);padding:8px 6px calc(8px + env(safe-area-inset-bottom))}
 .keys a{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--mute);font-size:10.5px;font-weight:600;letter-spacing:.05em;text-decoration:none;padding:2px 0}
@@ -196,6 +201,7 @@ a{color:inherit}
 @media (min-width:1080px){
   :root{--gut:max(32px,calc((100% - 1040px)/2 + 32px))}
   body{padding-bottom:0;font-size:14px}
+  .dc-strip{font-size:13px;padding:10px var(--gut)}
   .top{grid-template-columns:auto 1fr auto;padding:16px var(--gut) 12px}
   .status{grid-column:auto;grid-row:auto;justify-content:center;font-size:12px}
   .keys{position:sticky;top:0;bottom:auto;display:flex;gap:8px;padding:10px var(--gut);border-top:0;border-bottom:1px solid var(--ambd)}

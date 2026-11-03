@@ -65,6 +65,7 @@ a{color:inherit}
 .cur{position:relative;justify-content:flex-start!important;background:repeating-linear-gradient(90deg,#1c1203 0 3px,#000 3px 6px)}
 .cur .fill{position:absolute;top:4px;bottom:4px;left:0;width:var(--w,0%);background:var(--amb);transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
 .cur b{position:relative;color:#000;font-weight:700;padding-left:6px}
+.cur.lo b{color:var(--amb)}
 .cur i{position:relative;display:inline-block;width:7px;height:14px;background:var(--txt);margin-left:4px;animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
 .lead{font-size:14.5px;margin-top:12px;line-height:1.55;max-width:34em}

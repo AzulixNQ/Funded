@@ -10,7 +10,7 @@
   const W = {
     en: {
       tabs: [['perf', 'PERF'], ['exec', 'EXEC'], ['time', 'TIMING'], ['mind', 'MIND'], ['rules', 'RULES']],
-      acct: 'ACCOUNT', all: 'ALL', period: 'PERIOD', sess: 'SESSION', mode: 'P&L',
+      acct: 'ACCOUNT', all: 'ALL', phase: 'PHASE', phEval: 'EVAL', phFunded: 'FUNDED', period: 'PERIOD', sess: 'SESSION', mode: 'P&L',
       net: 'NET', gross: 'GROSS', allTime: 'All time', month: 'Month', week: 'Week of', day: 'Day',
       sessS: { all: 'ALL', asia: 'ASIA', london: 'LDN', ny: 'NY' }, sessL: { asia: 'Asia', london: 'London', ny: 'New York' },
       none: 'No trade in this selection.', scopeAll: 'All accounts: a trade copied on several accounts counts once, its dollars are added up.',
@@ -54,10 +54,11 @@
       floorNote: (ml, lock, trig) => `trails the highest close by ${ml}, locks at ${lock} once a close tops ${trig}`,
       cushNow: 'Cushion now', cushWorst: 'Worst cushion', cushWorst1: 'lowest point, open P&L included', daysT: 'Days traded',
       toMake: 'Still to make', pace: d => `≈ ${d} days at this pace`, target: 'TARGET', perDay: 'Average per day', bestDay: 'Best day',
-      rules: 'EVALUATION RULES', rTarget: t => `Profit target +${t}`, rMll: m => `Max loss ${m}, end-of-day trailing`, rSize: (a, b) => `Max size ${a} minis / ${b} micros`,
+      rules: 'EVALUATION RULES', rulesF: 'FUNDED ACCOUNT RULES', targetF: 'FIRST PAYOUT', rTarget: t => `Profit target +${t}`, rTargetF: t => `First payout from a ${t} balance`,
+      consistTxtF: (s, l) => `Best day: ${s} of the cycle profit. Limit: ${l}. It counts on the funded account.`, rMll: m => `Max loss ${m}, end-of-day trailing`, rSize: (a, b) => `Max size ${a} minis / ${b} micros`,
       rFlat: f => `Flat by ${f} ET`, rMicro: (s, p) => `Microscalping: profit from trades of ${s} s or less, max ${p}`,
       largest: 'largest', latest: 'latest exit', worstC: 'worst cushion',
-      payouts: 'PAYOUTS (ONCE FUNDED)', buffer: 'Balance to keep', above: 'Above it today', reqMin: 'Min request', reqMax: 'Max request', reqMax1: 'first payout, then each of the next ones', request: 'Request', reqTxt: (a, b, c) => `min ${a}, max ${b} for the first payout, then ${c}`,
+      payouts: 'PAYOUTS (ONCE FUNDED)', payoutsF: 'PAYOUTS', bothPh: 'Evaluation and funded together.', buffer: 'Balance to keep', above: 'Above it today', reqMin: 'Min request', reqMax: 'Max request', reqMax1: 'first payout, then each of the next ones', request: 'Request', reqTxt: (a, b, c) => `min ${a}, max ${b} for the first payout, then ${c}`,
       cycle: 'Min profit per cycle', split: 'Split', delay: 'Paid within', bdays: n => `${n} business days`, methods: 'crypto (BTC, ETH, LTC, USDT, USDC) or WorkMarket',
       consist: 'PAYOUT CONSISTENCY', consistTxt: (s, l) => `Best day: ${s} of the profit. Limit once funded: ${l}. It does not count during the evaluation.`,
       notStarted: n => `Account #${n} has not started yet. It starts when I buy its evaluation.`, openStats: n => `Open the stats of account #${n}`,
@@ -73,7 +74,7 @@
     },
     fr: {
       tabs: [['perf', 'PERF'], ['exec', 'EXÉC.'], ['time', 'TIMING'], ['mind', 'MENTAL'], ['rules', 'RÈGLES']],
-      acct: 'COMPTE', all: 'TOUS', period: 'PÉRIODE', sess: 'SESSION', mode: 'P&L',
+      acct: 'COMPTE', all: 'TOUS', phase: 'PHASE', phEval: 'ÉVAL', phFunded: 'FUNDED', period: 'PÉRIODE', sess: 'SESSION', mode: 'P&L',
       net: 'NET', gross: 'BRUT', allTime: 'Depuis le début', month: 'Mois', week: 'Semaine du', day: 'Jour',
       sessS: { all: 'TOUTES', asia: 'ASIE', london: 'LDN', ny: 'NY' }, sessL: { asia: 'Asie', london: 'Londres', ny: 'New York' },
       none: 'Aucun trade dans cette sélection.', scopeAll: 'Tous les comptes : un trade copié sur plusieurs comptes compte une fois, ses dollars sont additionnés.',
@@ -112,10 +113,11 @@
       floorNote: (ml, lock, trig) => `suit la plus haute clôture à ${ml}, se bloque à ${lock} dès qu’une clôture dépasse ${trig}`,
       cushNow: 'Marge actuelle', cushWorst: 'Pire marge', cushWorst1: 'point le plus bas, latent compris', daysT: 'Jours tradés',
       toMake: 'Reste à faire', pace: d => `≈ ${d} jours à ce rythme`, target: 'OBJECTIF', perDay: 'Moyenne par jour', bestDay: 'Meilleur jour',
-      rules: 'RÈGLES DE L’ÉVALUATION', rTarget: t => `Objectif de profit +${t}`, rMll: m => `Perte max ${m}, trailing de fin de journée`, rSize: (a, b) => `Taille max ${a} minis / ${b} micros`,
+      rules: 'RÈGLES DE L’ÉVALUATION', rulesF: 'RÈGLES DU COMPTE FUNDED', targetF: 'PREMIER PAYOUT', rTarget: t => `Objectif de profit +${t}`, rTargetF: t => `Premier payout à partir de ${t} de solde`,
+      consistTxtF: (s, l) => `Meilleur jour : ${s} du profit du cycle. Limite : ${l}. Elle compte sur le compte funded.`, rMll: m => `Perte max ${m}, trailing de fin de journée`, rSize: (a, b) => `Taille max ${a} minis / ${b} micros`,
       rFlat: f => `À plat avant ${f} ET`, rMicro: (s, p) => `Microscalping : profit des trades de ${s} s ou moins, max ${p}`,
       largest: 'plus grosse', latest: 'dernière sortie', worstC: 'pire marge',
-      payouts: 'PAYOUTS (UNE FOIS FUNDED)', buffer: 'Solde à garder', above: 'Au-dessus aujourd’hui', reqMin: 'Demande min', reqMax: 'Demande max', reqMax1: 'premier payout, puis chacun des suivants', request: 'Demande', reqTxt: (a, b, c) => `min ${a}, max ${b} pour le premier payout, puis ${c}`,
+      payouts: 'PAYOUTS (UNE FOIS FUNDED)', payoutsF: 'PAYOUTS', bothPh: 'Évaluation et funded ensemble.', buffer: 'Solde à garder', above: 'Au-dessus aujourd’hui', reqMin: 'Demande min', reqMax: 'Demande max', reqMax1: 'premier payout, puis chacun des suivants', request: 'Demande', reqTxt: (a, b, c) => `min ${a}, max ${b} pour le premier payout, puis ${c}`,
       cycle: 'Profit min par cycle', split: 'Partage', delay: 'Payé sous', bdays: n => `${n} jours ouvrés`, methods: 'crypto (BTC, ETH, LTC, USDT, USDC) ou WorkMarket',
       consist: 'CONSISTANCE DES PAYOUTS', consistTxt: (s, l) => `Meilleur jour : ${s} du profit. Limite une fois funded : ${l}. Elle ne compte pas pendant l’évaluation.`,
       notStarted: n => `Le compte #${n} n’a pas encore commencé. Il démarre quand j’achète son évaluation.`, openStats: n => `Voir les stats du compte #${n}`,
@@ -132,7 +134,10 @@
   const w = () => W[X.LANG];
 
   /* ---------- state, scope ---------- */
-  const S = { tab: 'perf', acct: 'all', period: 'all', sess: 'all', mode: 'net', day: null };
+  const S = { tab: 'perf', acct: 'all', phase: 'all', period: 'all', sess: 'all', mode: 'net', day: null };
+  const lab = t => esc(String(t.label || t.id));
+  // phase whose rules apply to account n: the one picked in the PHASE filter, else the phase the account is in now
+  const phaseOf = n => { const ph = X.M.ph || {}; if (S.phase !== 'all' && ph[S.phase]) return S.phase; const a = (X.M.accounts || []).find(x => x.n === n) || {}; return ph.funded && ['funded', 'payout', 'live'].includes(a.stage) ? 'funded' : 'eval'; };
   const sum = a => a.reduce((s, x) => s + x, 0);
   const avg = a => (a.length ? sum(a) / a.length : null);
   const acctOf = t => t.account || 1;
@@ -163,6 +168,7 @@
   function scoped(o = {}) {
     let ts = X.M.trades;
     ts = S.acct === 'all' ? aggregate(ts) : ts.filter(t => acctOf(t) === +S.acct);
+    if (S.phase !== 'all') ts = ts.filter(t => (t.phase || 'eval') === S.phase);
     if (!o.noPeriod && S.period !== 'all') {
       const [k, v] = [S.period.slice(0, 1), S.period.slice(2)];
       ts = ts.filter(t => (k === 'm' ? t.session_date.slice(0, 7) === v : k === 'w' ? monday(t.session_date) === v : t.session_date === v));
@@ -217,7 +223,7 @@
       b += `<path class="ln" pathLength="1" d="${cum.map((v, i) => `${i ? 'L' : 'M'}${X1(i).toFixed(1)},${Y1(v).toFixed(1)}`).join('')}" fill="none" stroke="${C.amb}" stroke-width="1.8"/>`;
       const mx = Math.max(1, ...ts.map(t => Math.abs(P(t)))), y0 = h1 + gap + h2 / 2, bw = Math.max(1.5, (wd - pl - pr) / ts.length * 0.62);
       b += `<line x1="${pl}" x2="${wd - pr}" y1="${y0}" y2="${y0}" stroke="${C.grid}"/>`;
-      ts.forEach((t, i) => { const v = P(t), hh = Math.abs(v) / mx * h2 / 2; b += `<rect x="${X1(i) - bw / 2}" y="${v >= 0 ? y0 - hh : y0}" width="${bw}" height="${Math.max(1, hh)}" fill="${v >= 0 ? C.up : C.dn}"><title>#${t.id} ${sg(v)}</title></rect>`; });
+      ts.forEach((t, i) => { const v = P(t), hh = Math.abs(v) / mx * h2 / 2; b += `<rect x="${X1(i) - bw / 2}" y="${v >= 0 ? y0 - hh : y0}" width="${bw}" height="${Math.max(1, hh)}" fill="${v >= 0 ? C.up : C.dn}"><title>#${lab(t)} ${sg(v)}</title></rect>`; });
       b += txt(wd - pr + 6, y0 - h2 / 2 + 8, '+' + nf(mx, 0)) + txt(wd - pr + 6, y0 + h2 / 2, MINUS + nf(mx, 0));
       return svg(wd, h, b, w().curve);
     }, wd => (wd > 700 ? 300 : 230));
@@ -244,7 +250,7 @@
       const xlo = fx(o.xlo), xhi = fx(o.xhi), Xs = v => pl + (wd - pl - pr) * (fx(v) - xlo) / ((xhi - xlo) || 1), Ys = v => top + (h - top - bot) * (o.yhi - v) / ((o.yhi - o.ylo) || 1);
       let b = (o.yt || ticks(o.ylo, o.yhi)).map(v => `<line x1="${pl}" x2="${wd - pr}" y1="${Ys(v)}" y2="${Ys(v)}" stroke="${v === 0 ? '#4a320a' : C.grid}"/>${txt(wd - pr + 6, Ys(v) + 3.5, o.yf ? o.yf(v) : nf(v, 0))}`).join('');
       (o.xt || ticks(o.xlo, o.xhi)).forEach(v => { b += `<line x1="${Xs(v)}" x2="${Xs(v)}" y1="${top}" y2="${h - bot}" stroke="${C.grid}"/>` + txt(Xs(v), h - 9, o.xf ? o.xf(v) : nf(v, 0), { a: 'middle' }); });
-      pts.forEach(p => { b += `<circle cx="${Xs(p.x).toFixed(1)}" cy="${Ys(p.y).toFixed(1)}" r="3.4" fill="${p.col}" fill-opacity=".85" data-open="${p.id}" style="cursor:pointer"><title>#${p.id}</title></circle>`; });
+      pts.forEach(p => { b += `<circle cx="${Xs(p.x).toFixed(1)}" cy="${Ys(p.y).toFixed(1)}" r="3.4" fill="${p.col}" fill-opacity=".85" data-open="${p.id}" style="cursor:pointer"><title>#${esc(String(p.lab || p.id))}</title></circle>`; });
       if (o.xlab) b += txt(pl + 2, h - bot - 4, o.xlab, { fs: 9 });
       if (o.ylab) b += txt(pl + 2, top + 9, o.ylab, { fs: 9 });
       return svg(wd, h, b, o.label);
@@ -264,7 +270,7 @@
       kv(w().pf, ls.length ? nf(sum(wn) / -sum(ls)) : '—'), kv(w().exp, `<span class="${cl(exp)}">${sg(exp)}</span>${rUnit && exp != null ? `  <span class="mu">${sg(exp / rUnit)}R</span>` : ''}`),
       kv(w().rUnit, rUnit ? nf(rUnit) : '—'), kv(w().payoff, wn.length && ls.length ? nf(avg(wn) / -avg(ls)) : '—'),
       kv(w().aw, `<span class="up">${sg(avg(wn))}</span>`), kv(w().al, `<span class="dn">${sg(avg(ls))}</span>`),
-      kv(w().best, best ? `<span class="up">${sg(P(best))}</span>  <span class="mu">#${best.id}</span>` : '—'), kv(w().worst, worst ? `<span class="dn">${sg(P(worst))}</span>  <span class="mu">#${worst.id}</span>` : '—'),
+      kv(w().best, best ? `<span class="up">${sg(P(best))}</span>  <span class="mu">#${lab(best)}</span>` : '—'), kv(w().worst, worst ? `<span class="dn">${sg(P(worst))}</span>  <span class="mu">#${lab(worst)}</span>` : '—'),
       kv(w().mdd, `<span class="dn">${sg(-dd)}</span>`), kv(w().wStreak, String(bw)), kv(w().lStreak, String(bl)), kv(w().curStreak, cur), kv(w().fees, nf(sum(ts.map(t => t.fees || 0))))
     ].join('') + '</div>';
     h += sub(w().curve) + curveChart(ts);
@@ -301,11 +307,11 @@
       kv(w().hold, m(avg(ts.map(t => t.duration_s)))), kv(w().hold + ', ' + w().holdW, m(avg(wins.map(t => t.duration_s)))), kv(w().hold + ', ' + w().holdL, m(avg(losses.map(t => t.duration_s))))
     ].join('') + '</div>';
     const mx = Math.max(10, ...ts.map(t => Math.max(t.mae_pts || 0, t.mfe_pts || 0)));
-    h += sub(w().maeMfe, w().maeMfeNote) + scatterChart(ts.map(t => ({ x: t.mae_pts || 0, y: t.mfe_pts || 0, col: P(t) > 0 ? C.up : P(t) < 0 ? C.dn : C.mute, id: t.id })), { xlo: 0, xhi: mx * 1.05, ylo: 0, yhi: mx * 1.05, xlab: 'MAE', ylab: 'MFE', label: w().maeMfe });
+    h += sub(w().maeMfe, w().maeMfeNote) + scatterChart(ts.map(t => ({ x: t.mae_pts || 0, y: t.mfe_pts || 0, col: P(t) > 0 ? C.up : P(t) < 0 ? C.dn : C.mute, id: t.id, lab: t.label })), { xlo: 0, xhi: mx * 1.05, ylo: 0, yhi: mx * 1.05, xlab: 'MAE', ylab: 'MFE', label: w().maeMfe });
     const kb = [0, 0, 0, 0]; caps.forEach(c => { kb[Math.min(3, Math.floor(c * 4))]++; });
     h += sub(w().keep, w().keepNote) + barsChart(['0–25%', '25–50%', '50–75%', '75–100%'].map((l, i) => ({ label: l, v: kb[i], n: kb[i] || '', col: C.amb })), { fmt: v => String(v), h: 150, label: w().keep });
     const pv = ts.map(P), lim = Math.max(10, ...pv.map(Math.abs));
-    h += sub(w().holdPnl, w().holdPnlNote) + scatterChart(ts.map(t => ({ x: Math.max(1, t.duration_s), y: P(t), col: P(t) > 0 ? C.up : P(t) < 0 ? C.dn : C.mute, id: t.id })),
+    h += sub(w().holdPnl, w().holdPnlNote) + scatterChart(ts.map(t => ({ x: Math.max(1, t.duration_s), y: P(t), col: P(t) > 0 ? C.up : P(t) < 0 ? C.dn : C.mute, id: t.id, lab: t.label })),
       { xlo: 1, xhi: 3600, ylo: -lim * 1.1, yhi: lim * 1.1, logx: true, xt: [1, 10, 60, 300, 900, 3600], xf: v => (v < 60 ? v + 's' : v / 60 + 'm'), label: w().holdPnl });
     h += sub(w().byHold) + groupTable(ts, durKey, ['d1', 'd2', 'd3', 'd4', 'd5'], k => w().dur[k]);
     return h;
@@ -331,7 +337,7 @@
       ts.filter(t => t.session_date === day).forEach(t => {
         const xe = Xs(X.minOf(t.entry_time)), ye = Ys(t.entry_price), xx = Xs(X.minOf(t.exit_time)), yx = Ys(t.exit_price), col = P(t) > 0 ? C.up : P(t) < 0 ? C.dn : C.mute;
         const tri = t.side === 'long' ? `M${xe - 4.5},${ye + 7}L${xe + 4.5},${ye + 7}L${xe},${ye}Z` : `M${xe - 4.5},${ye - 7}L${xe + 4.5},${ye - 7}L${xe},${ye}Z`;
-        b += `<g data-open="${t.id}" style="cursor:pointer"><title>#${t.id} ${sg(P(t))}</title><line x1="${xe}" y1="${ye}" x2="${xx}" y2="${yx}" stroke="${col}" stroke-width="1.2"/><path d="${tri}" fill="${C.txt}"/><rect x="${xx - 3}" y="${yx - 3}" width="6" height="6" fill="${col}"/></g>`;
+        b += `<g data-open="${t.id}" style="cursor:pointer"><title>#${lab(t)} ${sg(P(t))}</title><line x1="${xe}" y1="${ye}" x2="${xx}" y2="${yx}" stroke="${col}" stroke-width="1.2"/><path d="${tri}" fill="${C.txt}"/><rect x="${xx - 3}" y="${yx - 3}" width="6" height="6" fill="${col}"/></g>`;
       });
       return svg(wd, h, b, w().sessChart + ' ' + day);
     }, wd => (wd > 700 ? 340 : 250));
@@ -386,7 +392,7 @@
         const pl = 2, pr = 2, lo = Math.min(0, ...cum), hi = Math.max(0, ...cum), Xs = i => pl + (wd - pl - pr) * (i + 1) / (cum.length + 0.5), Ys = v => 6 + (hh - 12) * (hi - v) / ((hi - lo) || 1);
         let b = `<line x1="${pl}" x2="${wd - pr}" y1="${Ys(0)}" y2="${Ys(0)}" stroke="${C.grid}"/>`;
         b += `<path class="ln" pathLength="1" d="M${pl},${Ys(0)}${cum.map((v, i) => `L${Xs(i).toFixed(1)},${Ys(v).toFixed(1)}`).join('')}" fill="none" stroke="${C.amb}" stroke-width="1.5"/>`;
-        l.forEach((t, i) => { b += `<circle cx="${Xs(i)}" cy="${Ys(cum[i])}" r="2.6" fill="${C[t.session]}" data-open="${t.id}" style="cursor:pointer"><title>#${t.id} ${sg(P(t))}</title></circle>`; });
+        l.forEach((t, i) => { b += `<circle cx="${Xs(i)}" cy="${Ys(cum[i])}" r="2.6" fill="${C[t.session]}" data-open="${t.id}" style="cursor:pointer"><title>#${lab(t)} ${sg(P(t))}</title></circle>`; });
         if (at) b += `<line x1="${Xs(at - 1)}" x2="${Xs(at - 1)}" y1="${Ys(pk) - 6}" y2="${Ys(pk) + 6}" stroke="${C.txt}"/>`;
         return svg(wd, hh, b, d);
       }, 78) + `<p class="hint">${note}</p></div>`;
@@ -394,7 +400,7 @@
     h += sub(w().byRank, w().byRankNote) + groupTable(ts, t => (t.nth <= 5 ? 'a' : t.nth <= 10 ? 'b' : t.nth <= 15 ? 'c' : t.nth <= 20 ? 'd' : 'e'), ['a', 'b', 'c', 'd', 'e'], k => ({ a: '1–5', b: '6–10', c: '11–15', d: '16–20', e: '21+' }[k]));
     const risky = ts.filter(t => t.risk_flags).slice().reverse();
     h += sub(w().riskyT, w().riskyNote(R)) + (risky.length ? table([['#', '34px'], [w().date, '96px'], [X.LANG === 'fr' ? 'POURQUOI' : 'WHY', '1fr'], [w().pnl, '78px', 1]],
-      risky.map(t => Object.assign([`<span class="mu">${t.id}</span>`, `${shortDay(t.session_date)} ${t.entry_hms.slice(0, 5)}`, t.risk_flags.split(',').filter(Boolean).map(f => w().flags[f] || f).join(', '), `<span class="${cl(P(t))}">${sg(P(t))}</span>`], { go: t.id })), 380) : `<p class="hint">—</p>`);
+      risky.map(t => Object.assign([`<span class="mu">${lab(t)}</span>`, `${shortDay(t.session_date)} ${t.entry_hms.slice(0, 5)}`, t.risk_flags.split(',').filter(Boolean).map(f => w().flags[f] || f).join(', '), `<span class="${cl(P(t))}">${sg(P(t))}</span>`], { go: t.id })), 380) : `<p class="hint">—</p>`);
     h += sub(w().afterWL) + groupTable(ts, t => t.prev || 'first', ['first', 'win', 'loss', 'be'], k => w().prev[k]);
     // after k losses in a row, same day
     const seq = group(ts, t => t.session_date), aft = { 2: [], 3: [] };
@@ -405,8 +411,8 @@
   }
 
   /* ---------- RULES (one account) ---------- */
-  function acctModel(n) {
-    const R = X.M.R, ts = X.M.trades.filter(t => acctOf(t) === n).sort(byTime), dates = [...new Set(ts.map(t => t.session_date))].sort();
+  function acctModel(n, ph) {
+    const R = ((X.M.ph || {})[ph] || {}).R || X.M.R, ts = X.M.trades.filter(t => acctOf(t) === n && (t.phase || 'eval') === (R.phase || 'eval')).sort(byTime), dates = [...new Set(ts.map(t => t.session_date))].sort();
     const fl = hw => Math.min(hw - R.max_loss, R.mll_lock_level);
     let bal = R.start_balance, hw = bal; const days = [];
     dates.forEach(d => {
@@ -422,8 +428,9 @@
       wc: days.length ? Math.min(...days.map(x => x.wc)) : null, maxNQ: Math.max(0, ...ts.filter(t => t.instrument === 'NQ').map(t => t.qty)), maxMNQ: Math.max(0, ...ts.filter(t => t.instrument === 'MNQ').map(t => t.qty)),
       flatBreaks: ts.filter(t => t.exit_et >= R.flat_by_et && t.exit_et < R.reopen_et).length, lastExit: ts.map(t => t.exit_et).filter(x => x < R.flat_by_et && x >= '09:30').sort().pop() || null };
   }
-  function rulesBlock(n) {
-    const a = acctModel(n), R = a.R, m = (v, d = 2) => X.usd(v, d), pct = R.profit_target ? a.profit / R.profit_target : 0;
+  function rulesBlock(n, ph) {
+    ph = ph || phaseOf(n);
+    const a = acctModel(n, ph), R = a.R, F = R.phase === 'funded', m = (v, d = 2) => X.usd(v, d), pct = R.profit_target ? Math.max(0, a.profit / R.profit_target) : 0;
     const chk = (ok, warn) => (ok ? `<span class="up">✓</span>` : warn ? `<span class="am">●</span>` : `<span class="dn">✗</span>`);
     const row = (mark, lab, val) => `<div class="chk">${mark}<span>${lab}</span><span class="dots"></span><span>${val}</span></div>`;
     const cells = 20, filled = Math.max(0, Math.min(cells, Math.round(pct * cells)));
@@ -433,22 +440,22 @@
       kv(w().cushNow, nf(a.bal - a.floor)), kv(w().cushWorst, a.wc == null ? '—' : nf(a.wc)), `<p class="hint">${w().cushWorst1}</p>`,
       kv(w().daysT, String(a.days.length)), kv(w().toMake, nf(a.toGo)), a.est ? `<p class="hint">${w().pace(nf(a.est, 1))}</p>` : ''
     ].join('') + '</div>';
-    h += sub(w().target) + `<div class="tbar"><span class="am">${'█'.repeat(filled)}</span><span class="mu">${'░'.repeat(cells - filled)}</span> <b>${pc(pct, 1)}</b></div>` +
+    h += sub(F ? w().targetF : w().target) + `<div class="tbar"><span class="am">${'█'.repeat(filled)}</span><span class="mu">${'░'.repeat(cells - filled)}</span> <b>${pc(pct, 1)}</b></div>` +
       '<div class="blk">' + kv(w().perDay, `<span class="${cl(a.avgDay)}">${sg(a.avgDay)}</span>`) + kv(w().bestDay, `<span class="${cl(a.best)}">${sg(a.best)}</span>`) + '</div>';
-    h += sub(w().rules) + '<div class="blk">' + [
-      row(chk(a.profit >= R.profit_target, true), w().rTarget(nf(R.profit_target, 0)), pc(pct, 1)),
+    h += sub(F ? w().rulesF : w().rules) + '<div class="blk">' + [
+      row(chk(a.profit >= R.profit_target, true), F ? w().rTargetF(nf(R.payout_threshold || R.start_balance + R.profit_target, 0)) : w().rTarget(nf(R.profit_target, 0)), pc(pct, 1)),
       row(chk(a.wc == null || a.wc > 0), w().rMll(nf(R.max_loss, 0)), `${w().worstC} ${a.wc == null ? '—' : nf(a.wc)}`),
       row(chk(a.maxNQ <= R.max_minis && a.maxMNQ <= R.max_micros), w().rSize(R.max_minis, R.max_micros), `${w().largest} ${a.maxNQ} NQ / ${a.maxMNQ} MNQ`),
       row(chk(a.flatBreaks === 0), w().rFlat(R.flat_by_et), `${w().latest} ${a.lastExit || '—'}`),
       row(chk(a.micro <= R.microscalp_max_share), w().rMicro(R.microscalp_max_s, pc(R.microscalp_max_share)), pc(a.micro, 1))
     ].join('') + '</div>';
-    h += sub(w().payouts) + '<div class="blk">' + [
+    h += sub(F ? w().payoutsF : w().payouts) + '<div class="blk">' + [
       kv(w().buffer, nf(R.payout_buffer)), kv(w().above, nf(Math.max(0, a.bal - R.payout_buffer))),
       kv(w().reqMin, m(R.payout_min_request, 0)), kv(w().reqMax, `${m(R.payout_max_first, 0)} / ${m(R.payout_max_next, 0)}`), `<p class="hint">${w().reqMax1}</p>`,
       kv(w().cycle, m(R.payout_min_profit, 0)), kv(w().split, pc(R.profit_split)), kv(w().delay, w().bdays(R.payout_business_days)), `<p class="hint">${w().methods}</p>`
     ].join('') + '</div>';
     const sh = a.share == null ? 0 : Math.min(1, a.share), lim = R.payout_consistency;
-    h += sub(w().consist) + `<div class="cbar"><i style="width:${sh * 100}%" class="${sh > lim ? 'bad' : ''}"></i><u style="left:${lim * 100}%"></u></div><p class="hint">${w().consistTxt(pc(a.share, 1), pc(lim))}</p>`;
+    h += sub(w().consist) + `<div class="cbar"><i style="width:${sh * 100}%" class="${sh > lim ? 'bad' : ''}"></i><u style="left:${lim * 100}%"></u></div><p class="hint">${(F ? w().consistTxtF : w().consistTxt)(pc(a.share, 1), pc(lim))}</p>`;
     return h;
   }
   function accDetail(n) {
@@ -456,7 +463,7 @@
     if (acc.stage === 'none') return `<div class="accd"><p class="hint">${w().notStarted(n)}</p></div>`;
     const ts = X.M.trades.filter(t => acctOf(t) === n), s = (() => { const p = ts.map(t => t.pnl_net), wn = p.filter(x => x > 0), ls = p.filter(x => x < 0); return { n: p.length, wr: p.length ? wn.length / p.length : null, pf: ls.length ? sum(wn) / -sum(ls) : null, net: sum(p) }; })();
     return `<div class="accd"><div class="accd-h">#${n} <span class="mu">${esc(acc.name || '')}</span> <span class="am">${w().stage[acc.stage]}</span></div>` +
-      sub(w().accStats) + `<div class="blk">${kv(w().trades, String(s.n))}${kv(w().wr, pc(s.wr))}${kv(w().pf, s.pf == null ? '—' : nf(s.pf))}${kv(w().pnl + ' (' + w().net + ')', `<span class="${cl(s.net)}">${sg(s.net)}</span>`)}</div>` +
+      sub(w().accStats, new Set(ts.map(t => t.phase || 'eval')).size > 1 ? w().bothPh : '') + `<div class="blk">${kv(w().trades, String(s.n))}${kv(w().wr, pc(s.wr))}${kv(w().pf, s.pf == null ? '—' : nf(s.pf))}${kv(w().pnl + ' (' + w().net + ')', `<span class="${cl(s.net)}">${sg(s.net)}</span>`)}</div>` +
       `<button type="button" class="btn" data-acstats="${n}">${w().openStats(n)} ▸</button>` + rulesBlock(n) + '</div>';
   }
 
@@ -472,6 +479,7 @@
     const chips = (key, items) => `<div>${items.map(([v, l]) => `<button type="button" data-f="${key}" data-v="${v}" aria-pressed="${String(S[key]) === String(v)}">${l}</button>`).join('')}</div>`;
     let h = `<div class="fbar">
       <div class="fl2"><span>${w().acct}</span>${chips('acct', [['all', w().all]].concat(accts.map(n => [String(n), '#' + n])))}</div>
+      ${X.M.ph && X.M.ph.funded ? `<div class="fl2"><span>${w().phase}</span>${chips('phase', [['all', w().all], ['eval', w().phEval], ['funded', w().phFunded]])}</div>` : ''}
       <div class="fl2"><label for="stPer">${w().period}</label><select id="stPer">${periodsList().map(([v, l]) => `<option value="${v}"${S.period === v ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></div>
       <div class="fl2"><span>${w().sess}</span>${chips('sess', ['all', 'asia', 'london', 'ny'].map(k => [k, w().sessS[k]]))}</div>
       <div class="fl2"><span>${w().mode}</span>${chips('mode', [['net', w().net], ['gross', w().gross]])}</div></div>`;

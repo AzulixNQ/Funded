@@ -20,6 +20,8 @@
       started: n => `${n} of 5 started`, stages: ['EVAL', 'FUNDED', 'PAYOUT', 'LIVE'],
       leadEval: (net, tgt, go) => `Account 1 is in its evaluation: <b>${net}</b> of the ${tgt} target. <b>${go}</b> to go.`,
       leadDone: 'Account 1 has hit its evaluation target.',
+      leadFunded: (go, thr, d) => `Account 1 passed its evaluation on ${d} and is funded now. Next step: the first payout, from a ${thr} balance. <b>${go}</b> to go.`,
+      fday: 'FUNDED DAY', phEval: 'EVAL', phFunded: 'FUNDED', phases: { eval: 'eval', funded: 'funded' }, payout1: '1ST PAYOUT',
       floor: 'FLOOR', floorNote: 'touch it and the account is gone', cushion: 'CUSHION', days: 'DAYS', trades: 'TRADES',
       path: 'All five go live together, so each one needs a first payout before that.',
       balR: 'account 1', hint: 'Tap or hover the curve to read each trade.', target: 'TARGET', start: 'START',
@@ -46,6 +48,8 @@
       started: n => `${n} sur 5 lancé${n > 1 ? 's' : ''}`, stages: ['ÉVAL', 'FUNDED', 'PAYOUT', 'LIVE'],
       leadEval: (net, tgt, go) => `Le compte 1 est en évaluation : <b>${net}</b> sur l’objectif de ${tgt}. Encore <b>${go}</b>.`,
       leadDone: 'Le compte 1 a atteint l’objectif de son évaluation.',
+      leadFunded: (go, thr, d) => `Le compte 1 a réussi son évaluation le ${d} : il est funded. Prochaine étape : le premier payout, à partir de ${thr} de solde. Encore <b>${go}</b>.`,
+      fday: 'JOUR FUNDED', phEval: 'ÉVAL', phFunded: 'FUNDED', phases: { eval: 'éval', funded: 'funded' }, payout1: '1ER PAYOUT',
       floor: 'PLANCHER', floorNote: 'si le solde le touche, le compte est perdu', cushion: 'MARGE', days: 'JOURS', trades: 'TRADES',
       path: 'Les cinq passent en live en même temps : chacun doit d’abord avoir eu un payout.',
       balR: 'compte 1', hint: 'Touche la courbe pour lire chaque trade.', target: 'OBJECTIF', start: 'DÉPART',
@@ -79,6 +83,7 @@
   const cls = n => (n > 0 ? 'up' : n < 0 ? 'dn' : '');
   const ymd = s => { const [y, m, d] = s.slice(0, 10).split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)); };
   const dayLabel = s => new Intl.DateTimeFormat(loc(), { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' }).format(ymd(s)).replace(',', '').toUpperCase();
+  const dayMonth = s => new Intl.DateTimeFormat(loc(), { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(ymd(s));
   const shortDate = s => LANG === 'fr' ? `${s.slice(8, 10)}/${s.slice(5, 7)}` : `${s.slice(5, 7)}/${s.slice(8, 10)}`;
   const minOf = s => { const [d, h] = s.replace('T', ' ').split(' '); const [y, m, dd] = d.split('-').map(Number); const [hh, mm, ss] = (h || '0:0').split(':').map(Number); return Date.UTC(y, m - 1, dd, hh, mm, ss || 0) / 60000; };
   const firstSentences = (txt, n) => { if (!txt) return ''; const m = txt.match(/[^.!?]+[.!?]+(\s|$)/g) || [txt]; return m.slice(0, n).join('').trim(); };
@@ -88,10 +93,8 @@
   const ui = { res: 'all', sess: 'all', all: false, open: null, dayOpen: {}, noteOpen: {}, acc: null };
   const IDS = ['acc', 'bal', 'log', 'tr', 'st', 'wt'];
 
-  function model(raw) {
-    const R = raw.rules[0], start = R.start_balance, target = R.profit_target, ML = R.max_loss, lock = R.mll_lock_level;
-    const trades = raw.trades.slice().sort((a, b) => (a.entry_time < b.entry_time ? -1 : 1));
-    const days = raw.days.slice().sort((a, b) => (a.session_date < b.session_date ? -1 : 1));
+  function phaseModel(R, trades, days) {
+    const start = R.start_balance, target = R.profit_target, ML = R.max_loss, lock = R.mll_lock_level;
     let bal = start; const eq = [{ b: start, t: null }], endOf = {};
     trades.forEach(x => { bal = +(bal + x.pnl_net).toFixed(2); eq.push({ b: bal, t: x }); endOf[x.session_date] = bal; });
     let run = start;
@@ -99,20 +102,33 @@
       const ts = trades.filter(x => x.session_date === d.session_date);
       run = endOf[d.session_date] ?? run;
       const close = d.balance_lucid ?? run;
-      return { date: d.session_date, no: d.day_no, ts, n: ts.length, w: ts.filter(x => x.pnl_net > 0).length, net: +ts.reduce((s, x) => s + x.pnl_net, 0).toFixed(2), close,
+      return { date: d.session_date, no: d.day_no, phase: d.phase || 'eval', ts, n: ts.length, w: ts.filter(x => x.pnl_net > 0).length, net: +ts.reduce((s, x) => s + x.pnl_net, 0).toFixed(2), close,
         sc: { asia: d.score_asia, london: d.score_london, ny: d.score_ny }, note: { en: d.note_en, fr: d.note_fr } };
     });
     const balance = D.length ? D[D.length - 1].close : bal;
     const maxClose = Math.max(start, ...D.map(d => d.close));
     const floor = Math.min(maxClose - ML, lock);
     const net = +(balance - start).toFixed(2);
+    return { R, start, target, ML, balance, net, pct: Math.max(0, net / target * 100), toGo: Math.max(0, +(target - net).toFixed(2)), floor, cushion: +(balance - floor).toFixed(2), eq, days: D, trades };
+  }
+  function model(raw) {
+    const RB = {}; raw.rules.forEach(r => { RB[r.phase || 'eval'] = r; });
+    const trades = raw.trades.slice().sort((a, b) => (a.entry_time < b.entry_time ? -1 : 1));
+    const days = raw.days.slice().sort((a, b) => (a.session_date < b.session_date ? -1 : 1));
+    const ph = {};
+    ['eval', 'funded'].forEach(p => {
+      const ts = trades.filter(x => (x.phase || 'eval') === p), ds = days.filter(d => (d.phase || 'eval') === p);
+      if (RB[p] && (p === 'eval' || ts.length || ds.length)) ph[p] = phaseModel(RB[p], ts, ds);
+    });
+    const a1 = (raw.accounts || []).find(a => a.n === 1) || {}, phase = ph.funded && ['funded', 'payout', 'live'].includes(a1.stage) ? 'funded' : 'eval', C = ph[phase];
+    const D = Object.values(ph).flatMap(p => p.days).sort((a, b) => (a.date < b.date ? -1 : 1));
     const wins = trades.filter(x => x.pnl_net > 0), losses = trades.filter(x => x.pnl_net < 0);
     const gw = wins.reduce((s, x) => s + x.pnl_net, 0), gl = -losses.reduce((s, x) => s + x.pnl_net, 0);
     const holds = trades.map(x => x.duration_s).sort((a, b) => a - b), mid = holds.length ? (holds.length % 2 ? holds[(holds.length - 1) / 2] : (holds[holds.length / 2 - 1] + holds[holds.length / 2]) / 2) : 0;
     const group = key => { const o = {}; trades.forEach(x => { const k = x[key]; o[k] = o[k] || { n: 0, net: 0, w: 0 }; o[k].n++; o[k].net = +(o[k].net + x.pnl_net).toFixed(2); if (x.pnl_net > 0) o[k].w++; }); return o; };
     return {
-      R, start, target, ML, balance, net, pct: Math.max(0, net / target * 100), toGo: Math.max(0, +(target - net).toFixed(2)), floor, cushion: +(balance - floor).toFixed(2),
-      trades, days: D, eq, accounts: raw.accounts, meta: raw.meta || {}, rawDays: days,
+      R: C.R, start: C.start, target: C.target, ML: C.ML, balance: C.balance, net: C.net, pct: C.pct, toGo: C.toGo, floor: C.floor, cushion: C.cushion,
+      ph, phase, trades, days: D, eq: C.eq, accounts: raw.accounts, meta: raw.meta || {}, rawDays: days,
       stats: { n: trades.length, w: wins.length, wr: trades.length ? wins.length / trades.length * 100 : 0, pf: gl ? gw / gl : 0, aw: wins.length ? gw / wins.length : 0, al: losses.length ? -gl / losses.length : 0,
         best: trades.reduce((a, b) => (b.pnl_net > (a?.pnl_net ?? -1e9) ? b : a), null), worst: trades.reduce((a, b) => (b.pnl_net < (a?.pnl_net ?? 1e9) ? b : a), null),
         hold: mid, fees: trades.reduce((s, x) => s + (x.fees || 0), 0), sess: group('session'), side: group('side') }
@@ -204,7 +220,7 @@
   function heads() {
     IDS.forEach((id, i) => {
       const h = $(`#${id} h2`); if (!h) return;
-      const right = { acc: t().started(M.accounts.filter(a => a.stage !== 'none').length), bal: t().balR, log: t().logR, tr: t().trR(M.trades.length), st: t().stR, wt: window.R5S ? R5S.watchMeta() : '' }[id];
+      const right = { acc: t().started(M.accounts.filter(a => a.stage !== 'none').length), bal: `${t().balR} · ${t().phases[ui.ph || M.phase]}`, log: t().logR, tr: t().trR(M.trades.length), st: t().stR, wt: window.R5S ? R5S.watchMeta() : '' }[id];
       h.innerHTML = `<span class="k">${i + 1}</span><span class="tt" data-t="${t().heads[i]}">${t().heads[i]}</span><span class="r" data-t="${esc(right)}">${esc(right)}</span>`;
     });
   }
@@ -218,20 +234,23 @@
       g += `<button type="button" class="n ${a.stage === 'none' ? 'off' : ''}" data-acc="${a.n}" aria-expanded="${ui.acc === a.n}" title="${esc(t().accOpen)}">#${a.n}<span class="chev">\u25B8</span></button>`;
       for (let j = 0; j < 4; j++) {
         if (k >= 0 && j < k) g += `<div class="done">✓</div>`;
-        else if (k >= 0 && j === k && a.stage === 'eval') g += `<div class="cur"><span class="fill"></span><b class="pc">0%</b><i></i></div>`;
+        else if (k >= 0 && j === k && (a.stage === 'eval' || a.stage === 'funded')) g += `<div class="cur"><span class="fill"></span><b class="pc">0%</b><i></i></div>`;
         else if (k >= 0 && j === k) g += `<div class="done">▶</div>`;
         else g += `<div class="e">···</div>`;
       }
     });
-    const lead = M.net >= M.target ? t().leadDone : t().leadEval(usd(M.net, 2, true), usd(M.target, 0), usd(M.toGo));
+    const C = M.ph[M.phase], passed = M.ph.eval && M.ph.eval.days.length ? M.ph.eval.days[M.ph.eval.days.length - 1].date : null;
+    const lead = M.phase === 'funded' ? t().leadFunded(usd(M.toGo), usd(M.R.payout_threshold || M.start + M.target, 0), passed ? dayMonth(passed) : '')
+      : M.net >= M.target ? t().leadDone : t().leadEval(usd(M.net, 2, true), usd(M.target, 0), usd(M.toGo));
     box.innerHTML = `<div class="grid" id="accGrid" data-an>${g}</div><div id="accDet"></div><p class="lead">${lead}</p>
       <div class="kvs" id="accKv" data-an>
         <div class="kv"><span class="l">${t().floor}</span><span><span class="dn">${num(M.floor)}</span> <span class="mu">${t().floorNote}</span></span></div>
         <div class="kv"><span class="l">${t().cushion}</span><span>${num(M.cushion)}</span></div>
-        <div class="kv"><span class="l">${t().days}</span><span>${M.days.filter(d => d.n).length}  <span class="mu">${t().trades}</span> ${M.trades.length}</span></div>
+        <div class="kv"><span class="l">${t().days}</span><span>${C.days.filter(d => d.n).length}  <span class="mu">${t().trades}</span> ${C.trades.length}</span></div>
       </div>
       <p class="note">${t().path}</p>`;
     const cur = $('.cur', box), pc = $('.pc', box), pct = Math.min(100, M.pct), grid = $('#accGrid');
+    if (cur && pct < 12) cur.classList.add('lo'); // the label is black on the amber fill: amber while the fill is too short to hold it
     when(grid, instant => {
       printRows(grid, 18);
       if (cur) { if (instant || !ANIM) { cur.style.setProperty('--w', pct + '%'); pc.textContent = Math.round(pct) + '%'; } else { setTimeout(() => cur.style.setProperty('--w', pct + '%'), 450); setTimeout(() => countTo(pc, pct, v => Math.round(v) + '%', 1000), 450); } }
@@ -249,19 +268,21 @@
 
   /* ---------- 2 balance chart ---------- */
   function balance() {
-    const box = $('#balBody');
-    box.innerHTML = `<div class="readout" id="rd">${t().hint}</div><div class="chart" id="eqc" data-an></div>`;
+    const box = $('#balBody'); if (!ui.ph || !M.ph[ui.ph]) ui.ph = M.phase;
+    const sw = M.ph.funded ? `<div class="fl"><div>${['eval', 'funded'].map(p => `<button type="button" data-ph="${p}" aria-pressed="${ui.ph === p}">${p === 'eval' ? t().phEval : t().phFunded}</button>`).join('')}</div></div>` : '';
+    box.innerHTML = sw + `<div class="readout" id="rd">${t().hint}</div><div class="chart" id="eqc" data-an></div>`;
+    $$('[data-ph]', box).forEach(b => b.addEventListener('click', () => { if (ui.ph === b.dataset.ph) return; ui.ph = b.dataset.ph; balance(); const r = $('#bal h2 .r'); if (r) { r.textContent = `${t().balR} · ${t().phases[ui.ph]}`; r.dataset.t = r.textContent; } }));
     drawEq(false);
   }
   function drawEq(redraw) {
     const host = $('#eqc'); if (!host) return;
     const w = Math.max(300, Math.round(host.clientWidth || 358)), h = w > 760 ? Math.round(Math.max(340, Math.min(560, innerHeight - 330))) : w > 600 ? 300 : 236, pl = 4, pr = 64, pt = 18, pb = 26;
-    const P = M.eq, last = P[P.length - 1].b;
-    const lo = Math.min(M.floor, ...P.map(p => p.b)) - 90, hi = Math.max(M.start + M.target, ...P.map(p => p.b)) + 70;
+    const Ph = M.ph[ui.ph] || M.ph[M.phase], F = Ph === M.ph.funded, P = Ph.eq, last = P[P.length - 1].b, goal = F ? (Ph.R.payout_threshold || Ph.start + Ph.target) : Ph.start + Ph.target;
+    const lo = Math.min(Ph.floor, ...P.map(p => p.b)) - 90, hi = Math.max(goal, ...P.map(p => p.b)) + 70;
     const X = i => pl + (w - pl - pr) * i / Math.max(1, P.length - 1), Y = v => pt + (h - pt - pb) * (hi - v) / (hi - lo);
-    let s = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(t().heads[1])}: ${num(M.start)} → ${num(last)}">`;
+    let s = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(t().heads[1])}: ${num(Ph.start)} → ${num(last)}">`;
     // day separators and labels
-    M.days.forEach((d, j) => {
+    Ph.days.forEach((d, j) => {
       const idx = P.map((p, i) => [p, i]).filter(([p]) => p.t && p.t.session_date === d.date).map(([, i]) => i);
       if (!idx.length) return;
       const a = Math.min(...idx), b = Math.max(...idx);
@@ -273,7 +294,7 @@
       s += `<text x="${pl + 2}" y="${Y(v) - 4}" font-size="9.5" fill="${col}" letter-spacing=".06em">${name}</text>`;
       s += `<text x="${w - pr + 8}" y="${Y(v) + 4}" font-size="10.5" fill="${col}">${nf(v, 0)}</text>`;
     };
-    lvl(M.start + M.target, '#3BD47A', '4 3', t().target); lvl(M.start, '#A08D6C', '1 3', t().start); lvl(M.floor, '#FF5149', '', t().floor);
+    lvl(goal, '#3BD47A', '4 3', F ? t().payout1 : t().target); lvl(Ph.start, '#A08D6C', '1 3', t().start); lvl(Ph.floor, '#FF5149', '', t().floor);
     const d = P.map((p, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(p.b).toFixed(1)}`).join('');
     s += `<path class="ln" pathLength="1" d="${d}" fill="none" stroke="#FFA41C" stroke-width="1.8" stroke-linejoin="round"/>`;
     P.forEach((p, i) => { if (i) s += `<circle class="dot" cx="${X(i)}" cy="${Y(p.b)}" r="2.2" fill="${p.t.pnl_net > 0 ? '#3BD47A' : p.t.pnl_net < 0 ? '#FF5149' : '#A08D6C'}" style="transition-delay:${(i / P.length * 1.3).toFixed(2)}s"/>`; });
@@ -286,7 +307,7 @@
       const r = svg.getBoundingClientRect(), x = (ev.clientX - r.left) * w / r.width;
       const i = Math.max(1, Math.min(P.length - 1, Math.round((x - pl) / ((w - pl - pr) / Math.max(1, P.length - 1)))));
       const p = P[i], tr = p.t; xh.setAttribute('opacity', 1); ln.setAttribute('x1', X(i)); ln.setAttribute('x2', X(i)); cc.setAttribute('cx', X(i)); cc.setAttribute('cy', Y(p.b));
-      rd.innerHTML = `<b>#${tr.id}</b>  ${shortDate(tr.session_date)} ${tr.entry_hms.slice(0, 5)}  ${tr.side === 'long' ? t().long : t().short}  <span class="${cls(tr.pnl_net)}">${sg(tr.pnl_net)}</span>  → <b>${num(p.b)}</b>`;
+      rd.innerHTML = `<b>#${esc(tr.label || tr.id)}</b>  ${shortDate(tr.session_date)} ${tr.entry_hms.slice(0, 5)}  ${tr.side === 'long' ? t().long : t().short}  <span class="${cls(tr.pnl_net)}">${sg(tr.pnl_net)}</span>  → <b>${num(p.b)}</b>`;
     };
     svg.addEventListener('pointermove', pick); svg.addEventListener('pointerdown', pick);
     svg.addEventListener('pointerleave', () => { xh.setAttribute('opacity', 0); rd.textContent = t().hint; });
@@ -308,7 +329,7 @@
     box.innerHTML = L.map((d, i) => {
       const open = ui.dayOpen[d.date] ?? (i === 0), noteOpen = !!ui.noteOpen[d.date], note = d.note[LANG] || d.note.en;
       const sc = ['asia', 'london', 'ny'].filter(k => d.sc[k] != null).map(k => `${t().sess[k]} <em>${nf(d.sc[k], d.sc[k] % 1 ? 1 : 0)}/10</em>`);
-      let h = `<article class="day" data-an data-day="${d.date}"><div class="dh"><span class="d">${dayLabel(d.date)}  ${t().day} ${d.no}</span><span class="p ${cls(d.net)}" data-v="${d.net}">${sg(d.net)}</span></div>`;
+      let h = `<article class="day" data-an data-day="${d.date}"><div class="dh"><span class="d">${dayLabel(d.date)}  ${d.phase === 'funded' ? t().fday : t().day} ${d.no}</span><span class="p ${cls(d.net)}" data-v="${d.net}">${sg(d.net)}</span></div>`;
       h += `<div class="ds">${t().tw(d.n, d.w)}${sc.length ? '. ' + sc.join(', ') + ` <span class="mu">(${t().score})</span>` : ''}</div>`;
       if (note) {
         const short = firstSentences(note, i === 0 ? 2 : 1), full = note.length > short.length + 2;
@@ -338,7 +359,7 @@
     const N = 12, shown = ui.all ? list : list.slice(0, N);
     let h = `<div class="fl">${flt(t().fRes, 'res')}${flt(t().fSess, 'sess')}</div>`;
     h += `<div class="row c6 h">${t().cols6.map((c, j) => `<span class="${j === 9 ? 'x' : ''} ${WD6.includes(j) ? 'wd' : ''}">${c}</span>`).join('')}</div><div class="rows" id="trRows" data-an>`;
-    h += shown.map(x => `<div class="row c6 t" role="button" tabindex="0" aria-expanded="${ui.open === x.id}" data-id="${x.id}"><span class="s">${x.id}</span><span>${shortDate(x.session_date)}</span><span>${x.entry_hms.slice(0, 5)}</span><span class="wd s">${t().sessS[x.session] || ''}</span><span>${x.side === 'long' ? t().long : t().short}</span><span class="wd">${num(x.entry_price)}</span><span class="wd">${num(x.exit_price)}</span><span class="wd s">${esc(x.dur_s_txt || '')}</span><span class="${cls(x.points)}">${sg(x.points)}</span><span class="x ${cls(x.pnl_net)}">${sg(x.pnl_net)}</span></div>${ui.open === x.id ? detailBox(x) : ''}`).join('');
+    h += shown.map(x => `<div class="row c6 t" role="button" tabindex="0" aria-expanded="${ui.open === x.id}" data-id="${x.id}"><span class="s">${esc(x.label || x.id)}</span><span>${shortDate(x.session_date)}</span><span>${x.entry_hms.slice(0, 5)}</span><span class="wd s">${t().sessS[x.session] || ''}</span><span>${x.side === 'long' ? t().long : t().short}</span><span class="wd">${num(x.entry_price)}</span><span class="wd">${num(x.exit_price)}</span><span class="wd s">${esc(x.dur_s_txt || '')}</span><span class="${cls(x.points)}">${sg(x.points)}</span><span class="x ${cls(x.pnl_net)}">${sg(x.pnl_net)}</span></div>${ui.open === x.id ? detailBox(x) : ''}`).join('');
     if (!list.length) h += `<div class="row"><span class="mu">${t().none}</span></div>`;
     h += '</div>';
     if (list.length > N) h += `<button class="more" id="trMore">${ui.all ? t().showLess : t().showAll(list.length)}</button>`;
@@ -381,7 +402,7 @@
     let lo = Math.min(...bs.map(q => q.l), x.entry_price, x.exit_price), hi = Math.max(...bs.map(q => q.h), x.entry_price, x.exit_price);
     const pad = (hi - lo) * 0.1 + 1; lo -= pad; hi += pad;
     const m0 = bs[0].m, m1 = bs[bs.length - 1].m + 1, X = m => pl + (w - pl - pr) * (m - m0) / (m1 - m0), Y = v => pt + (h - pt - pb) * (hi - v) / (hi - lo), cw = (w - pl - pr) / (m1 - m0);
-    let s = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="#${x.id}"><defs><clipPath id="cp${x.id}"><rect x="${pl}" y="${pt}" width="${w - pl - pr}" height="${h - pt - pb}"/></clipPath></defs>`;
+    let s = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="#${esc(x.label || x.id)}"><defs><clipPath id="cp${x.id}"><rect x="${pl}" y="${pt}" width="${w - pl - pr}" height="${h - pt - pb}"/></clipPath></defs>`;
     const step = [1, 2, 2.5, 5, 10, 20, 25, 50, 100].find(v => (hi - lo) / v <= 5) || 100;
     for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) s += `<line x1="${pl}" x2="${w - pr}" y1="${Y(v)}" y2="${Y(v)}" stroke="#1d1305"/><text x="${w - pr + 6}" y="${Y(v) + 3.5}" font-size="10" fill="#A08D6C">${nf(v, step < 1 ? 2 : 0)}</text>`;
     const every = (m1 - m0) / ((w - pl - pr) / 46) > 10 ? ((m1 - m0) / ((w - pl - pr) / 46) > 20 ? 30 : 20) : 10;
@@ -406,7 +427,7 @@
     if (window.R5S) { R5S.stats(); return; }
     const S = M.stats, box = $('#stBody');
     const rows = [[t().wr, `${nf(S.wr, 0)}%  <span class="mu">${S.w}/${S.n}</span>`], [t().pf, nf(S.pf, 2)], [t().aw, `<span class="up">${sg(S.aw)}</span>`], [t().al, `<span class="dn">${sg(S.al)}</span>`],
-      [t().best, S.best ? `<span class="up">${sg(S.best.pnl_net)}</span>  <span class="mu">#${S.best.id}</span>` : '—'], [t().worst, S.worst ? `<span class="dn">${sg(S.worst.pnl_net)}</span>  <span class="mu">#${S.worst.id}</span>` : '—'],
+      [t().best, S.best ? `<span class="up">${sg(S.best.pnl_net)}</span>  <span class="mu">#${esc(S.best.label || S.best.id)}</span>` : '—'], [t().worst, S.worst ? `<span class="dn">${sg(S.worst.pnl_net)}</span>  <span class="mu">#${esc(S.worst.label || S.worst.id)}</span>` : '—'],
       [t().hold, `${Math.round(S.hold / 60)} ${t().min}`], [t().feesPaid, nf(S.fees)]];
     const bars = (obj, keys, names) => { const mx = Math.max(1, ...keys.map(k => Math.abs(obj[k]?.net || 0))); return keys.filter(k => obj[k]).map(k => `<div class="bar"><span>${names[k]}</span><span class="mu">${obj[k].n}</span><span class="${cls(obj[k].net)}">${sg(obj[k].net)}</span><span class="g ${cls(obj[k].net)}" data-n="${obj[k].net / mx}"></span></div>`).join(''); };
     box.innerHTML = `<div id="stKv" data-an>${rows.map(([a, b]) => `<div class="st"><span>${a}</span><span class="dots"></span><span>${b}</span></div>`).join('')}</div>

@@ -301,7 +301,17 @@
       "fr": "Moral des ménages, université du Michigan (novembre, 1re estimation)"
      }
     }
-   ]
+   ],
+   "result": {
+    "chg_pct": -4.91,
+    "close": 26989.99,
+    "prev_close": 28384.85,
+    "index": "Nasdaq-100",
+    "from": "2026-10-30",
+    "to": "2026-11-06",
+    "src": "The Glass Desk, Weekly Market Review Nov 6 2026",
+    "url": "https://theglassdesk.substack.com/p/weekly-market-review-nov-6-2026"
+   }
   }
  ]
 }

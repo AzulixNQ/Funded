@@ -63,6 +63,11 @@
       consist: 'PAYOUT CONSISTENCY', consistTxt: (s, l) => `Best day: ${s} of the profit. Limit once funded: ${l}. It does not count during the evaluation.`,
       notStarted: n => `Account #${n} has not started yet. It starts when I buy its evaluation.`, openStats: n => `Open the stats of account #${n}`,
       accStats: 'THIS ACCOUNT', stage: { eval: 'Evaluation', funded: 'Funded', payout: 'Funded, paid out', live: 'Live', none: 'Not started' },
+      rDll: d => `Daily loss limit ${d}: trading stops until the next session, the account stays open`, worstDay: 'worst day',
+      rConsist: l => `Consistency: best day at most ${l} of the profit`, consistE: 'EVALUATION CONSISTENCY',
+      consistTxtE: (s, l) => `Best day: ${s} of the profit. Limit: ${l}, so it takes at least 3 winning days. It counts during the evaluation.`,
+      noConsistF: 'No consistency rule on the funded account.', scaleTxt: (a, b, at) => `Funded size: ${a} mini (${a * 10} micros) until +${at} of profit, then ${b} minis (${b * 10} micros).`,
+      winDays: 'Winning days', winDaysTxt: (n, m) => `${n} days of ${m}+ per cycle`, reqMaxPct: (p, c) => `${p} of the profit, up to ${c}`, maxCount: n => `Up to ${n} payouts on this account.`,
       // watch
       wMeta: w => `week of ${w}`, wMetaNone: 'first one on Monday', wNone: d => `The first weekly watch comes out on Monday, ${d}.`,
       wHow: 'HOW IT WORKS', wHowTxt: 'Every Monday I read what banks, hedge funds and sentiment surveys say about US stocks for the week, plus the events that can move the Nasdaq. Each source gets a score from −2 (very bearish) to +2 (very bullish). The gauge is the weighted average, from −100 to +100.',
@@ -122,6 +127,11 @@
       consist: 'CONSISTANCE DES PAYOUTS', consistTxt: (s, l) => `Meilleur jour : ${s} du profit. Limite une fois funded : ${l}. Elle ne compte pas pendant l’évaluation.`,
       notStarted: n => `Le compte #${n} n’a pas encore commencé. Il démarre quand j’achète son évaluation.`, openStats: n => `Voir les stats du compte #${n}`,
       accStats: 'CE COMPTE', stage: { eval: 'Évaluation', funded: 'Funded', payout: 'Funded, payout reçu', live: 'Live', none: 'Pas commencé' },
+      rDll: d => `Limite de perte du jour ${d} : arrêt jusqu’à la séance suivante, le compte reste ouvert`, worstDay: 'pire jour',
+      rConsist: l => `Consistance : meilleur jour au plus ${l} du profit`, consistE: 'CONSISTANCE DE L’ÉVALUATION',
+      consistTxtE: (s, l) => `Meilleur jour : ${s} du profit. Limite : ${l}, donc au moins 3 jours gagnants. Elle compte pendant l’évaluation.`,
+      noConsistF: 'Pas de règle de consistance sur le compte funded.', scaleTxt: (a, b, at) => `Taille en funded : ${a} mini (${a * 10} micros) jusqu’à +${at} de profit, puis ${b} minis (${b * 10} micros).`,
+      winDays: 'Jours gagnants', winDaysTxt: (n, m) => `${n} jours à ${m} ou plus par cycle`, reqMaxPct: (p, c) => `${p} du profit, ${c} max`, maxCount: n => `Jusqu’à ${n} payouts sur ce compte.`,
       wMeta: w => `semaine du ${w}`, wMetaNone: 'première lundi', wNone: d => `La première veille sort le lundi ${d}.`,
       wHow: 'COMMENT ÇA MARCHE', wHowTxt: 'Chaque lundi, je lis ce que disent les banques, les hedge funds et les sondages de sentiment sur les actions US pour la semaine, et les annonces qui peuvent faire bouger le Nasdaq. Chaque source reçoit une note de −2 (très bearish) à +2 (très bullish). La jauge est la moyenne pondérée, de −100 à +100.',
       wWeights: 'Poids : banques 30 %, hedge funds et positionnement 25 %, sondages 15 %, annonces de la semaine 15 %, contexte du Nasdaq 15 %.',
@@ -141,6 +151,10 @@
   const sum = a => a.reduce((s, x) => s + x, 0);
   const avg = a => (a.length ? sum(a) / a.length : null);
   const acctOf = t => t.account || 1;
+  // account bought on a slot ("run"): pro1 (LucidPro, lost) then flex1 (LucidFlex) on slot 1; data without "run" is pro1
+  const runId = x => x.run || 'pro1';
+  const runOfSlot = n => runId((X.M.accounts || []).find(a => a.n === n) || {});
+  const runsAll = () => (X.M.runs || []).slice().sort((a, b) => (a.cur === b.cur ? (a.start < b.start ? 1 : -1) : a.cur ? -1 : 1));
   const P = t => (S.mode === 'gross' ? t.pnl_gross : t.pnl_net);
   const byTime = (a, b) => (a.entry_time < b.entry_time ? -1 : 1);
   const monday = d => { const x = X.ymd(d), k = (x.getUTCDay() + 6) % 7; x.setUTCDate(x.getUTCDate() - k); return x.toISOString().slice(0, 10); };
@@ -167,7 +181,7 @@
   }
   function scoped(o = {}) {
     let ts = X.M.trades;
-    ts = S.acct === 'all' ? aggregate(ts) : ts.filter(t => acctOf(t) === +S.acct);
+    ts = S.acct === 'all' ? aggregate(ts) : ts.filter(t => runId(t) === S.acct);
     if (S.phase !== 'all') ts = ts.filter(t => (t.phase || 'eval') === S.phase);
     if (!o.noPeriod && S.period !== 'all') {
       const [k, v] = [S.period.slice(0, 1), S.period.slice(2)];
@@ -412,19 +426,20 @@
 
   /* ---------- RULES (one account) ---------- */
   function acctModel(n, ph) {
-    const R = ((X.M.ph || {})[ph] || {}).R || X.M.R, ts = X.M.trades.filter(t => acctOf(t) === n && (t.phase || 'eval') === (R.phase || 'eval')).sort(byTime), dates = [...new Set(ts.map(t => t.session_date))].sort();
+    const run = runOfSlot(n), R = ((X.M.ph || {})[ph] || {}).R || X.M.R, ts = X.M.trades.filter(t => acctOf(t) === n && runId(t) === run && (t.phase || 'eval') === (R.phase || 'eval')).sort(byTime), dates = [...new Set(ts.map(t => t.session_date))].sort();
     const fl = hw => Math.min(hw - R.max_loss, R.mll_lock_level);
     let bal = R.start_balance, hw = bal; const days = [];
     dates.forEach(d => {
       const open = bal, mllIn = fl(hw); let eq = open, worst = open;
       ts.filter(t => t.session_date === d).forEach(t => { worst = Math.min(worst, eq + t.mae_usd); eq += t.pnl_net; worst = Math.min(worst, eq); });
-      const lucid = n === 1 ? ((X.M.rawDays || []).find(x => x.session_date === d) || {}).balance_lucid : null;
+      const lucid = n === 1 ? ((X.M.rawDays || []).find(x => x.session_date === d && runId(x) === run) || {}).balance_lucid : null;
       bal = lucid != null ? lucid : +eq.toFixed(2); hw = Math.max(hw, bal); days.push({ d, pnl: bal - open, worst, mllIn, wc: worst - mllIn });
     });
     const pos = x => Math.max(0, x), profit = bal - R.start_balance, best = days.length ? Math.max(...days.map(x => x.pnl)) : 0;
     const allW = sum(ts.map(t => pos(t.pnl_gross))), quick = sum(ts.filter(t => t.duration_s <= R.microscalp_max_s).map(t => pos(t.pnl_gross)));
     const avgDay = dates.length ? profit / dates.length : null, toGo = Math.max(0, R.profit_target - profit);
     return { R, ts, days, bal, hw, floor: fl(hw), profit, best, share: profit > 0 ? best / profit : null, micro: allW ? quick / allW : 0, avgDay, toGo, est: avgDay > 0 ? toGo / avgDay : null,
+      worstDay: days.length ? Math.min(...days.map(x => x.pnl)) : null,
       wc: days.length ? Math.min(...days.map(x => x.wc)) : null, maxNQ: Math.max(0, ...ts.filter(t => t.instrument === 'NQ').map(t => t.qty)), maxMNQ: Math.max(0, ...ts.filter(t => t.instrument === 'MNQ').map(t => t.qty)),
       flatBreaks: ts.filter(t => t.exit_et >= R.flat_by_et && t.exit_et < R.reopen_et).length, lastExit: ts.map(t => t.exit_et).filter(x => x < R.flat_by_et && x >= '09:30').sort().pop() || null };
   }
@@ -445,26 +460,38 @@
     h += sub(F ? w().rulesF : w().rules) + '<div class="blk">' + [
       row(chk(a.profit >= R.profit_target, true), F ? w().rTargetF(nf(R.payout_threshold || R.start_balance + R.profit_target, 0)) : w().rTarget(nf(R.profit_target, 0)), pc(pct, 1)),
       row(chk(a.wc == null || a.wc > 0), w().rMll(nf(R.max_loss, 0)), `${w().worstC} ${a.wc == null ? '—' : nf(a.wc)}`),
+      R.dll ? row(chk(a.worstDay == null || a.worstDay > -R.dll), w().rDll(m(R.dll, 0)), `${w().worstDay} ${a.worstDay == null ? '—' : sg(a.worstDay)}`) : '',
+      R.consistency != null ? row(chk(a.share == null || a.share <= R.consistency, true), w().rConsist(pc(R.consistency)), pc(a.share, 1)) : '',
       row(chk(a.maxNQ <= R.max_minis && a.maxMNQ <= R.max_micros), w().rSize(R.max_minis, R.max_micros), `${w().largest} ${a.maxNQ} NQ / ${a.maxMNQ} MNQ`),
       row(chk(a.flatBreaks === 0), w().rFlat(R.flat_by_et), `${w().latest} ${a.lastExit || '—'}`),
       row(chk(a.micro <= R.microscalp_max_share), w().rMicro(R.microscalp_max_s, pc(R.microscalp_max_share)), pc(a.micro, 1))
     ].join('') + '</div>';
-    h += sub(F ? w().payoutsF : w().payouts) + '<div class="blk">' + [
+    // funded size steps (LucidFlex): shown from the evaluation on, so the next phase is known in advance
+    const RF = ((((X.M.runs || []).find(r => r.run === runOfSlot(n)) || {}).rules) || {}).funded;
+    const scale = R.scaling || (RF && RF.scaling);
+    if (scale && scale.length > 1) h += `<p class="hint">${w().scaleTxt(scale[0][1], scale[1][1], nf(scale[1][0], 0))}</p>`;
+    h += sub(F ? w().payoutsF : w().payouts) + '<div class="blk">' + (R.payout_win_days ? [
+      kv(w().winDays, w().winDaysTxt(R.payout_win_days, m(R.payout_win_day_min, 0))), kv(w().reqMin, m(R.payout_min_request, 0)),
+      kv(w().reqMax, w().reqMaxPct(pc(R.payout_max_share), m(R.payout_max_cap, 0))), kv(w().split, pc(R.profit_split)),
+      R.payout_max_count ? `<p class="hint">${w().maxCount(R.payout_max_count)}</p>` : ''
+    ] : [
       kv(w().buffer, nf(R.payout_buffer)), kv(w().above, nf(Math.max(0, a.bal - R.payout_buffer))),
       kv(w().reqMin, m(R.payout_min_request, 0)), kv(w().reqMax, `${m(R.payout_max_first, 0)} / ${m(R.payout_max_next, 0)}`), `<p class="hint">${w().reqMax1}</p>`,
       kv(w().cycle, m(R.payout_min_profit, 0)), kv(w().split, pc(R.profit_split)), kv(w().delay, w().bdays(R.payout_business_days)), `<p class="hint">${w().methods}</p>`
-    ].join('') + '</div>';
-    const sh = a.share == null ? 0 : Math.min(1, a.share), lim = R.payout_consistency;
-    h += sub(w().consist) + `<div class="cbar"><i style="width:${sh * 100}%" class="${sh > lim ? 'bad' : ''}"></i><u style="left:${lim * 100}%"></u></div><p class="hint">${(F ? w().consistTxtF : w().consistTxt)(pc(a.share, 1), pc(lim))}</p>`;
+    ]).join('') + '</div>';
+    // consistency: during the LucidFlex evaluation (R.consistency), or on LucidPro payouts (R.payout_consistency); none on a funded Flex
+    const sh = a.share == null ? 0 : Math.min(1, a.share), lim = R.consistency != null ? R.consistency : R.payout_consistency;
+    if (lim != null) h += sub(R.consistency != null ? w().consistE : w().consist) + `<div class="cbar"><i style="width:${sh * 100}%" class="${sh > lim ? 'bad' : ''}"></i><u style="left:${lim * 100}%"></u></div><p class="hint">${(R.consistency != null ? w().consistTxtE : F ? w().consistTxtF : w().consistTxt)(pc(a.share, 1), pc(lim))}</p>`;
+    else h += sub(w().consist) + `<p class="hint">${w().noConsistF}</p>`;
     return h;
   }
   function accDetail(n) {
     const acc = X.M.accounts.find(a => a.n === n) || { n, stage: 'none' };
     if (acc.stage === 'none') return `<div class="accd"><p class="hint">${w().notStarted(n)}</p></div>`;
-    const ts = X.M.trades.filter(t => acctOf(t) === n), s = (() => { const p = ts.map(t => t.pnl_net), wn = p.filter(x => x > 0), ls = p.filter(x => x < 0); return { n: p.length, wr: p.length ? wn.length / p.length : null, pf: ls.length ? sum(wn) / -sum(ls) : null, net: sum(p) }; })();
+    const run = runOfSlot(n), ts = X.M.trades.filter(t => acctOf(t) === n && runId(t) === run), s = (() => { const p = ts.map(t => t.pnl_net), wn = p.filter(x => x > 0), ls = p.filter(x => x < 0); return { n: p.length, wr: p.length ? wn.length / p.length : null, pf: ls.length ? sum(wn) / -sum(ls) : null, net: sum(p) }; })();
     return `<div class="accd"><div class="accd-h">#${n} <span class="mu">${esc(acc.name || '')}</span> <span class="am">${w().stage[acc.stage]}</span></div>` +
       sub(w().accStats, new Set(ts.map(t => t.phase || 'eval')).size > 1 ? w().bothPh : '') + `<div class="blk">${kv(w().trades, String(s.n))}${kv(w().wr, pc(s.wr))}${kv(w().pf, s.pf == null ? '—' : nf(s.pf))}${kv(w().pnl + ' (' + w().net + ')', `<span class="${cl(s.net)}">${sg(s.net)}</span>`)}</div>` +
-      `<button type="button" class="btn" data-acstats="${n}">${w().openStats(n)} ▸</button>` + rulesBlock(n) + '</div>';
+      (s.n ? `<button type="button" class="btn" data-acstats="${esc(run)}">${w().openStats(n)} ▸</button>` : '') + rulesBlock(n) + '</div>';
   }
 
   /* ---------- STATS section ---------- */
@@ -475,11 +502,13 @@
   }
   function stats() {
     const box = $('#stBody'); if (!box) return;
-    const accts = X.M.accounts.filter(a => a.stage !== 'none').map(a => a.n);
+    // one chip per account bought: the current ones, then the lost ones (✗)
+    const accts = runsAll().filter(r => r.cur || X.M.trades.some(t => runId(t) === r.run));
+    if (S.acct !== 'all' && !accts.some(r => r.run === S.acct)) S.acct = 'all';
     const chips = (key, items) => `<div>${items.map(([v, l]) => `<button type="button" data-f="${key}" data-v="${v}" aria-pressed="${String(S[key]) === String(v)}">${l}</button>`).join('')}</div>`;
     let h = `<div class="fbar">
-      <div class="fl2"><span>${w().acct}</span>${chips('acct', [['all', w().all]].concat(accts.map(n => [String(n), '#' + n])))}</div>
-      ${X.M.ph && X.M.ph.funded ? `<div class="fl2"><span>${w().phase}</span>${chips('phase', [['all', w().all], ['eval', w().phEval], ['funded', w().phFunded]])}</div>` : ''}
+      <div class="fl2"><span>${w().acct}</span>${chips('acct', [['all', w().all]].concat(accts.map(r => [r.run, `#${r.n}${r.short ? ' ' + esc(r.short) : ''}${r.lost ? ' ✗' : ''}`])))}</div>
+      ${X.M.trades.some(t => t.phase === 'funded') ? `<div class="fl2"><span>${w().phase}</span>${chips('phase', [['all', w().all], ['eval', w().phEval], ['funded', w().phFunded]])}</div>` : ''}
       <div class="fl2"><label for="stPer">${w().period}</label><select id="stPer">${periodsList().map(([v, l]) => `<option value="${v}"${S.period === v ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></div>
       <div class="fl2"><span>${w().sess}</span>${chips('sess', ['all', 'asia', 'london', 'ny'].map(k => [k, w().sessS[k]]))}</div>
       <div class="fl2"><span>${w().mode}</span>${chips('mode', [['net', w().net], ['gross', w().gross]])}</div></div>`;
@@ -494,8 +523,10 @@
     const el = $('#stTab'); if (!el) return;
     CH.clear();
     if (S.tab === 'rules') {
-      const ns = S.acct === 'all' ? X.M.accounts.filter(a => a.stage !== 'none').map(a => a.n) : [+S.acct];
-      el.innerHTML = ns.map(n => `<div class="acct-h">#${n}</div>` + rulesBlock(n)).join('') || `<p class="hint">${w().none}</p>`;
+      // rules of the accounts open now; a lost account shows how it ended instead (its last days are not logged)
+      const rs = runsAll().filter(r => (S.acct === 'all' ? r.cur : r.run === S.acct)), T = X.t();
+      el.innerHTML = rs.map(r => `<div class="acct-h">#${r.n} <span class="mu">${esc(r.name || '')}</span>${r.lost ? ` <span class="tag dn">${T.lostTag}</span>` : ''}</div>` +
+        (r.cur ? rulesBlock(r.n) : `<p class="hint">${esc(T.pastTxt(X.dayMonth(r.passed || r.start), X.dayMonth(r.lost || r.start), (r.why || {})[X.LANG] || (r.why || {}).en || ''))}</p>`)).join('') || `<p class="hint">${w().none}</p>`;
     } else {
       const ts = scoped();
       el.innerHTML = (S.acct === 'all' && X.M.accounts.filter(a => a.stage !== 'none').length > 1 ? `<p class="hint">${w().scopeAll}</p>` : '') +

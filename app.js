@@ -18,11 +18,15 @@
       keys: ['ACCTS', 'CHART', 'LOG', 'TRADES', 'STATS', 'WATCH'], heads: ['ACCOUNTS', 'BALANCE', 'LOG', 'TRADES', 'STATS', 'WEEKLY WATCH'],
       last: 'LAST SESSION', paris: 'PARIS', cmeO: 'CME OPEN', cmeC: 'CME CLOSED',
       started: n => `${n} of 5 started`, stages: ['EVAL', 'FUNDED', 'PAYOUT', 'LIVE'],
-      leadEval: (net, tgt, go) => `Account 1 is in its evaluation: <b>${net}</b> of the ${tgt} target. <b>${go}</b> to go.`,
+      leadEval: (name, d, net, tgt, go) => `Account 1 is a ${name}, in its evaluation since ${d}: <b>${net}</b> of the ${tgt} target. <b>${go}</b> to go.`,
       leadDone: 'Account 1 has hit its evaluation target.',
       leadFunded: (go, thr, d) => `Account 1 passed its evaluation on ${d} and is funded now. Next step: the first payout, from a ${thr} balance. <b>${go}</b> to go.`,
       fday: 'FUNDED DAY', phEval: 'EVAL', phFunded: 'FUNDED', phases: { eval: 'eval', funded: 'funded' }, payout1: '1ST PAYOUT',
       floor: 'FLOOR', floorNote: 'touch it and the account is gone', cushion: 'CUSHION', days: 'DAYS', trades: 'TRADES',
+      dll: 'DAILY LIMIT', dllNote: 'hit it and I stop until the next session',
+      past: 'BEFORE', lostTag: 'LOST', passedTag: 'PASSED', pastTxt: (p, l, why) => `Evaluation passed on ${p}, funded, then lost on ${l}: ${why}.`,
+      lostDay: 'ACCOUNT LOST', lostDs: 'The funded account hit its max loss limit.', lostHint: d => `Lost on ${d}: the trades of the last days are not logged here.`,
+      runSince: d => `since ${d}`, noTrade: 'No trade yet on this account.', noCurve: 'No trade yet on this account: the curve starts with the first one.',
       path: 'All five go live together, so each one needs a first payout before that.',
       balR: 'account 1', hint: 'Tap or hover the curve to read each trade.', target: 'TARGET', start: 'START',
       logR: 'newest first', day: 'DAY', tw: (n, w) => `${n} trade${n > 1 ? 's' : ''}, ${w} won`,
@@ -46,11 +50,15 @@
       keys: ['COMPTES', 'COURBE', 'JOURNAL', 'TRADES', 'STATS', 'VEILLE'], heads: ['COMPTES', 'SOLDE', 'JOURNAL', 'TRADES', 'STATS', 'VEILLE'],
       last: 'DERNIÈRE SÉANCE', paris: 'PARIS', cmeO: 'CME OUVERT', cmeC: 'CME FERMÉ',
       started: n => `${n} sur 5 lancé${n > 1 ? 's' : ''}`, stages: ['ÉVAL', 'FUNDED', 'PAYOUT', 'LIVE'],
-      leadEval: (net, tgt, go) => `Le compte 1 est en évaluation : <b>${net}</b> sur l’objectif de ${tgt}. Encore <b>${go}</b>.`,
+      leadEval: (name, d, net, tgt, go) => `Le compte 1 est un ${name}, en évaluation depuis le ${d} : <b>${net}</b> sur l’objectif de ${tgt}. Encore <b>${go}</b>.`,
       leadDone: 'Le compte 1 a atteint l’objectif de son évaluation.',
       leadFunded: (go, thr, d) => `Le compte 1 a réussi son évaluation le ${d} : il est funded. Prochaine étape : le premier payout, à partir de ${thr} de solde. Encore <b>${go}</b>.`,
       fday: 'JOUR FUNDED', phEval: 'ÉVAL', phFunded: 'FUNDED', phases: { eval: 'éval', funded: 'funded' }, payout1: '1ER PAYOUT',
       floor: 'PLANCHER', floorNote: 'si le solde le touche, le compte est perdu', cushion: 'MARGE', days: 'JOURS', trades: 'TRADES',
+      dll: 'LIMITE JOUR', dllNote: 'si je la touche, j’arrête jusqu’à la séance suivante',
+      past: 'AVANT', lostTag: 'PERDU', passedTag: 'RÉUSSIE', pastTxt: (p, l, why) => `Évaluation réussie le ${p}, funded, puis perdu le ${l} : ${why}.`,
+      lostDay: 'COMPTE PERDU', lostDs: 'Le compte funded a touché sa limite de perte maximale.', lostHint: d => `Perdu le ${d} : les trades des derniers jours ne sont pas détaillés ici.`,
+      runSince: d => `depuis le ${d}`, noTrade: 'Pas encore de trade sur ce compte.', noCurve: 'Pas encore de trade sur ce compte : la courbe démarre au premier.',
       path: 'Les cinq passent en live en même temps : chacun doit d’abord avoir eu un payout.',
       balR: 'compte 1', hint: 'Touche la courbe pour lire chaque trade.', target: 'OBJECTIF', start: 'DÉPART',
       logR: 'récent d’abord', day: 'JOUR', tw: (n, w) => `${n} trade${n > 1 ? 's' : ''}, ${w} gagnant${w > 1 ? 's' : ''}`,
@@ -93,7 +101,9 @@
   const ui = { res: 'all', sess: 'all', all: false, open: null, dayOpen: {}, noteOpen: {}, acc: null };
   const IDS = ['acc', 'bal', 'log', 'tr', 'st', 'wt'];
 
-  function phaseModel(R, trades, days) {
+  // a run is one account bought on a slot (slot 1: LucidPro "pro1", lost on Nov 6, then LucidFlex "flex1"); data without "run" belongs to pro1
+  const runId = x => x.run || 'pro1';
+  function phaseModel(R, trades, days, rn) {
     const start = R.start_balance, target = R.profit_target, ML = R.max_loss, lock = R.mll_lock_level;
     let bal = start; const eq = [{ b: start, t: null }], endOf = {};
     trades.forEach(x => { bal = +(bal + x.pnl_net).toFixed(2); eq.push({ b: bal, t: x }); endOf[x.session_date] = bal; });
@@ -102,7 +112,7 @@
       const ts = trades.filter(x => x.session_date === d.session_date);
       run = endOf[d.session_date] ?? run;
       const close = d.balance_lucid ?? run;
-      return { date: d.session_date, no: d.day_no, phase: d.phase || 'eval', ts, n: ts.length, w: ts.filter(x => x.pnl_net > 0).length, net: +ts.reduce((s, x) => s + x.pnl_net, 0).toFixed(2), close,
+      return { date: d.session_date, no: d.day_no, phase: d.phase || 'eval', run: rn, kind: d.kind || null, ts, n: ts.length, w: ts.filter(x => x.pnl_net > 0).length, net: +ts.reduce((s, x) => s + x.pnl_net, 0).toFixed(2), close,
         sc: { asia: d.score_asia, london: d.score_london, ny: d.score_ny }, note: { en: d.note_en, fr: d.note_fr } };
     });
     const balance = D.length ? D[D.length - 1].close : bal;
@@ -112,23 +122,33 @@
     return { R, start, target, ML, balance, net, pct: Math.max(0, net / target * 100), toGo: Math.max(0, +(target - net).toFixed(2)), floor, cushion: +(balance - floor).toFixed(2), eq, days: D, trades };
   }
   function model(raw) {
-    const RB = {}; raw.rules.forEach(r => { RB[r.phase || 'eval'] = r; });
     const trades = raw.trades.slice().sort((a, b) => (a.entry_time < b.entry_time ? -1 : 1));
     const days = raw.days.slice().sort((a, b) => (a.session_date < b.session_date ? -1 : 1));
-    const ph = {};
-    ['eval', 'funded'].forEach(p => {
-      const ts = trades.filter(x => (x.phase || 'eval') === p), ds = days.filter(d => (d.phase || 'eval') === p);
-      if (RB[p] && (p === 'eval' || ts.length || ds.length)) ph[p] = phaseModel(RB[p], ts, ds);
+    const accts = raw.accounts || [], runs = [];
+    accts.forEach(a => {
+      (a.past || []).forEach(p => runs.push(Object.assign({ n: a.n, cur: false }, p)));
+      if (a.stage !== 'none') runs.push({ n: a.n, cur: true, run: runId(a), name: a.name, short: a.short || '', start: a.start, stage: a.stage });
     });
-    const a1 = (raw.accounts || []).find(a => a.n === 1) || {}, phase = ph.funded && ['funded', 'payout', 'live'].includes(a1.stage) ? 'funded' : 'eval', C = ph[phase];
-    const D = Object.values(ph).flatMap(p => p.days).sort((a, b) => (a.date < b.date ? -1 : 1));
+    runs.sort((a, b) => (a.start < b.start ? -1 : 1));
+    runs.forEach(r => {
+      const RB = {}; raw.rules.filter(x => runId(x) === r.run).forEach(x => { RB[x.phase || 'eval'] = x; });
+      const ts = trades.filter(x => runId(x) === r.run), ds = days.filter(d => runId(d) === r.run);
+      r.ph = {}; r.trades = ts; r.rules = RB;
+      ['eval', 'funded'].forEach(p => {
+        const pt = ts.filter(x => (x.phase || 'eval') === p), pd = ds.filter(d => (d.phase || 'eval') === p);
+        if (RB[p] && (p === 'eval' || pt.length || pd.length)) r.ph[p] = phaseModel(RB[p], pt, pd, r.run);
+      });
+      r.phase = r.ph.funded && (r.lost || ['funded', 'payout', 'live'].includes(r.stage)) ? 'funded' : 'eval';
+    });
+    const cur = runs.find(r => r.cur && r.n === 1) || runs[runs.length - 1], ph = cur.ph, phase = cur.phase, C = ph[phase];
+    const D = runs.flatMap(r => Object.values(r.ph).flatMap(p => p.days)).sort((a, b) => (a.date < b.date ? -1 : 1));
     const wins = trades.filter(x => x.pnl_net > 0), losses = trades.filter(x => x.pnl_net < 0);
     const gw = wins.reduce((s, x) => s + x.pnl_net, 0), gl = -losses.reduce((s, x) => s + x.pnl_net, 0);
     const holds = trades.map(x => x.duration_s).sort((a, b) => a - b), mid = holds.length ? (holds.length % 2 ? holds[(holds.length - 1) / 2] : (holds[holds.length / 2 - 1] + holds[holds.length / 2]) / 2) : 0;
     const group = key => { const o = {}; trades.forEach(x => { const k = x[key]; o[k] = o[k] || { n: 0, net: 0, w: 0 }; o[k].n++; o[k].net = +(o[k].net + x.pnl_net).toFixed(2); if (x.pnl_net > 0) o[k].w++; }); return o; };
     return {
       R: C.R, start: C.start, target: C.target, ML: C.ML, balance: C.balance, net: C.net, pct: C.pct, toGo: C.toGo, floor: C.floor, cushion: C.cushion,
-      ph, phase, trades, days: D, eq: C.eq, accounts: raw.accounts, meta: raw.meta || {}, rawDays: days,
+      ph, phase, run: cur, runs, trades, days: D, eq: C.eq, accounts: accts, meta: raw.meta || {}, rawDays: days,
       stats: { n: trades.length, w: wins.length, wr: trades.length ? wins.length / trades.length * 100 : 0, pf: gl ? gw / gl : 0, aw: wins.length ? gw / wins.length : 0, al: losses.length ? -gl / losses.length : 0,
         best: trades.reduce((a, b) => (b.pnl_net > (a?.pnl_net ?? -1e9) ? b : a), null), worst: trades.reduce((a, b) => (b.pnl_net < (a?.pnl_net ?? 1e9) ? b : a), null),
         hold: mid, fees: trades.reduce((s, x) => s + (x.fees || 0), 0), sess: group('session'), side: group('side') }
@@ -220,7 +240,7 @@
   function heads() {
     IDS.forEach((id, i) => {
       const h = $(`#${id} h2`); if (!h) return;
-      const right = { acc: t().started(M.accounts.filter(a => a.stage !== 'none').length), bal: `${t().balR} · ${t().phases[ui.ph || M.phase]}`, log: t().logR, tr: t().trR(M.trades.length), st: t().stR, wt: window.R5S ? R5S.watchMeta() : '' }[id];
+      const right = { acc: t().started(M.accounts.filter(a => a.stage !== 'none').length), bal: balHead(), log: t().logR, tr: t().trR(M.trades.length), st: t().stR, wt: window.R5S ? R5S.watchMeta() : '' }[id];
       h.innerHTML = `<span class="k">${i + 1}</span><span class="tt" data-t="${t().heads[i]}">${t().heads[i]}</span><span class="r" data-t="${esc(right)}">${esc(right)}</span>`;
     });
   }
@@ -239,15 +259,20 @@
         else g += `<div class="e">···</div>`;
       }
     });
-    const C = M.ph[M.phase], passed = M.ph.eval && M.ph.eval.days.length ? M.ph.eval.days[M.ph.eval.days.length - 1].date : null;
+    const C = M.ph[M.phase], curRun = M.run, passed = M.ph.eval && M.ph.eval.days.length ? M.ph.eval.days[M.ph.eval.days.length - 1].date : null;
     const lead = M.phase === 'funded' ? t().leadFunded(usd(M.toGo), usd(M.R.payout_threshold || M.start + M.target, 0), passed ? dayMonth(passed) : '')
-      : M.net >= M.target ? t().leadDone : t().leadEval(usd(M.net, 2, true), usd(M.target, 0), usd(M.toGo));
+      : M.net >= M.target ? t().leadDone : t().leadEval(esc(curRun.name || ''), curRun.start ? dayMonth(curRun.start) : '', usd(M.net, 2, true), usd(M.target, 0), usd(M.toGo));
+    // earlier accounts on the slots: shown as they ended, with the reason
+    const past = M.runs.filter(r => !r.cur);
+    const pastH = past.length ? `<div class="past"><div class="sub">${t().past}</div>` + past.map(r => `<div class="pastr"><b>#${r.n} · ${esc(r.name)}</b> <span class="mu">${dayMonth(r.start)} → ${dayMonth(r.lost || r.start)}</span>${r.lost ? ` <span class="tag dn">${t().lostTag}</span>` : ''}</div>` +
+      (r.lost ? `<p class="hint">${esc(t().pastTxt(dayMonth(r.passed || r.start), dayMonth(r.lost), (r.why || {})[LANG] || (r.why || {}).en || ''))}</p>` : '')).join('') + '</div>' : '';
     box.innerHTML = `<div class="grid" id="accGrid" data-an>${g}</div><div id="accDet"></div><p class="lead">${lead}</p>
       <div class="kvs" id="accKv" data-an>
         <div class="kv"><span class="l">${t().floor}</span><span><span class="dn">${num(M.floor)}</span> <span class="mu">${t().floorNote}</span></span></div>
+        ${M.R.dll ? `<div class="kv"><span class="l">${t().dll}</span><span><span class="dn">${usd(-M.R.dll, 0)}</span> <span class="mu">${t().dllNote}</span></span></div>` : ''}
         <div class="kv"><span class="l">${t().cushion}</span><span>${num(M.cushion)}</span></div>
         <div class="kv"><span class="l">${t().days}</span><span>${C.days.filter(d => d.n).length}  <span class="mu">${t().trades}</span> ${C.trades.length}</span></div>
-      </div>
+      </div>${pastH}
       <p class="note">${t().path}</p>`;
     const cur = $('.cur', box), pc = $('.pc', box), pct = Math.min(100, M.pct), grid = $('#accGrid');
     if (cur && pct < 12) cur.classList.add('lo'); // the label is black on the amber fill: amber while the fill is too short to hold it
@@ -267,17 +292,23 @@
   }
 
   /* ---------- 2 balance chart ---------- */
+  // one curve per account and phase, oldest first; the default is the phase the current account is in
+  const phList = () => M.runs.flatMap(r => ['eval', 'funded'].filter(p => r.ph[p]).map(p => ({ k: r.run + ':' + p, r, p })));
+  const phSel = () => { const L = phList(); return L.find(x => x.k === ui.ph) || L.find(x => x.k === M.run.run + ':' + M.phase) || L[L.length - 1]; };
+  const balHead = () => { const s = phSel(); return [t().balR, [(s.r.short || '').toLowerCase(), t().phases[s.p]].filter(Boolean).join(' ')].join(' · '); };
   function balance() {
-    const box = $('#balBody'); if (!ui.ph || !M.ph[ui.ph]) ui.ph = M.phase;
-    const sw = M.ph.funded ? `<div class="fl"><div>${['eval', 'funded'].map(p => `<button type="button" data-ph="${p}" aria-pressed="${ui.ph === p}">${p === 'eval' ? t().phEval : t().phFunded}</button>`).join('')}</div></div>` : '';
-    box.innerHTML = sw + `<div class="readout" id="rd">${t().hint}</div><div class="chart" id="eqc" data-an></div>`;
-    $$('[data-ph]', box).forEach(b => b.addEventListener('click', () => { if (ui.ph === b.dataset.ph) return; ui.ph = b.dataset.ph; balance(); const r = $('#bal h2 .r'); if (r) { r.textContent = `${t().balR} · ${t().phases[ui.ph]}`; r.dataset.t = r.textContent; } }));
+    const box = $('#balBody'), L = phList(), sel = phSel(); ui.ph = sel.k;
+    const sw = L.length > 1 ? `<div class="fl"><div>${L.map(x => `<button type="button" data-ph="${x.k}" aria-pressed="${ui.ph === x.k}">${esc(x.r.short ? x.r.short + ' ' : '')}${x.p === 'eval' ? t().phEval : t().phFunded}${x.r.lost && x.p === x.r.phase ? ' ✗' : ''}</button>`).join('')}</div></div>` : '';
+    const bn = sel.r.lost && sel.p === sel.r.phase ? t().lostHint(dayMonth(sel.r.lost)) : sel.r.ph[sel.p].eq.length < 2 ? t().noCurve : '';
+    box.innerHTML = sw + `<div class="readout" id="rd">${t().hint}</div><div class="chart" id="eqc" data-an></div>${bn ? `<p class="hint bn">${esc(bn)}</p>` : ''}`;
+    $$('[data-ph]', box).forEach(b => b.addEventListener('click', () => { if (ui.ph === b.dataset.ph) return; ui.ph = b.dataset.ph; balance(); const r = $('#bal h2 .r'); if (r) { r.textContent = balHead(); r.dataset.t = r.textContent; } }));
     drawEq(false);
   }
   function drawEq(redraw) {
     const host = $('#eqc'); if (!host) return;
     const w = Math.max(300, Math.round(host.clientWidth || 358)), h = w > 760 ? Math.round(Math.max(340, Math.min(560, innerHeight - 330))) : w > 600 ? 300 : 236, pl = 4, pr = 64, pt = 18, pb = 26;
-    const Ph = M.ph[ui.ph] || M.ph[M.phase], F = Ph === M.ph.funded, P = Ph.eq, last = P[P.length - 1].b, goal = F ? (Ph.R.payout_threshold || Ph.start + Ph.target) : Ph.start + Ph.target;
+    const sel = phSel(), Ph = sel.r.ph[sel.p], F = sel.p === 'funded', P = Ph.eq, last = P[P.length - 1].b, goal = F ? (Ph.R.payout_threshold || Ph.start + Ph.target) : Ph.start + Ph.target;
+    const endLost = !!(sel.r.lost && sel.p === sel.r.phase), endPassed = sel.p === 'eval' && !!sel.r.ph.funded;
     const lo = Math.min(Ph.floor, ...P.map(p => p.b)) - 90, hi = Math.max(goal, ...P.map(p => p.b)) + 70;
     const X = i => pl + (w - pl - pr) * i / Math.max(1, P.length - 1), Y = v => pt + (h - pt - pb) * (hi - v) / (hi - lo);
     let s = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(t().heads[1])}: ${num(Ph.start)} → ${num(last)}">`;
@@ -295,10 +326,15 @@
       s += `<text x="${w - pr + 8}" y="${Y(v) + 4}" font-size="10.5" fill="${col}">${nf(v, 0)}</text>`;
     };
     lvl(goal, '#3BD47A', '4 3', F ? t().payout1 : t().target); lvl(Ph.start, '#A08D6C', '1 3', t().start); lvl(Ph.floor, '#FF5149', '', t().floor);
+    // how this phase ended: evaluation passed, or account lost (its last days are not logged, so the curve stops at the last known trade)
+    const endTxt = (txt, col, below) => { const y = below ? Math.min(Y(last) + 20, h - pb - 4) : Math.max(Y(last) - 10, pt + 10); s += `<text x="${w - pr - 2}" y="${y.toFixed(1)}" font-size="10.5" font-weight="700" fill="${col}" text-anchor="end" letter-spacing=".06em">${txt}</text>`; };
+    if (endLost) endTxt(`✗ ${t().lostTag} · ${esc(dayMonth(sel.r.lost)).toUpperCase()}`, '#FF5149', true);
+    else if (endPassed && sel.r.passed) endTxt(`✓ ${t().passedTag} · ${esc(dayMonth(sel.r.passed)).toUpperCase()}`, '#3BD47A');
     const d = P.map((p, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(p.b).toFixed(1)}`).join('');
     s += `<path class="ln" pathLength="1" d="${d}" fill="none" stroke="#FFA41C" stroke-width="1.8" stroke-linejoin="round"/>`;
+    if (P.length < 2) s += `<circle cx="${X(0)}" cy="${Y(P[0].b)}" r="3" fill="#FFA41C"/>`;
     P.forEach((p, i) => { if (i) s += `<circle class="dot" cx="${X(i)}" cy="${Y(p.b)}" r="2.2" fill="${p.t.pnl_net > 0 ? '#3BD47A' : p.t.pnl_net < 0 ? '#FF5149' : '#A08D6C'}" style="transition-delay:${(i / P.length * 1.3).toFixed(2)}s"/>`; });
-    s += `<g class="tag"><rect x="${w - pr + 4}" y="${Y(last) - 10}" width="${pr - 4}" height="20" fill="#FFA41C"/><text x="${w - pr + 8}" y="${Y(last) + 4}" font-size="11" font-weight="700" fill="#000">${nf(last, 0)}</text></g>`;
+    s += `<g class="tag"><rect x="${w - pr + 4}" y="${Y(last) - 10}" width="${pr - 4}" height="20" fill="${endLost ? '#A08D6C' : '#FFA41C'}"/><text x="${w - pr + 8}" y="${Y(last) + 4}" font-size="11" font-weight="700" fill="#000">${nf(last, 0)}</text></g>`;
     s += `<g class="xh" opacity="0"><line y1="${pt}" y2="${h - pb}" stroke="#F3E7CF" stroke-opacity=".35"/><circle r="4.5" fill="none" stroke="#F3E7CF" stroke-width="1.5"/></g>`;
     s += `<rect class="hit" x="0" y="0" width="${w - pr}" height="${h}" fill="transparent"/></svg>`;
     host.innerHTML = s;
@@ -309,8 +345,10 @@
       const p = P[i], tr = p.t; xh.setAttribute('opacity', 1); ln.setAttribute('x1', X(i)); ln.setAttribute('x2', X(i)); cc.setAttribute('cx', X(i)); cc.setAttribute('cy', Y(p.b));
       rd.innerHTML = `<b>#${esc(tr.label || tr.id)}</b>  ${shortDate(tr.session_date)} ${tr.entry_hms.slice(0, 5)}  ${tr.side === 'long' ? t().long : t().short}  <span class="${cls(tr.pnl_net)}">${sg(tr.pnl_net)}</span>  → <b>${num(p.b)}</b>`;
     };
-    svg.addEventListener('pointermove', pick); svg.addEventListener('pointerdown', pick);
-    svg.addEventListener('pointerleave', () => { xh.setAttribute('opacity', 0); rd.textContent = t().hint; });
+    if (P.length > 1) {
+      svg.addEventListener('pointermove', pick); svg.addEventListener('pointerdown', pick);
+      svg.addEventListener('pointerleave', () => { xh.setAttribute('opacity', 0); rd.textContent = t().hint; });
+    } else rd.textContent = '';
     if (redraw) return;
     const lnp = $('.ln', svg), dots = $$('.dot', svg), tag = $('.tag', svg);
     when(host, instant => {
@@ -324,13 +362,21 @@
     return `<div class="row c5 t" role="button" tabindex="0" data-go="${x.id}"><span>${x.entry_hms.slice(0, 5)}</span><span class="s">${t().sessS[x.session] || ''}</span><span>${x.side === 'long' ? t().long : t().short}</span><span>${num(x.entry_price)}</span><span class="wd">${num(x.exit_price)}</span><span class="wd s">${esc(x.dur_s_txt || '')}</span><span class="wd ${cls(x.points)}">${sg(x.points)}</span><span class="x ${cls(x.pnl_net)}">${sg(x.pnl_net)}</span></div>`;
   }
   const WD5 = [4, 5, 6], WD6 = [3, 5, 6, 7];
+  // header above the days of one account: "#1 · LucidFlex 25K  since Nov 9" or "#1 · LucidPro 25K  Oct 28 → Nov 6  LOST"
+  function runHead(r) {
+    const span = r.cur ? t().runSince(dayMonth(r.start)) : `${dayMonth(r.start)} → ${dayMonth(r.lost || r.start)}`;
+    return `<div class="runh"><b>#${r.n} · ${esc(r.name || '')}</b><span class="mu">${esc(span)}</span>${r.lost ? `<span class="tag dn">${t().lostTag}</span>` : ''}</div>`;
+  }
   function log() {
-    const box = $('#logBody'), L = M.days.slice().reverse();
-    box.innerHTML = L.map((d, i) => {
-      const open = ui.dayOpen[d.date] ?? (i === 0), noteOpen = !!ui.noteOpen[d.date], note = d.note[LANG] || d.note.en;
+    const box = $('#logBody'), L = M.days.slice().reverse(), byRun = Object.fromEntries(M.runs.map(r => [r.run, r]));
+    let lastRun = null, top = '';
+    if (!L.length || L[0].run !== M.run.run) { top = runHead(M.run) + `<p class="hint">${t().noTrade}</p>`; lastRun = M.run.run; }
+    box.innerHTML = top + L.map((d, i) => {
+      const head = d.run !== lastRun ? runHead(byRun[d.run] || M.run) : ''; lastRun = d.run;
+      const open = ui.dayOpen[d.date] ?? (i === 0), noteOpen = !!ui.noteOpen[d.date], note = d.note[LANG] || d.note.en, lost = d.kind === 'lost';
       const sc = ['asia', 'london', 'ny'].filter(k => d.sc[k] != null).map(k => `${t().sess[k]} <em>${nf(d.sc[k], d.sc[k] % 1 ? 1 : 0)}/10</em>`);
-      let h = `<article class="day" data-an data-day="${d.date}"><div class="dh"><span class="d">${dayLabel(d.date)}  ${d.phase === 'funded' ? t().fday : t().day} ${d.no}</span><span class="p ${cls(d.net)}" data-v="${d.net}">${sg(d.net)}</span></div>`;
-      h += `<div class="ds">${t().tw(d.n, d.w)}${sc.length ? '. ' + sc.join(', ') + ` <span class="mu">(${t().score})</span>` : ''}</div>`;
+      let h = head + `<article class="day${lost ? ' lost' : ''}" data-an data-day="${d.date}"><div class="dh"><span class="d">${dayLabel(d.date)}  ${lost ? t().lostDay : `${d.phase === 'funded' ? t().fday : t().day} ${d.no}`}</span>${lost ? `<span class="p dn">✗</span>` : `<span class="p ${cls(d.net)}" data-v="${d.net}">${sg(d.net)}</span>`}</div>`;
+      h += lost ? `<div class="ds">${t().lostDs}</div>` : `<div class="ds">${t().tw(d.n, d.w)}${sc.length ? '. ' + sc.join(', ') + ` <span class="mu">(${t().score})</span>` : ''}</div>`;
       if (note) {
         const short = firstSentences(note, i === 0 ? 2 : 1), full = note.length > short.length + 2;
         h += `<p class="quote">${esc(noteOpen ? note : short)}</p>${full ? `<button class="more" data-note="${d.date}">${noteOpen ? t().less : t().readAll}</button>` : ''}`;
@@ -345,7 +391,7 @@
     $$('[data-tog]', box).forEach(b => b.addEventListener('click', () => { const k = b.dataset.tog, i = M.days.length - 1 - M.days.findIndex(d => d.date === k); ui.dayOpen[k] = !(ui.dayOpen[k] ?? (i === 0)); ANIM_SAVE(log); const rows = $(`[data-day="${k}"] .rows`); if (rows && ANIM) printRows(rows, 18); }));
     $$('[data-go]', box).forEach(r => { const f = () => openTrade(+r.dataset.go, true); r.addEventListener('click', f); r.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); f(); } }); });
     $$('.day', box).forEach(a => when(a, instant => {
-      const p = $('.dh .p', a), v = +p.dataset.v; if (!instant) countTo(p, v, x => sg(x), 800);
+      const p = $('.dh .p', a); if (!instant && p.dataset.v != null) countTo(p, +p.dataset.v, x => sg(x), 800);
       printRows(a, 60); const rows = $('.rows', a); if (rows) setTimeout(() => printRows(rows, 40), 200);
     }, () => { hide(a); hide($('.rows', a)); }));
   }
@@ -492,6 +538,6 @@
     setTimeout(loadBars, 2500);
   }
   // shared with stats.js (statistics, account rules, weekly watch)
-  window.R5 = { get M() { return M; }, get LANG() { return LANG; }, get ANIM() { return ANIM; }, get BARS() { return BARS; }, ui, t, nf, num, sg, usd, cls, esc, $, $$, when, hide, printRows, countTo, blockBar, typeIn, openTrade, go, loadBars, dayLabel, shortDate, minOf, ymd, firstSentences, rerender: () => { const a = ANIM; ANIM = false; render(); ANIM = a; } };
+  window.R5 = { get M() { return M; }, get LANG() { return LANG; }, get ANIM() { return ANIM; }, get BARS() { return BARS; }, ui, t, nf, num, sg, usd, cls, esc, $, $$, when, hide, printRows, countTo, blockBar, typeIn, openTrade, go, loadBars, dayLabel, dayMonth, shortDate, minOf, ymd, firstSentences, rerender: () => { const a = ANIM; ANIM = false; render(); ANIM = a; } };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', main); else main();
 })();

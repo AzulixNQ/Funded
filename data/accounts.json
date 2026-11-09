@@ -1,10 +1,26 @@
 [
  {
   "n": 1,
-  "name": "LucidPro 25K",
-  "stage": "funded",
-  "start": "2026-10-28",
-  "funded": "2026-11-02"
+  "run": "flex1",
+  "name": "LucidFlex 25K",
+  "short": "FLEX",
+  "stage": "eval",
+  "start": "2026-11-09",
+  "past": [
+   {
+    "run": "pro1",
+    "name": "LucidPro 25K",
+    "short": "PRO",
+    "start": "2026-10-28",
+    "passed": "2026-11-02",
+    "funded": "2026-11-02",
+    "lost": "2026-11-06",
+    "why": {
+     "en": "a test trade went to the funded account instead of the test account, after a MotiveWave update",
+     "fr": "un trade de test est parti sur le compte funded au lieu du compte de test, apr\u00e8s une mise \u00e0 jour de MotiveWave"
+    }
+   }
+  ]
  },
  {
   "n": 2,

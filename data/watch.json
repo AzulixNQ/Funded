@@ -312,6 +312,294 @@
     "src": "The Glass Desk, Weekly Market Review Nov 6 2026",
     "url": "https://theglassdesk.substack.com/p/weekly-market-review-nov-6-2026"
    }
+  },
+  {
+   "week": "2026-11-09",
+   "summary": {
+    "en": "Neutral, leaning bearish. After a week that cost the Nasdaq-100 4.9%, banks see the selloff close to exhaustion and positioning is very light, but trend-following funds are still selling and small investors are scared. Tuesday's inflation report (14:30) can settle the Fed's December hike. Expect wide ranges: the VIX ended last week above 25.",
+    "fr": "Neutre, tendance baissière. Après une semaine à −4,9 % pour le Nasdaq-100, les banques voient la baisse proche de sa fin et le positionnement est très léger, mais les fonds suiveurs de tendance vendent encore et les particuliers ont peur. L’inflation de mardi (14 h 30) peut décider de la hausse de taux de la Fed en décembre. Attention aux grands écarts : le VIX a fini la semaine au-dessus de 25."
+   },
+   "cats": [
+    {
+     "key": "banks",
+     "items": [
+      {
+       "src": "JPMorgan (Dubravko Lakos-Bujas)",
+       "stance": 1,
+       "date": "2026-11-09",
+       "url": "https://www.bloomberg.com/news/articles/2026-11-09/jpmorgan-s-lakos-bujas-sees-investor-selloff-nearing-exhaustion",
+       "text": {
+        "en": "Sees the selloff close to exhaustion: funds cutting their debt rather than a break in the fundamentals. Keeps 8,000 for the S&P 500 at year-end.",
+        "fr": "Voit la baisse proche de l’épuisement : des fonds qui réduisent leur levier plutôt qu’une cassure des fondamentaux. Garde 8 000 pour le S&P 500 en fin d’année."
+       }
+      },
+      {
+       "src": "Morgan Stanley (Mike Wilson)",
+       "stance": 0,
+       "date": "2026-11-09",
+       "url": "https://www.tokenpost.com/news/investing/52236",
+       "text": {
+        "en": "The correction is in its final phase, but the S&P 500 could still dip to 7,100–7,300 before bottoming. He would rather see the market confirm before buying, and sees the next two to three weeks as a window to add. Keeps 8,000 for year-end.",
+        "fr": "La correction est dans sa dernière phase, mais le S&P 500 peut encore descendre vers 7 100–7 300 avant de toucher un plancher. Il préfère attendre que le marché confirme avant d’acheter, et voit les deux à trois prochaines semaines comme une fenêtre pour renforcer. Garde 8 000 pour la fin d’année."
+       }
+      },
+      {
+       "src": "Citi (Beata Manthey)",
+       "stance": -1,
+       "date": "2026-11-09",
+       "url": "https://finance.yahoo.com/markets/stocks/articles/citi-strategists-cut-us-stocks-095547644.html",
+       "text": {
+        "en": "Cut US stocks and global tech to neutral and moved to Europe. Expects more selling before sentiment settles, and warns that positioning on the Nasdaq could turn net short.",
+        "fr": "A abaissé les actions US et la tech mondiale à neutre, au profit de l’Europe. Attend encore des ventes avant que le sentiment se stabilise, et prévient que le positionnement sur le Nasdaq pourrait devenir vendeur net."
+       }
+      },
+      {
+       "src": "Goldman Sachs (panic index)",
+       "stance": 1,
+       "date": "2026-11-05",
+       "url": "https://finance.biggo.com/news/bcf26613-e2f8-47fb-ba0a-bd60bb37de12",
+       "text": {
+        "en": "Its panic index hit 9.57 on November 5, above the 9.5 “extreme fear” line. After the 15 previous times, the S&P 500 rose 4.6% on average over the next three months, and rose in 80% of cases. A signal for the coming weeks more than for this one.",
+        "fr": "Son indice de panique a atteint 9,57 le 5 novembre, au-delà du seuil de 9,5 de « peur extrême ». Les 15 fois précédentes, le S&P 500 a pris 4,6 % en moyenne sur les trois mois suivants, et a monté dans 80 % des cas. Un signal pour les semaines à venir plus que pour celle-ci."
+       }
+      }
+     ]
+    },
+    {
+     "key": "funds",
+     "items": [
+      {
+       "src": "Goldman Sachs prime book",
+       "stance": -1,
+       "date": "2026-11-08",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-cpi-and-equity-flows-test-a-shaken-market",
+       "text": {
+        "en": "Hedge funds were net sellers again last week, with their biggest single-stock selling in more than four months, mostly in tech and chips.",
+        "fr": "Les hedge funds ont encore été vendeurs nets la semaine dernière, avec leurs plus grosses ventes d’actions en plus de quatre mois, surtout dans la tech et les semi-conducteurs."
+       }
+      },
+      {
+       "src": "Deutsche Bank positioning",
+       "stance": 1,
+       "date": "2026-11-08",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-cpi-and-equity-flows-test-a-shaken-market",
+       "text": {
+        "en": "Overall equity positioning fell to the 20th percentile from the 44th, one of the sharpest weekly drops on record. Tech is at the 7th percentile, below its April 2025 low. Positioning this light leaves less to sell, which often fuels rebounds.",
+        "fr": "Le positionnement global sur les actions est passé du 44e au 20e centile, une des chutes hebdomadaires les plus brutales jamais mesurées. La tech est au 7e centile, sous son plus bas d’avril 2025. Un positionnement aussi léger laisse moins à vendre, ce qui alimente souvent les rebonds."
+       }
+      },
+      {
+       "src": "Trend-following funds (CTAs)",
+       "stance": -1,
+       "date": "2026-11-08",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-cpi-and-equity-flows-test-a-shaken-market",
+       "text": {
+        "en": "Goldman expects about $28 billion of S&P 500 futures selling from trend-following funds over the coming week. Citadel’s model puts their US equity positioning at −3.3 standard deviations.",
+        "fr": "Goldman attend environ 28 milliards de dollars de ventes de futures S&P 500 par les fonds suiveurs de tendance (CTA) sur la semaine. Le modèle de Citadel place leur positionnement sur les actions US à −3,3 écarts-types."
+       }
+      },
+      {
+       "src": "CFTC, Nasdaq E-mini futures",
+       "stance": 0,
+       "date": "2026-11-03",
+       "url": "https://www.cftc.gov/dea/futures/financial_lf.htm",
+       "text": {
+        "en": "Positions on November 3, two days before Thursday’s drop: leveraged funds slightly long on NQ, about 62,700 contracts long against 52,600 short. Asset managers net long about 73,100. Friday’s report will show the damage.",
+        "fr": "Positions du 3 novembre, deux jours avant la chute de jeudi : les fonds à effet de levier légèrement acheteurs sur le NQ, environ 62 700 contrats à l’achat contre 52 600 à la vente. Les gérants d’actifs acheteurs nets d’environ 73 100. Le rapport de vendredi montrera les dégâts."
+       }
+      }
+     ]
+    },
+    {
+     "key": "surveys",
+     "items": [
+      {
+       "src": "AAII sentiment survey",
+       "stance": -2,
+       "date": "2026-11-04",
+       "url": "https://insights.aaii.com/p/aaii-sentiment-survey-pessimism-revives",
+       "text": {
+        "en": "Bears 48.4% (+7 points), bulls 34.1% in the week to November 4. Bearishness is far above its long-term average of 31.5%. Extremes like this have often come close to lows, but not always.",
+        "fr": "48,4 % de baissiers (+7 points) contre 34,1 % de haussiers dans la semaine au 4 novembre. Le pessimisme est très au-dessus de sa moyenne historique de 31,5 %. Ces excès ont souvent coïncidé avec des points bas, mais pas toujours."
+       }
+      },
+      {
+       "src": "CNN Fear & Greed Index",
+       "stance": -1,
+       "date": "2026-11-06",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-cpi-and-equity-flows-test-a-shaken-market",
+       "text": {
+        "en": "22 at the end of last week, “extreme fear”, down from 26.",
+        "fr": "22 en fin de semaine dernière, « peur extrême », contre 26."
+       }
+      },
+      {
+       "src": "NAAIM exposure index",
+       "stance": 0,
+       "date": "2026-11-04",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-cpi-and-equity-flows-test-a-shaken-market",
+       "text": {
+        "en": "Active managers’ exposure rose to 78.6 from 76.8. Measured on Wednesday, before Thursday’s drop: they were still well invested.",
+        "fr": "L’exposition des gérants actifs est montée à 78,6 contre 76,8. Mesure de mercredi, avant la chute de jeudi : ils étaient encore bien investis."
+       }
+      }
+     ]
+    },
+    {
+     "key": "events",
+     "items": [
+      {
+       "src": "US inflation (CPI)",
+       "stance": -1,
+       "date": "2026-11-10",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-cpi-and-equity-flows-test-a-shaken-market",
+       "text": {
+        "en": "Tuesday 14:30: October CPI, the last one before the December 9 Fed meeting. About +0.3% expected over the month, +0.2% for core prices. Markets put the odds of a December hike above 70%: a hot number would lock it in.",
+        "fr": "Mardi 14 h 30 : l’inflation d’octobre, la dernière avant la réunion de la Fed du 9 décembre. Environ +0,3 % attendu sur le mois, +0,2 % hors énergie et alimentation. Le marché voit plus de 70 % de chances d’une hausse de taux en décembre : un chiffre chaud la confirmerait."
+       }
+      },
+      {
+       "src": "The Fed and Treasury auctions",
+       "stance": 0,
+       "date": "2026-11-09",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-cpi-and-equity-flows-test-a-shaken-market",
+       "text": {
+        "en": "Fed speakers every day (Waller on Tuesday, Williams on Thursday) and three Treasury auctions at 19:00: 3-year on Monday, 10-year on Tuesday, 30-year on Thursday. With the 30-year above 5.2%, weak demand would push yields up and weigh on tech. Wednesday is Veterans Day: bonds closed, stocks open.",
+        "fr": "Des membres de la Fed parlent tous les jours (Waller mardi, Williams jeudi) et le Trésor fait trois adjudications à 19 h : 3 ans lundi, 10 ans mardi, 30 ans jeudi. Avec le 30 ans au-dessus de 5,2 %, une demande faible ferait monter les taux et pèserait sur la tech. Mercredi, Veterans Day : obligations fermées, actions ouvertes."
+       }
+      },
+      {
+       "src": "Earnings",
+       "stance": 0,
+       "date": "2026-11-12",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-cpi-and-equity-flows-test-a-shaken-market",
+       "text": {
+        "en": "CoreWeave on Tuesday, Cisco and Applied Materials on Thursday, after the US close. After last week’s drop in chips, Applied Materials’ outlook for chip equipment will be closely watched. Nvidia reports on November 17.",
+        "fr": "CoreWeave mardi, Cisco et Applied Materials jeudi, après la clôture américaine. Après la chute des semi-conducteurs, les prévisions d’Applied Materials sur les équipements de puces seront scrutées. Nvidia publie le 17 novembre."
+       }
+      }
+     ]
+    },
+    {
+     "key": "nq",
+     "items": [
+      {
+       "src": "Nasdaq-100",
+       "stance": -1,
+       "date": "2026-11-06",
+       "url": "https://theglassdesk.substack.com/p/weekly-market-review-nov-6-2026",
+       "text": {
+        "en": "−4.91% last week to 26,989.99. Thursday alone: −6.4%, its worst day since March 2020, then +1.35% on Friday. It sits about 14% below its October 6 high, and the VIX ended the week at 25.6.",
+        "fr": "−4,91 % la semaine dernière, à 26 989,99. Rien que jeudi : −6,4 %, sa pire séance depuis mars 2020, puis +1,35 % vendredi. Il est environ 14 % sous son plus haut du 6 octobre, et le VIX a fini la semaine à 25,6."
+       }
+      },
+      {
+       "src": "Chips and AI",
+       "stance": -1,
+       "date": "2026-11-06",
+       "url": "https://theglassdesk.substack.com/p/weekly-market-review-nov-6-2026",
+       "text": {
+        "en": "The chip index (SOX) lost 12% last week. The trigger: fears that, after the Democrats’ gains in the midterms, new rules slow down data-center building.",
+        "fr": "L’indice des semi-conducteurs (SOX) a perdu 12 % la semaine dernière. Le déclencheur : la crainte qu’après les gains des démocrates aux midterms, de nouvelles règles freinent la construction de data centers."
+       }
+      },
+      {
+       "src": "Rates and oil",
+       "stance": 1,
+       "date": "2026-11-09",
+       "url": "https://theblyesheet.substack.com/p/the-blye-sheet-before-the-bell-november-77c",
+       "text": {
+        "en": "Oil is falling on hopes of talks with Iran: Brent near $94 and WTI near $88 on Monday morning, about 4% lower, after Washington said further strikes were unlikely if talks progress. The 10-year yield is at 4.85%. Cheaper oil and lower yields help tech.",
+        "fr": "Le pétrole baisse sur l’espoir de négociations avec l’Iran : Brent vers 94 $ et WTI vers 88 $ lundi matin, environ −4 %, après que Washington a jugé de nouvelles frappes peu probables si les discussions avancent. Le taux à 10 ans est à 4,85 %. Un pétrole moins cher et des taux plus bas aident la tech."
+       }
+      }
+     ]
+    }
+   ],
+   "events": [
+    {
+     "d": "2026-11-09",
+     "t": "19:00",
+     "imp": 1,
+     "what": {
+      "en": "3-year Treasury auction ($58bn)",
+      "fr": "Adjudication du Trésor à 3 ans (58 Md$)"
+     }
+    },
+    {
+     "d": "2026-11-10",
+     "t": "14:30",
+     "imp": 3,
+     "what": {
+      "en": "US inflation, CPI (October)",
+      "fr": "Inflation américaine, CPI (octobre)"
+     }
+    },
+    {
+     "d": "2026-11-10",
+     "t": "19:00",
+     "imp": 2,
+     "what": {
+      "en": "10-year Treasury auction ($42bn)",
+      "fr": "Adjudication du Trésor à 10 ans (42 Md$)"
+     }
+    },
+    {
+     "d": "2026-11-10",
+     "t": "~22:00",
+     "imp": 2,
+     "what": {
+      "en": "CoreWeave earnings, after the US close",
+      "fr": "Résultats de CoreWeave, après la clôture"
+     }
+    },
+    {
+     "d": "2026-11-11",
+     "t": "",
+     "imp": 1,
+     "what": {
+      "en": "Veterans Day: bond market closed, stocks open",
+      "fr": "Veterans Day : obligations fermées, actions ouvertes"
+     }
+    },
+    {
+     "d": "2026-11-12",
+     "t": "14:30",
+     "imp": 2,
+     "what": {
+      "en": "Jobless claims",
+      "fr": "Inscriptions au chômage"
+     }
+    },
+    {
+     "d": "2026-11-12",
+     "t": "19:00",
+     "imp": 2,
+     "what": {
+      "en": "30-year Treasury auction ($25bn)",
+      "fr": "Adjudication du Trésor à 30 ans (25 Md$)"
+     }
+    },
+    {
+     "d": "2026-11-12",
+     "t": "~22:00",
+     "imp": 3,
+     "what": {
+      "en": "Cisco and Applied Materials earnings",
+      "fr": "Résultats de Cisco et d’Applied Materials"
+     }
+    },
+    {
+     "d": "2026-11-13",
+     "t": "14:30",
+     "imp": 2,
+     "what": {
+      "en": "Producer prices, PPI (October)",
+      "fr": "Prix à la production, PPI (octobre)"
+     }
+    }
+   ],
+   "published": "2026-11-09T16:48+01:00"
   }
  ]
 }

@@ -9,6 +9,6 @@ My live trading journal: from one Lucid Trading 25K evaluation to five live acco
 - A log for each day with my notes and my discipline score.
 - Every trade with its 1-minute chart, session VWAP and bands.
 
-Data: MotiveWave trade report, Lucid balances, 1-minute MNQ candles (Yahoo Finance) and a session VWAP recomputed on NQ.
+Data: MotiveWave trade report (Quantower since Nov 12), Lucid balances, 1-minute MNQ candles (Yahoo Finance) and a session VWAP recomputed on NQ. A day whose trades are not detailed shows only its Lucid result (`pnl_lucid` in `data/days.json`).
 Font: IBM Plex Mono (SIL Open Font License, see `fonts/OFL.txt`).
 Not financial advice.

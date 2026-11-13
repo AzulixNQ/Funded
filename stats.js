@@ -62,7 +62,7 @@
       cycle: 'Min profit per cycle', split: 'Split', delay: 'Paid within', bdays: n => `${n} business days`, methods: 'crypto (BTC, ETH, LTC, USDT, USDC) or WorkMarket',
       consist: 'PAYOUT CONSISTENCY', consistTxt: (s, l) => `Best day: ${s} of the profit. Limit once funded: ${l}. It does not count during the evaluation.`,
       notStarted: n => `Account #${n} has not started yet. It starts when I buy its evaluation.`, openStats: n => `Open the stats of account #${n}`,
-      accStats: 'THIS ACCOUNT', stage: { eval: 'Evaluation', funded: 'Funded', payout: 'Funded, paid out', live: 'Live', none: 'Not started' },
+      accStats: 'THIS ACCOUNT', onlyDays: k => `${k} day${k > 1 ? 's' : ''} without detailed trades: counted in the P&L, not in the trade stats.`, stage: { eval: 'Evaluation', funded: 'Funded', payout: 'Funded, paid out', live: 'Live', none: 'Not started' },
       rDll: d => `Daily loss limit ${d}: trading stops until the next session, the account stays open`, worstDay: 'worst day',
       rConsist: l => `Consistency: best day at most ${l} of the profit`, consistE: 'EVALUATION CONSISTENCY',
       consistTxtE: (s, l) => `Best day: ${s} of the profit. Limit: ${l}, so it takes at least 3 winning days. It counts during the evaluation.`,
@@ -126,7 +126,7 @@
       cycle: 'Profit min par cycle', split: 'Partage', delay: 'Payé sous', bdays: n => `${n} jours ouvrés`, methods: 'crypto (BTC, ETH, LTC, USDT, USDC) ou WorkMarket',
       consist: 'CONSISTANCE DES PAYOUTS', consistTxt: (s, l) => `Meilleur jour : ${s} du profit. Limite une fois funded : ${l}. Elle ne compte pas pendant l’évaluation.`,
       notStarted: n => `Le compte #${n} n’a pas encore commencé. Il démarre quand j’achète son évaluation.`, openStats: n => `Voir les stats du compte #${n}`,
-      accStats: 'CE COMPTE', stage: { eval: 'Évaluation', funded: 'Funded', payout: 'Funded, payout reçu', live: 'Live', none: 'Pas commencé' },
+      accStats: 'CE COMPTE', onlyDays: k => `${k} jour${k > 1 ? 's' : ''} sans trades détaillés : compté${k > 1 ? 's' : ''} dans le P&L, pas dans les stats des trades.`, stage: { eval: 'Évaluation', funded: 'Funded', payout: 'Funded, payout reçu', live: 'Live', none: 'Pas commencé' },
       rDll: d => `Limite de perte du jour ${d} : arrêt jusqu’à la séance suivante, le compte reste ouvert`, worstDay: 'pire jour',
       rConsist: l => `Consistance : meilleur jour au plus ${l} du profit`, consistE: 'CONSISTANCE DE L’ÉVALUATION',
       consistTxtE: (s, l) => `Meilleur jour : ${s} du profit. Limite : ${l}, donc au moins 3 jours gagnants. Elle compte pendant l’évaluation.`,
@@ -426,12 +426,17 @@
 
   /* ---------- RULES (one account) ---------- */
   function acctModel(n, ph) {
-    const run = runOfSlot(n), R = ((X.M.ph || {})[ph] || {}).R || X.M.R, ts = X.M.trades.filter(t => acctOf(t) === n && runId(t) === run && (t.phase || 'eval') === (R.phase || 'eval')).sort(byTime), dates = [...new Set(ts.map(t => t.session_date))].sort();
+    const run = runOfSlot(n), R = ((X.M.ph || {})[ph] || {}).R || X.M.R, ts = X.M.trades.filter(t => acctOf(t) === n && runId(t) === run && (t.phase || 'eval') === (R.phase || 'eval')).sort(byTime), dates = [...new Set(ts.map(t => t.session_date))];
     const fl = hw => Math.min(hw - R.max_loss, R.mll_lock_level);
+    // days logged without their trades (only the Lucid result of the day) still count for the balance and the daily rules
+    const only = (X.M.rawDays || []).filter(x => runId(x) === run && (x.phase || 'eval') === (R.phase || 'eval') && x.pnl_lucid != null && !ts.some(t => t.session_date === x.session_date));
+    only.forEach(x => { if (!dates.includes(x.session_date)) dates.push(x.session_date); }); dates.sort();
     let bal = R.start_balance, hw = bal; const days = [];
     dates.forEach(d => {
       const open = bal, mllIn = fl(hw); let eq = open, worst = open;
-      ts.filter(t => t.session_date === d).forEach(t => { worst = Math.min(worst, eq + t.mae_usd); eq += t.pnl_net; worst = Math.min(worst, eq); });
+      const od = only.find(x => x.session_date === d);
+      if (od) { eq = open + od.pnl_lucid; worst = Math.min(open, eq); }
+      else ts.filter(t => t.session_date === d).forEach(t => { worst = Math.min(worst, eq + t.mae_usd); eq += t.pnl_net; worst = Math.min(worst, eq); });
       const lucid = n === 1 ? ((X.M.rawDays || []).find(x => x.session_date === d && runId(x) === run) || {}).balance_lucid : null;
       bal = lucid != null ? lucid : +eq.toFixed(2); hw = Math.max(hw, bal); days.push({ d, pnl: bal - open, worst, mllIn, wc: worst - mllIn });
     });
@@ -489,8 +494,10 @@
     const acc = X.M.accounts.find(a => a.n === n) || { n, stage: 'none' };
     if (acc.stage === 'none') return `<div class="accd"><p class="hint">${w().notStarted(n)}</p></div>`;
     const run = runOfSlot(n), ts = X.M.trades.filter(t => acctOf(t) === n && runId(t) === run), s = (() => { const p = ts.map(t => t.pnl_net), wn = p.filter(x => x > 0), ls = p.filter(x => x < 0); return { n: p.length, wr: p.length ? wn.length / p.length : null, pf: ls.length ? sum(wn) / -sum(ls) : null, net: sum(p) }; })();
+    const only = n === 1 ? (X.M.rawDays || []).filter(d => runId(d) === run && d.pnl_lucid != null && !ts.some(t => t.session_date === d.session_date)) : [];
+    s.net = +(s.net + sum(only.map(d => d.pnl_lucid))).toFixed(2);
     return `<div class="accd"><div class="accd-h">#${n} <span class="mu">${esc(acc.name || '')}</span> <span class="am">${w().stage[acc.stage]}</span></div>` +
-      sub(w().accStats, new Set(ts.map(t => t.phase || 'eval')).size > 1 ? w().bothPh : '') + `<div class="blk">${kv(w().trades, String(s.n))}${kv(w().wr, pc(s.wr))}${kv(w().pf, s.pf == null ? '—' : nf(s.pf))}${kv(w().pnl + ' (' + w().net + ')', `<span class="${cl(s.net)}">${sg(s.net)}</span>`)}</div>` +
+      sub(w().accStats, new Set(ts.map(t => t.phase || 'eval')).size > 1 ? w().bothPh : '') + `<div class="blk">${kv(w().trades, String(s.n))}${kv(w().wr, pc(s.wr))}${kv(w().pf, s.pf == null ? '—' : nf(s.pf))}${kv(w().pnl + ' (' + w().net + ')', `<span class="${cl(s.net)}">${sg(s.net)}</span>`)}</div>` + (only.length ? `<p class="hint">${w().onlyDays(only.length)}</p>` : '') +
       (s.n ? `<button type="button" class="btn" data-acstats="${esc(run)}">${w().openStats(n)} ▸</button>` : '') + rulesBlock(n) + '</div>';
   }
 

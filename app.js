@@ -30,6 +30,7 @@
       path: 'All five go live together, so each one needs a first payout before that.',
       balR: 'account 1', hint: 'Tap or hover the curve to read each trade.', target: 'TARGET', start: 'START',
       logR: 'newest first', day: 'DAY', tw: (n, w) => `${n} trade${n > 1 ? 's' : ''}, ${w} won`,
+      twOnly: (n, w) => `${n} trade${n > 1 ? 's' : ''}, ${w} won (not detailed)`, notDet: 'Trades not detailed: day result from Lucid', dayOnly: 'day total, trades not detailed',
       sess: { asia: 'Asia', london: 'London', ny: 'New York' }, sessS: { asia: 'ASIA', london: 'LDN', ny: 'NY' },
       score: 'my discipline, out of 10', readAll: 'Read all', less: 'Less', showDay: n => (n === 1 ? 'Show the trade' : `Show the ${n} trades`), hideDay: n => (n === 1 ? 'Hide the trade' : 'Hide the trades'),
       cols5: ['TIME', 'SESS', 'SIDE', 'ENTRY', 'EXIT', 'HELD', 'POINTS', 'NET'], cols6: ['#', 'DATE', 'TIME', 'SESS', 'SIDE', 'ENTRY', 'EXIT', 'HELD', 'POINTS', 'NET'],
@@ -41,7 +42,7 @@
       noBars: 'No candles for this trade.', loading: 'Loading the candles…', inVideo: 'In a TikTok video.',
       stR: 'all trades', wr: 'Win rate', pf: 'Profit factor', aw: 'Average win', al: 'Average loss', best: 'Best trade', worst: 'Worst trade',
       hold: 'Median hold', feesPaid: 'Fees paid', bySess: 'BY SESSION', bySide: 'BY SIDE', long: 'LONG', short: 'SHORT', min: 'min',
-      foot: 'Trades come from my MotiveWave report and balances from my Lucid account. Charts use 1-minute MNQ candles (Yahoo Finance) and a session VWAP recomputed on NQ. Paris time. Not financial advice.',
+      foot: 'Trades come from my MotiveWave report (Quantower since Nov 12) and balances from my Lucid account. A day without its trades shows only its Lucid result. Charts use 1-minute MNQ candles (Yahoo Finance) and a session VWAP recomputed on NQ. Paris time. Not financial advice.',
       boot: d => ['ROAD TO 5 LIVE', '> connect lucid 25k ......... ok', `> load trades .............. ${d.n}`, `> load sessions ............ ${d.s}`, `> last session  ${d.last}`, '']
     },
     fr: {
@@ -62,6 +63,7 @@
       path: 'Les cinq passent en live en même temps : chacun doit d’abord avoir eu un payout.',
       balR: 'compte 1', hint: 'Touche la courbe pour lire chaque trade.', target: 'OBJECTIF', start: 'DÉPART',
       logR: 'récent d’abord', day: 'JOUR', tw: (n, w) => `${n} trade${n > 1 ? 's' : ''}, ${w} gagnant${w > 1 ? 's' : ''}`,
+      twOnly: (n, w) => `${n} trade${n > 1 ? 's' : ''}, ${w} gagnant${w > 1 ? 's' : ''} (non détaillés)`, notDet: 'Trades non détaillés : résultat du jour Lucid', dayOnly: 'total du jour, trades non détaillés',
       sess: { asia: 'Asie', london: 'Londres', ny: 'New York' }, sessS: { asia: 'ASIE', london: 'LDN', ny: 'NY' },
       score: 'ma discipline, sur 10', readAll: 'Tout lire', less: 'Moins', showDay: n => (n === 1 ? 'Voir le trade' : `Voir les ${n} trades`), hideDay: n => (n === 1 ? 'Masquer le trade' : 'Masquer les trades'),
       cols5: ['HEURE', 'SESS', 'SENS', 'ENTRÉE', 'SORTIE', 'DURÉE', 'POINTS', 'NET'], cols6: ['#', 'DATE', 'HEURE', 'SESS', 'SENS', 'ENTRÉE', 'SORTIE', 'DURÉE', 'POINTS', 'NET'],
@@ -73,7 +75,7 @@
       noBars: 'Pas de bougies pour ce trade.', loading: 'Chargement des bougies…', inVideo: 'Dans une vidéo TikTok.',
       stR: 'tous les trades', wr: 'Taux de réussite', pf: 'Profit factor', aw: 'Gain moyen', al: 'Perte moyenne', best: 'Meilleur trade', worst: 'Pire trade',
       hold: 'Durée médiane', feesPaid: 'Frais payés', bySess: 'PAR SESSION', bySide: 'PAR SENS', long: 'LONG', short: 'SHORT', min: 'min',
-      foot: 'Les trades viennent de mon rapport MotiveWave et les soldes de mon compte Lucid. Les graphiques utilisent les bougies MNQ 1 minute (Yahoo Finance) et un VWAP de séance recalculé sur le NQ. Heure de Paris. Ceci n’est pas un conseil financier.',
+      foot: 'Les trades viennent de mon rapport MotiveWave (Quantower depuis le 12 novembre) et les soldes de mon compte Lucid. Un jour sans ses trades ne montre que son résultat Lucid. Les graphiques utilisent les bougies MNQ 1 minute (Yahoo Finance) et un VWAP de séance recalculé sur le NQ. Heure de Paris. Ceci n’est pas un conseil financier.',
       boot: d => ['ROAD TO 5 LIVE', '> connexion lucid 25k ...... ok', `> trades chargés ........... ${d.n}`, `> séances chargées .......... ${d.s}`, `> dernière séance  ${d.last}`, '']
     }
   };
@@ -106,13 +108,23 @@
   function phaseModel(R, trades, days, rn) {
     const start = R.start_balance, target = R.profit_target, ML = R.max_loss, lock = R.mll_lock_level;
     let bal = start; const eq = [{ b: start, t: null }], endOf = {};
-    trades.forEach(x => { bal = +(bal + x.pnl_net).toFixed(2); eq.push({ b: bal, t: x }); endOf[x.session_date] = bal; });
+    // a day logged without its trades (only the day's result from Lucid, "pnl_lucid") is one point for the whole day
+    const sumDay = dt => days.find(d => d.session_date === dt && d.pnl_lucid != null && !trades.some(x => x.session_date === dt));
+    const dates = [...new Set([...trades.map(x => x.session_date), ...days.filter(d => sumDay(d.session_date)).map(d => d.session_date)])].sort();
+    dates.forEach(dt => {
+      const sd = sumDay(dt);
+      if (sd) { bal = +(sd.balance_lucid ?? bal + sd.pnl_lucid).toFixed(2); eq.push({ b: bal, t: null, day: sd }); }
+      else trades.filter(x => x.session_date === dt).forEach(x => { bal = +(bal + x.pnl_net).toFixed(2); eq.push({ b: bal, t: x }); });
+      endOf[dt] = bal;
+    });
     let run = start;
     const D = days.map(d => {
-      const ts = trades.filter(x => x.session_date === d.session_date);
+      const ts = trades.filter(x => x.session_date === d.session_date), only = !ts.length && d.pnl_lucid != null;
       run = endOf[d.session_date] ?? run;
       const close = d.balance_lucid ?? run;
-      return { date: d.session_date, no: d.day_no, phase: d.phase || 'eval', run: rn, kind: d.kind || null, ts, n: ts.length, w: ts.filter(x => x.pnl_net > 0).length, net: +ts.reduce((s, x) => s + x.pnl_net, 0).toFixed(2), close,
+      return { date: d.session_date, no: d.day_no, phase: d.phase || 'eval', run: rn, kind: d.kind || null, ts, only,
+        n: only ? (d.trades_n ?? null) : ts.length, w: only ? (d.wins_n ?? null) : ts.filter(x => x.pnl_net > 0).length,
+        net: only ? d.pnl_lucid : +ts.reduce((s, x) => s + x.pnl_net, 0).toFixed(2), close,
         sc: { asia: d.score_asia, london: d.score_london, ny: d.score_ny }, note: { en: d.note_en, fr: d.note_fr } };
     });
     const balance = D.length ? D[D.length - 1].close : bal;
@@ -271,7 +283,7 @@
         <div class="kv"><span class="l">${t().floor}</span><span><span class="dn">${num(M.floor)}</span> <span class="mu">${t().floorNote}</span></span></div>
         ${M.R.dll ? `<div class="kv"><span class="l">${t().dll}</span><span><span class="dn">${usd(-M.R.dll, 0)}</span> <span class="mu">${t().dllNote}</span></span></div>` : ''}
         <div class="kv"><span class="l">${t().cushion}</span><span>${num(M.cushion)}</span></div>
-        <div class="kv"><span class="l">${t().days}</span><span>${C.days.filter(d => d.n).length}  <span class="mu">${t().trades}</span> ${C.trades.length}</span></div>
+        <div class="kv"><span class="l">${t().days}</span><span>${C.days.filter(d => d.n || d.only).length}  <span class="mu">${t().trades}</span> ${(() => { const od = C.days.filter(d => d.only), k = C.trades.length + od.reduce((s, d) => s + (d.n || 0), 0); return od.some(d => d.n == null) ? k + '+' : k; })()}</span></div>
       </div>${pastH}
       <p class="note">${t().path}</p>`;
     const cur = $('.cur', box), pc = $('.pc', box), pct = Math.min(100, M.pct), grid = $('#accGrid');
@@ -314,7 +326,7 @@
     let s = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(t().heads[1])}: ${num(Ph.start)} → ${num(last)}">`;
     // day separators and labels
     Ph.days.forEach((d, j) => {
-      const idx = P.map((p, i) => [p, i]).filter(([p]) => p.t && p.t.session_date === d.date).map(([, i]) => i);
+      const idx = P.map((p, i) => [p, i]).filter(([p]) => (p.t ? p.t.session_date : p.day ? p.day.session_date : null) === d.date).map(([, i]) => i);
       if (!idx.length) return;
       const a = Math.min(...idx), b = Math.max(...idx);
       if (j) s += `<line x1="${X(a - 0.5)}" x2="${X(a - 0.5)}" y1="${pt}" y2="${h - pb}" stroke="#3a2a10" stroke-dasharray="1 3"/>`;
@@ -333,7 +345,7 @@
     const d = P.map((p, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(p.b).toFixed(1)}`).join('');
     s += `<path class="ln" pathLength="1" d="${d}" fill="none" stroke="#FFA41C" stroke-width="1.8" stroke-linejoin="round"/>`;
     if (P.length < 2) s += `<circle cx="${X(0)}" cy="${Y(P[0].b)}" r="3" fill="#FFA41C"/>`;
-    P.forEach((p, i) => { if (i) s += `<circle class="dot" cx="${X(i)}" cy="${Y(p.b)}" r="2.2" fill="${p.t.pnl_net > 0 ? '#3BD47A' : p.t.pnl_net < 0 ? '#FF5149' : '#A08D6C'}" style="transition-delay:${(i / P.length * 1.3).toFixed(2)}s"/>`; });
+    P.forEach((p, i) => { if (!i) return; const v = p.t ? p.t.pnl_net : p.day ? p.day.pnl_lucid : 0; s += `<circle class="dot" cx="${X(i)}" cy="${Y(p.b)}" r="2.2" fill="${v > 0 ? '#3BD47A' : v < 0 ? '#FF5149' : '#A08D6C'}" style="transition-delay:${(i / P.length * 1.3).toFixed(2)}s"/>`; });
     s += `<g class="tag"><rect x="${w - pr + 4}" y="${Y(last) - 10}" width="${pr - 4}" height="20" fill="${endLost ? '#A08D6C' : '#FFA41C'}"/><text x="${w - pr + 8}" y="${Y(last) + 4}" font-size="11" font-weight="700" fill="#000">${nf(last, 0)}</text></g>`;
     s += `<g class="xh" opacity="0"><line y1="${pt}" y2="${h - pb}" stroke="#F3E7CF" stroke-opacity=".35"/><circle r="4.5" fill="none" stroke="#F3E7CF" stroke-width="1.5"/></g>`;
     s += `<rect class="hit" x="0" y="0" width="${w - pr}" height="${h}" fill="transparent"/></svg>`;
@@ -343,7 +355,8 @@
       const r = svg.getBoundingClientRect(), x = (ev.clientX - r.left) * w / r.width;
       const i = Math.max(1, Math.min(P.length - 1, Math.round((x - pl) / ((w - pl - pr) / Math.max(1, P.length - 1)))));
       const p = P[i], tr = p.t; xh.setAttribute('opacity', 1); ln.setAttribute('x1', X(i)); ln.setAttribute('x2', X(i)); cc.setAttribute('cx', X(i)); cc.setAttribute('cy', Y(p.b));
-      rd.innerHTML = `<b>#${esc(tr.label || tr.id)}</b>  ${shortDate(tr.session_date)} ${tr.entry_hms.slice(0, 5)}  ${tr.side === 'long' ? t().long : t().short}  <span class="${cls(tr.pnl_net)}">${sg(tr.pnl_net)}</span>  → <b>${num(p.b)}</b>`;
+      rd.innerHTML = tr ? `<b>#${esc(tr.label || tr.id)}</b>  ${shortDate(tr.session_date)} ${tr.entry_hms.slice(0, 5)}  ${tr.side === 'long' ? t().long : t().short}  <span class="${cls(tr.pnl_net)}">${sg(tr.pnl_net)}</span>  → <b>${num(p.b)}</b>`
+        : `<b>${shortDate(p.day.session_date)}</b>  ${t().dayOnly}  <span class="${cls(p.day.pnl_lucid)}">${sg(p.day.pnl_lucid)}</span>  → <b>${num(p.b)}</b>`;
     };
     if (P.length > 1) {
       svg.addEventListener('pointermove', pick); svg.addEventListener('pointerdown', pick);
@@ -376,14 +389,15 @@
       const open = ui.dayOpen[d.date] ?? (i === 0), noteOpen = !!ui.noteOpen[d.date], note = d.note[LANG] || d.note.en, lost = d.kind === 'lost';
       const sc = ['asia', 'london', 'ny'].filter(k => d.sc[k] != null).map(k => `${t().sess[k]} <em>${nf(d.sc[k], d.sc[k] % 1 ? 1 : 0)}/10</em>`);
       let h = head + `<article class="day${lost ? ' lost' : ''}" data-an data-day="${d.date}"><div class="dh"><span class="d">${dayLabel(d.date)}  ${lost ? t().lostDay : `${d.phase === 'funded' ? t().fday : t().day} ${d.no}`}</span>${lost ? `<span class="p dn">✗</span>` : `<span class="p ${cls(d.net)}" data-v="${d.net}">${sg(d.net)}</span>`}</div>`;
-      h += lost ? `<div class="ds">${t().lostDs}</div>` : `<div class="ds">${t().tw(d.n, d.w)}${sc.length ? '. ' + sc.join(', ') + ` <span class="mu">(${t().score})</span>` : ''}</div>`;
+      const tw = d.only ? (d.n != null ? t().twOnly(d.n, d.w || 0) : t().notDet) : t().tw(d.n, d.w);
+      h += lost ? `<div class="ds">${t().lostDs}</div>` : `<div class="ds">${tw}${sc.length ? '. ' + sc.join(', ') + ` <span class="mu">(${t().score})</span>` : ''}</div>`;
       if (note) {
         const short = firstSentences(note, i === 0 ? 2 : 1), full = note.length > short.length + 2;
         h += `<p class="quote">${esc(noteOpen ? note : short)}</p>${full ? `<button class="more" data-note="${d.date}">${noteOpen ? t().less : t().readAll}</button>` : ''}`;
       }
-      if (d.n) {
+      if (d.ts.length) {
         if (open) h += `<div class="tape"><div class="row c5 h">${t().cols5.map((c, j) => `<span class="${j === 7 ? 'x' : ''} ${WD5.includes(j) ? 'wd' : ''}">${c}</span>`).join('')}</div><div class="rows">${d.ts.map(tradeRow5).join('')}</div></div>`;
-        if (i > 0 || !open) h += ` <button class="more" data-tog="${d.date}">${open ? t().hideDay(d.n) : t().showDay(d.n)}</button>`;
+        if (i > 0 || !open) h += ` <button class="more" data-tog="${d.date}">${open ? t().hideDay(d.ts.length) : t().showDay(d.ts.length)}</button>`;
       }
       return h + '</article>';
     }).join('');

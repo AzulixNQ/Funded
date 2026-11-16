@@ -599,7 +599,324 @@
      }
     }
    ],
-   "published": "2026-11-09T16:48+01:00"
+   "published": "2026-11-09T16:48+01:00",
+   "result": {
+    "chg_pct": 3.53,
+    "close": 27943.74,
+    "prev_close": 26989.99,
+    "index": "Nasdaq-100",
+    "from": "2026-11-06",
+    "to": "2026-11-13",
+    "src": "The Glass Desk, Weekly Market Review Nov 13 2026",
+    "url": "https://theglassdesk.substack.com/p/weekly-market-review-nov-13-2026"
+   }
+  },
+  {
+   "week": "2026-11-16",
+   "summary": {
+    "en": "Neutral. The Nasdaq-100 bounced 3.5% last week, but the 10-year yield jumped to about 5.15% and a December Fed hike is now fully priced. Banks and positioning lean bullish: funds are light, trend followers are near max short and money is pouring back into stocks. Small investors are scared, and Nvidia’s CEO has resigned. The week hinges on Nvidia’s results on Tuesday night (about 22:20), the Fed minutes on Wednesday (20:00) and Anthropic’s first day on the Nasdaq on Thursday: expect wide swings, both ways.",
+    "fr": "Neutre. Le Nasdaq-100 a rebondi de 3,5 % la semaine dernière, mais le taux à 10 ans a bondi vers 5,15 % et une hausse des taux de la Fed en décembre est désormais entièrement anticipée. Les banques et le positionnement penchent à la hausse : les fonds sont peu exposés, les suiveurs de tendance presque au maximum vendeurs, et l’argent revient en masse sur les actions. Les particuliers ont peur, et le patron de Nvidia a démissionné. La semaine se joue sur les résultats de Nvidia mardi soir (vers 22 h 20), les minutes de la Fed mercredi (20 h) et le premier jour d’Anthropic au Nasdaq jeudi : attention aux grands écarts, dans les deux sens."
+   },
+   "cats": [
+    {
+     "key": "banks",
+     "items": [
+      {
+       "src": "Goldman Sachs (Peter Oppenheimer)",
+       "stance": 1,
+       "date": "2026-11-13",
+       "url": "https://finance.biggo.com/news/fede9441-d851-4b6c-b8d5-102788f13770",
+       "text": {
+        "en": "12-month target of 8,700 for the S&P 500, about 14% higher. After the de-rating (17.7 times forward earnings, against a 10-year average of 19.1), it sees the November 5 drop as an entry point. It still warns of more volatility along the way.",
+        "fr": "Objectif de 8 700 pour le S&P 500 dans 12 mois, environ 14 % plus haut. Après la baisse des valorisations (17,7 fois les bénéfices attendus, contre 19,1 en moyenne sur 10 ans), la banque voit la chute du 5 novembre comme un point d’entrée. Elle prévient tout de même que le parcours sera agité."
+       }
+      },
+      {
+       "src": "JPMorgan (Dubravko Lakos-Bujas)",
+       "stance": 1,
+       "date": "2026-11-11",
+       "url": "https://www.tickmill.com/blog/institutional-insights-jpmorgan-market-intel-morning-update-equity-strategy-111126",
+       "text": {
+        "en": "Tactically bullish: reads the drop as funds cutting leverage, not the start of a recession, and keeps 8,000 for the S&P 500 at year-end. Its trade ideas lean on tech, including memory and chip stocks.",
+        "fr": "Tactiquement haussier : voit la baisse comme des fonds qui réduisent leur levier, pas comme le début d’une récession, et garde 8 000 pour le S&P 500 en fin d’année. Ses idées de trades misent sur la tech, dont la mémoire et les semi-conducteurs."
+       }
+      },
+      {
+       "src": "UBS (Keith Parker)",
+       "stance": 1,
+       "date": "2026-11-10",
+       "url": "https://stocktwits.com/news-articles/markets/equity/can-the-s-and-p-500-keep-rising-in-2027-ubs-bets-on-8-900-but-bof-a-warns-of-crowded-trades/cNGDJNcR9Jn",
+       "text": {
+        "en": "Keeps 8,900 for the S&P 500 at the end of 2027: after valuations fell about 20% this year, history points to strong returns. Prefers the Nasdaq-100 to small caps. Risks it lists: the payoff of AI spending, higher yields and oil, fewer buybacks.",
+        "fr": "Garde 8 900 pour le S&P 500 fin 2027 : après une baisse d’environ 20 % des valorisations cette année, l’histoire plaide pour de fortes hausses. Préfère le Nasdaq-100 aux petites capitalisations. Risques cités : la rentabilité des dépenses en IA, des taux et un pétrole plus hauts, moins de rachats d’actions."
+       }
+      },
+      {
+       "src": "BofA (Michael Hartnett)",
+       "stance": -1,
+       "date": "2026-11-13",
+       "url": "https://www.investing.com/news/stock-market-news/bofas-hartnett-says-stay-riskoff-until-yields-fall-below-45-and-oil-hits-70-5024722",
+       "text": {
+        "en": "Stay defensive until the 10-year yield falls below 4.5% and oil below $70; they see the yield there in December or January. Bear case: S&P 500 below 7,000. Bull case: above 8,000, carried by dip-buying flows.",
+        "fr": "Rester prudent tant que le taux à 10 ans n’est pas repassé sous 4,5 % et le pétrole sous 70 $ ; ils voient le taux y revenir en décembre ou en janvier. Scénario baissier : S&P 500 sous 7 000. Scénario haussier : au-dessus de 8 000, porté par les achats sur chaque baisse."
+       }
+      }
+     ]
+    },
+    {
+     "key": "funds",
+     "items": [
+      {
+       "src": "Goldman Sachs prime book",
+       "stance": -1,
+       "date": "2026-11-15",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-have-we-seen-the-q4-bottom",
+       "text": {
+        "en": "Hedge funds were net sellers of US stocks for a second week (5 of the last 6), tech the most sold. Their ratio of long to short positions in US tech fell to 1.5, the lowest in Goldman’s data (since 2016), and their net leverage is at the 4th percentile of the past year.",
+        "fr": "Les hedge funds ont été vendeurs nets d’actions US pour la 2e semaine (5 sur les 6 dernières), la tech en tête des ventes. Leur ratio de positions longues sur courtes dans la tech US est tombé à 1,5, le plus bas des données de Goldman (depuis 2016), et leur levier net est au 4e centile de l’année écoulée."
+       }
+      },
+      {
+       "src": "Positioning (Deutsche Bank, Barclays)",
+       "stance": 1,
+       "date": "2026-11-15",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-have-we-seen-the-q4-bottom",
+       "text": {
+        "en": "Deutsche Bank’s equity positioning rose to the 26th percentile from the 20th, tech to the 26th from the 7th. Barclays puts hedge funds’ net exposure at the 7th percentile of the past year, the lowest since March. Light positioning leaves room to buy back.",
+        "fr": "Le positionnement actions mesuré par Deutsche Bank remonte au 26e centile contre le 20e, la tech au 26e contre le 7e. Barclays place l’exposition nette des hedge funds au 7e centile de l’année écoulée, au plus bas depuis mars. Un positionnement léger laisse de la place pour racheter."
+       }
+      },
+      {
+       "src": "Trend-following funds (CTAs)",
+       "stance": 1,
+       "date": "2026-11-15",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-have-we-seen-the-q4-bottom",
+       "text": {
+        "en": "Goldman puts their Nasdaq-100 position at about −$3.9 billion, near max short; for Deutsche Bank it is net short for the first time in seven months. BofA expects about $28 billion of buying this week in a flat market, and sees a Nasdaq-100 buy trigger about 2.7% higher. In a drop of about 6%, they would still sell about $22 billion.",
+        "fr": "Goldman estime leur position sur le Nasdaq-100 à environ −3,9 milliards de dollars, presque au maximum vendeur ; pour Deutsche Bank, elle est vendeuse nette pour la première fois en sept mois. BofA attend environ 28 milliards de dollars d’achats cette semaine si le marché reste stable, et voit un seuil d’achat sur le Nasdaq-100 environ 2,7 % plus haut. Sur une baisse d’environ 6 %, ils vendraient encore environ 22 milliards."
+       }
+      },
+      {
+       "src": "Fund flows (BofA, EPFR)",
+       "stance": 1,
+       "date": "2026-11-15",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-have-we-seen-the-q4-bottom",
+       "text": {
+        "en": "In the week to November 11, $98.3 billion went into global equity funds and $63.6 billion into US ones, the most since June; tech funds had a seventh straight week of inflows. Retail investors piled into Nvidia (a record for the first half hour on Thursday, per Vanda). Leveraged ETFs now amplify moves both ways: about $2.4 billion per 1% move of the Nasdaq-100.",
+        "fr": "Dans la semaine au 11 novembre, 98,3 milliards de dollars sont entrés dans les fonds actions mondiaux et 63,6 milliards dans les fonds actions US, du jamais vu depuis juin ; les fonds tech en sont à 7 semaines d’entrées d’affilée. Les particuliers se sont rués sur Nvidia (un record sur la première demi-heure de jeudi, selon Vanda). Les ETF à effet de levier amplifient désormais les mouvements dans les deux sens : environ 2,4 milliards de dollars par 1 % de variation du Nasdaq-100."
+       }
+      }
+     ]
+    },
+    {
+     "key": "surveys",
+     "items": [
+      {
+       "src": "AAII sentiment survey",
+       "stance": -2,
+       "date": "2026-11-11",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-have-we-seen-the-q4-bottom",
+       "text": {
+        "en": "Bears 51.4%, above 50% for the first time in eight weeks, against 30.8% bulls. The gap between them is in the lowest 8% of readings since 2010. Extremes like this have often come close to lows, but not always.",
+        "fr": "51,4 % de baissiers, au-dessus de 50 % pour la première fois en huit semaines, contre 30,8 % de haussiers. L’écart entre les deux fait partie des 8 % de lectures les plus basses depuis 2010. Ces excès ont souvent coïncidé avec des points bas, mais pas toujours."
+       }
+      },
+      {
+       "src": "CNN Fear & Greed Index",
+       "stance": -1,
+       "date": "2026-11-13",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-have-we-seen-the-q4-bottom",
+       "text": {
+        "en": "38.6 at the end of the week, “fear”, up from 24.4 (“extreme fear”) a week earlier.",
+        "fr": "38,6 en fin de semaine, « peur », contre 24,4 (« peur extrême ») une semaine plus tôt."
+       }
+      },
+      {
+       "src": "NAAIM exposure index",
+       "stance": 0,
+       "date": "2026-11-11",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-have-we-seen-the-q4-bottom",
+       "text": {
+        "en": "Active managers’ exposure fell to 72.9, the lowest since mid-September. Still invested, but less.",
+        "fr": "L’exposition des gérants actifs est tombée à 72,9, au plus bas depuis la mi-septembre. Encore investis, mais moins."
+       }
+      }
+     ]
+    },
+    {
+     "key": "events",
+     "items": [
+      {
+       "src": "Nvidia earnings",
+       "stance": 0,
+       "date": "2026-11-17",
+       "url": "https://www.fxempire.com/forecasts/article/the-week-ahead-nvidia-earnings-anthropic-ipo-test-ai-trade-1644719",
+       "text": {
+        "en": "Tuesday about 22:20: third-quarter results, the first under interim CEO Colette Kress since Jensen Huang resigned last week. Expected: earnings per share of about $2.47 on $108.8 billion of revenue. The stock comes in after six straight weekly losses. The biggest single risk of the week for the Nasdaq, in either direction.",
+        "fr": "Mardi vers 22 h 20 : résultats du 3e trimestre, les premiers sous la directrice générale par intérim Colette Kress depuis la démission de Jensen Huang la semaine dernière. Attendu : un bénéfice par action d’environ 2,47 $ pour 108,8 milliards de dollars de chiffre d’affaires. L’action arrive après six semaines de baisse d’affilée. Le plus gros risque de la semaine pour le Nasdaq, dans un sens comme dans l’autre."
+       }
+      },
+      {
+       "src": "The Fed",
+       "stance": -1,
+       "date": "2026-11-18",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-have-we-seen-the-q4-bottom",
+       "text": {
+        "en": "Chair Kevin Warsh speaks on Monday (18:00), the minutes of the October meeting come out on Wednesday (20:00), and about ten Fed officials speak during the week. A December hike is fully priced, and Goldman, JPMorgan, Morgan Stanley and BofA all expect it, some with more to follow. A hawkish tone would push yields higher, which weighs on tech.",
+        "fr": "Le président de la Fed, Kevin Warsh, parle lundi (18 h), les minutes de la réunion d’octobre sortent mercredi (20 h) et une dizaine de membres de la Fed s’expriment dans la semaine. Une hausse des taux en décembre est entièrement anticipée, et Goldman, JPMorgan, Morgan Stanley et BofA l’attendent tous, certains avec d’autres hausses derrière. Un ton plus dur ferait monter les taux, ce qui pèse sur la tech."
+       }
+      },
+      {
+       "src": "Anthropic IPO",
+       "stance": 0,
+       "date": "2026-11-19",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-have-we-seen-the-q4-bottom",
+       "text": {
+        "en": "Expected to price on Wednesday and to start trading on the Nasdaq on Thursday (ticker ANT): 825 million shares at $70–78, about $61 billion at the midpoint according to Renaissance Capital. With Nvidia, a test of the appetite for AI stocks.",
+        "fr": "Prix attendu mercredi, premières cotations au Nasdaq jeudi (symbole ANT) : 825 millions d’actions entre 70 et 78 $, environ 61 milliards de dollars au milieu de la fourchette selon Renaissance Capital. Avec Nvidia, un test de l’appétit pour les valeurs de l’IA."
+       }
+      },
+      {
+       "src": "US consumer",
+       "stance": 0,
+       "date": "2026-11-17",
+       "url": "https://www.fxempire.com/forecasts/article/the-week-ahead-nvidia-earnings-anthropic-ipo-test-ai-trade-1644719",
+       "text": {
+        "en": "October retail sales on Tuesday (14:30, about +0.2% expected), then Home Depot on Tuesday, Target, Lowe’s and TJX on Wednesday and Walmart on Thursday, before the US open. A check on spending after the jump in prices and rates.",
+        "fr": "Ventes au détail d’octobre mardi (14 h 30, environ +0,2 % attendu), puis Home Depot mardi, Target, Lowe’s et TJX mercredi et Walmart jeudi, avant l’ouverture américaine. Un test de la consommation après la hausse des prix et des taux."
+       }
+      }
+     ]
+    },
+    {
+     "key": "nq",
+     "items": [
+      {
+       "src": "Nasdaq-100",
+       "stance": 1,
+       "date": "2026-11-13",
+       "url": "https://theglassdesk.substack.com/p/weekly-market-review-nov-13-2026",
+       "text": {
+        "en": "+3.53% last week to 27,943.74, including +3.4% on Monday alone, but −1.22% on Friday. Still about 10% below its October 6 high. The VIX fell 25% over the week, to 19.3.",
+        "fr": "+3,53 % la semaine dernière, à 27 943,74, dont +3,4 % rien que lundi, mais −1,22 % vendredi. Encore environ 10 % sous son plus haut du 6 octobre. Le VIX a perdu 25 % sur la semaine, à 19,3."
+       }
+      },
+      {
+       "src": "Rates and oil",
+       "stance": -2,
+       "date": "2026-11-13",
+       "url": "https://cappnotes.substack.com/p/closing-look-friday-november-13-2026",
+       "text": {
+        "en": "The 10-year yield jumped about 0.3 point in a week, to about 5.15%, and the 2-year to 4.85%. October inflation came in a tenth above expectations (+0.4% over the month, +0.3% for core prices), and producer prices are up 6.5% over a year, the fastest since November 2022. Brent is near $96 after reports of mines hitting tankers in the Strait of Hormuz. High yields weigh most on tech.",
+        "fr": "Le taux à 10 ans a bondi d’environ 0,3 point en une semaine, vers 5,15 %, et le 2 ans à 4,85 %. L’inflation d’octobre est sortie un dixième au-dessus des attentes (+0,4 % sur le mois, +0,3 % hors énergie et alimentation), et les prix à la production prennent 6,5 % sur un an, leur rythme le plus rapide depuis novembre 2022. Le Brent est vers 96 $ après des mines qui auraient touché des pétroliers dans le détroit d’Ormuz. Des taux élevés pèsent d’abord sur la tech."
+       }
+      },
+      {
+       "src": "Nvidia and chips",
+       "stance": -1,
+       "date": "2026-11-13",
+       "url": "https://cappnotes.substack.com/p/closing-look-friday-november-13-2026",
+       "text": {
+        "en": "Nvidia’s CEO Jensen Huang resigned last week; CFO Colette Kress is interim CEO. The stock fell for a sixth straight week. Chips swung hard: the SOX gained 8% over the week but lost 3.4% on Friday, with AMD down 8.75%.",
+        "fr": "Le patron de Nvidia, Jensen Huang, a démissionné la semaine dernière ; la directrice financière Colette Kress assure l’intérim. L’action a baissé pour la 6e semaine d’affilée. Les semi-conducteurs ont fait le yoyo : le SOX a pris 8 % sur la semaine mais perdu 3,4 % vendredi, avec AMD à −8,75 %."
+       }
+      }
+     ]
+    }
+   ],
+   "events": [
+    {
+     "d": "2026-11-16",
+     "t": "18:00",
+     "imp": 2,
+     "what": {
+      "en": "Fed Chair Kevin Warsh speaks",
+      "fr": "Discours du président de la Fed, Kevin Warsh"
+     }
+    },
+    {
+     "d": "2026-11-16",
+     "t": "21:30",
+     "imp": 1,
+     "what": {
+      "en": "CFTC positioning report, delayed by Veterans Day",
+      "fr": "Rapport de positions de la CFTC, retardé par Veterans Day"
+     }
+    },
+    {
+     "d": "2026-11-17",
+     "t": "14:30",
+     "imp": 2,
+     "what": {
+      "en": "US retail sales (October)",
+      "fr": "Ventes au détail américaines (octobre)"
+     }
+    },
+    {
+     "d": "2026-11-17",
+     "t": "~22:20",
+     "imp": 3,
+     "what": {
+      "en": "Nvidia earnings",
+      "fr": "Résultats de Nvidia"
+     }
+    },
+    {
+     "d": "2026-11-18",
+     "t": "",
+     "imp": 1,
+     "what": {
+      "en": "Target, Lowe’s and TJX earnings, before the US open",
+      "fr": "Résultats de Target, Lowe’s et TJX, avant l’ouverture"
+     }
+    },
+    {
+     "d": "2026-11-18",
+     "t": "20:00",
+     "imp": 3,
+     "what": {
+      "en": "Fed minutes (October meeting)",
+      "fr": "Minutes de la Fed (réunion d’octobre)"
+     }
+    },
+    {
+     "d": "2026-11-19",
+     "t": "",
+     "imp": 2,
+     "what": {
+      "en": "Walmart earnings, before the US open",
+      "fr": "Résultats de Walmart, avant l’ouverture"
+     }
+    },
+    {
+     "d": "2026-11-19",
+     "t": "14:30",
+     "imp": 2,
+     "what": {
+      "en": "Jobless claims and Philadelphia Fed index",
+      "fr": "Inscriptions au chômage et indice de la Fed de Philadelphie"
+     }
+    },
+    {
+     "d": "2026-11-19",
+     "t": "",
+     "imp": 3,
+     "what": {
+      "en": "Anthropic’s first day of trading on the Nasdaq (ANT)",
+      "fr": "Premier jour de cotation d’Anthropic au Nasdaq (ANT)"
+     }
+    },
+    {
+     "d": "2026-11-20",
+     "t": "",
+     "imp": 2,
+     "what": {
+      "en": "Monthly options expiration",
+      "fr": "Échéance mensuelle des options"
+     }
+    }
+   ],
+   "published": "2026-11-16T11:17+01:00"
   }
  ]
 }

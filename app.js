@@ -96,7 +96,7 @@
   const dayMonth = s => new Intl.DateTimeFormat(loc(), { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(ymd(s));
   const shortDate = s => LANG === 'fr' ? `${s.slice(8, 10)}/${s.slice(5, 7)}` : `${s.slice(5, 7)}/${s.slice(8, 10)}`;
   const minOf = s => { const [d, h] = s.replace('T', ' ').split(' '); const [y, m, dd] = d.split('-').map(Number); const [hh, mm, ss] = (h || '0:0').split(':').map(Number); return Date.UTC(y, m - 1, dd, hh, mm, ss || 0) / 60000; };
-  const firstSentences = (txt, n) => { if (!txt) return ''; const m = txt.match(/[^.!?]+[.!?]+(\s|$)/g) || [txt]; return m.slice(0, n).join('').trim(); };
+  const firstSentences = (txt, n) => { if (!txt) return ''; const m = txt.match(/[\s\S]*?[.!?]+(?=\s|$)/g) || [txt]; return m.slice(0, n).join('').trim(); };  // a sentence ends on . ! ? followed by a space (not on the decimal point of 27,270.00)
 
   /* ---------- model ---------- */
   let M = null, BARS = null, barsP = null, BOOTING = false, ANIM = !RM;

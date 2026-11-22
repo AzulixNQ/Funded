@@ -15,7 +15,10 @@
     en: {
       intro: 'My live trading journal. The goal: five live 25K accounts at Lucid Trading. Every trade goes here, nothing gets deleted.',
       dcStrip: 'AZULIX COMMUNITY · JOIN THE DISCORD',
-      keys: ['ACCTS', 'CHART', 'LOG', 'TRADES', 'STATS', 'WATCH'], heads: ['ACCOUNTS', 'BALANCE', 'LOG', 'TRADES', 'STATS', 'WEEKLY WATCH'],
+      keys: ['BALANCE', 'ACCTS', 'LOG', 'TRADES', 'STATS', 'WATCH'], heads: ['Balance', 'Accounts', 'Log', 'Trades', 'Stats', 'Weekly watch'],
+      hAcc: (n, name, ph) => `Account ${n} · ${name} · ${ph}`, phLong: { eval: 'evaluation', funded: 'funded' }, hOnAcc: v => `${v} on this account`,
+      hAll: 'ALL-TIME P&L', hAllN: 'every account since Oct 28, the lost one included', hLast: 'LAST SESSION', hWr: 'WIN RATE', hWrN: (w, n) => `${w} of ${n} trades`,
+      hTgt: 'TO THE TARGET', hTgtF: 'TO THE 1ST PAYOUT', hTgtN: go => `${go} to go`, hDone: 'target reached', bootS: d => `${d.n} trades · ${d.s} sessions · last ${d.last}`,
       last: 'LAST SESSION', paris: 'PARIS', cmeO: 'CME OPEN', cmeC: 'CME CLOSED',
       started: n => `${n} of 5 started`, stages: ['EVAL', 'FUNDED', 'PAYOUT', 'LIVE'],
       leadEval: (name, d, net, tgt, go) => `Account 1 is a ${name}, in its evaluation since ${d}: <b>${net}</b> of the ${tgt} target. <b>${go}</b> to go.`,
@@ -48,7 +51,10 @@
     fr: {
       intro: 'Mon journal de trading en direct. L’objectif : cinq comptes live de 25K chez Lucid Trading. Chaque trade est ici, rien n’est supprimé.',
       dcStrip: 'AZULIX COMMUNITY · REJOINS LE DISCORD',
-      keys: ['COMPTES', 'COURBE', 'JOURNAL', 'TRADES', 'STATS', 'VEILLE'], heads: ['COMPTES', 'SOLDE', 'JOURNAL', 'TRADES', 'STATS', 'VEILLE'],
+      keys: ['SOLDE', 'COMPTES', 'JOURNAL', 'TRADES', 'STATS', 'VEILLE'], heads: ['Solde', 'Comptes', 'Journal', 'Trades', 'Stats', 'Veille du lundi'],
+      hAcc: (n, name, ph) => `Compte ${n} · ${name} · ${ph}`, phLong: { eval: 'évaluation', funded: 'funded' }, hOnAcc: v => `${v} sur ce compte`,
+      hAll: 'P&L DEPUIS LE DÉBUT', hAllN: 'tous les comptes depuis le 28 oct., le compte perdu compris', hLast: 'DERNIÈRE SÉANCE', hWr: 'RÉUSSITE', hWrN: (w, n) => `${w} trades gagnants sur ${n}`,
+      hTgt: 'JUSQU’À L’OBJECTIF', hTgtF: 'JUSQU’AU 1ER PAYOUT', hTgtN: go => `encore ${go}`, hDone: 'objectif atteint', bootS: d => `${d.n} trades · ${d.s} séances · dernière ${d.last}`,
       last: 'DERNIÈRE SÉANCE', paris: 'PARIS', cmeO: 'CME OUVERT', cmeC: 'CME FERMÉ',
       started: n => `${n} sur 5 lancé${n > 1 ? 's' : ''}`, stages: ['ÉVAL', 'FUNDED', 'PAYOUT', 'LIVE'],
       leadEval: (name, d, net, tgt, go) => `Le compte 1 est un ${name}, en évaluation depuis le ${d} : <b>${net}</b> sur l’objectif de ${tgt}. Encore <b>${go}</b>.`,
@@ -101,7 +107,7 @@
   /* ---------- model ---------- */
   let M = null, BARS = null, barsP = null, BOOTING = false, ANIM = !RM;
   const ui = { res: 'all', sess: 'all', all: false, open: null, dayOpen: {}, noteOpen: {}, acc: null };
-  const IDS = ['acc', 'bal', 'log', 'tr', 'st', 'wt'];
+  const IDS = ['bal', 'acc', 'log', 'tr', 'st', 'wt'];
 
   // a run is one account bought on a slot (slot 1: LucidPro "pro1", lost on Nov 6, then LucidFlex "flex1"); data without "run" belongs to pro1
   const runId = x => x.run || 'pro1';
@@ -232,7 +238,7 @@
     $$('a', k).forEach(a => a.addEventListener('click', e => { e.preventDefault(); go(a.getAttribute('href').slice(1)); }));
     markKey(curKey);
   }
-  let curKey = 'acc';
+  let curKey = 'bal';
   function markKey(id) { curKey = id; $$('#keys a').forEach(a => a.setAttribute('aria-current', a.getAttribute('href') === '#' + id ? 'true' : 'false')); }
   function go(id) {
     const el = document.getElementById(id); if (!el) return;
@@ -308,46 +314,82 @@
   const phList = () => M.runs.flatMap(r => ['eval', 'funded'].filter(p => r.ph[p]).map(p => ({ k: r.run + ':' + p, r, p })));
   const phSel = () => { const L = phList(); return L.find(x => x.k === ui.ph) || L.find(x => x.k === M.run.run + ':' + M.phase) || L[L.length - 1]; };
   const balHead = () => { const s = phSel(); return [t().balR, [(s.r.short || '').toLowerCase(), t().phases[s.p]].filter(Boolean).join(' ')].join(' · '); };
+  // all accounts since the start: each phase's result; a lost account counts at its floor (the trades of its last days are not logged)
+  function allTimePnl() {
+    return +M.runs.reduce((s, r) => s + Object.entries(r.ph).reduce((a, [p, P]) => a + (r.lost && p === r.phase ? P.floor - P.start : P.net), 0), 0).toFixed(2);
+  }
+  const pct0 = v => (LANG === 'fr' ? `${nf(v, 0)} %` : `${nf(v, 0)}%`);
+  function hero() {
+    const F = M.phase === 'funded', last = M.days[M.days.length - 1], S = M.stats, all = allTimePnl();
+    const tile = (l, v, n, c, id) => `<div class="kp"><span class="l">${l}</span><b class="${c || ''}"${id ? ` id="${id}"` : ''}>${v}</b><span class="n">${n}</span></div>`;
+    const lastN = last ? `${esc(dayLabel(last.date))}${last.n != null ? ' · ' + esc(t().tw(last.n, last.w ?? 0)) : ''}` : '';
+    return `<div class="hero" id="hero"><div class="h-main">
+      <div class="h-acc">${esc(t().hAcc(M.run.n, M.run.name || '', t().phLong[M.phase]))}</div>
+      <div class="h-bal" id="hBal">${usd(M.balance)}</div>
+      <div class="h-sub ${cls(M.net)}">${esc(t().hOnAcc(usd(M.net, 2, true)))}</div>
+      <p class="intro">${esc(t().intro)}</p></div>
+      <div class="h-kpis" id="hK">
+        ${tile(t().hAll, usd(all, 2, true), t().hAllN, cls(all), 'hAll')}
+        ${last ? tile(t().hLast, usd(last.net, 2, true), lastN, cls(last.net)) : ''}
+        ${tile(t().hWr, pct0(S.wr), t().hWrN(S.w, S.n))}
+        ${tile(F ? t().hTgtF : t().hTgt, pct0(Math.min(100, M.pct)), M.toGo > 0 ? t().hTgtN(usd(M.toGo)) : t().hDone, 'am')}
+      </div>
+    </div>`;
+  }
+  function heroIn() {
+    const hb = $('#hBal'), ha = $('#hAll'), all = allTimePnl(), k = $('#hK');
+    when($('#hero'), instant => {
+      if (instant || !ANIM) return;
+      countTo(hb, M.balance - M.start, v => usd(M.start + v), 1300);
+      countTo(ha, all, v => usd(v, 2, true), 1300);
+      printRows(k, 110);
+    }, () => hide(k));
+  }
   function balance() {
     const box = $('#balBody'), L = phList(), sel = phSel(); ui.ph = sel.k;
     const sw = L.length > 1 ? `<div class="fl"><div>${L.map(x => `<button type="button" data-ph="${x.k}" aria-pressed="${ui.ph === x.k}">${esc(x.r.short ? x.r.short + ' ' : '')}${x.p === 'eval' ? t().phEval : t().phFunded}${x.r.lost && x.p === x.r.phase ? ' ✗' : ''}</button>`).join('')}</div></div>` : '';
     const bn = sel.r.lost && sel.p === sel.r.phase ? t().lostHint(dayMonth(sel.r.lost)) : sel.r.ph[sel.p].eq.length < 2 ? t().noCurve : '';
-    box.innerHTML = sw + `<div class="readout" id="rd">${t().hint}</div><div class="chart" id="eqc" data-an></div>${bn ? `<p class="hint bn">${esc(bn)}</p>` : ''}`;
+    box.innerHTML = hero() + `<div class="eqbox">` + sw + `<div class="readout" id="rd">${t().hint}</div><div class="chart" id="eqc" data-an></div>${bn ? `<p class="hint bn">${esc(bn)}</p>` : ''}</div>`;
+    heroIn();
     $$('[data-ph]', box).forEach(b => b.addEventListener('click', () => { if (ui.ph === b.dataset.ph) return; ui.ph = b.dataset.ph; balance(); const r = $('#bal h2 .r'); if (r) { r.textContent = balHead(); r.dataset.t = r.textContent; } }));
     drawEq(false);
   }
   function drawEq(redraw) {
     const host = $('#eqc'); if (!host) return;
-    const w = Math.max(300, Math.round(host.clientWidth || 358)), h = w > 760 ? Math.round(Math.max(340, Math.min(560, innerHeight - 330))) : w > 600 ? 300 : 236, pl = 4, pr = 64, pt = 18, pb = 26;
+    const w = Math.max(300, Math.round(host.clientWidth || 358)), h = w > 760 ? Math.round(Math.max(260, Math.min(440, innerHeight - 600))) : w > 600 ? 300 : 250, pl = 4, pr = 64, pt = 18, pb = 26;
     const sel = phSel(), Ph = sel.r.ph[sel.p], F = sel.p === 'funded', P = Ph.eq, last = P[P.length - 1].b, goal = F ? (Ph.R.payout_threshold || Ph.start + Ph.target) : Ph.start + Ph.target;
     const endLost = !!(sel.r.lost && sel.p === sel.r.phase), endPassed = sel.p === 'eval' && !!sel.r.ph.funded;
     const lo = Math.min(Ph.floor, ...P.map(p => p.b)) - 90, hi = Math.max(goal, ...P.map(p => p.b)) + 70;
     const X = i => pl + (w - pl - pr) * i / Math.max(1, P.length - 1), Y = v => pt + (h - pt - pb) * (hi - v) / (hi - lo);
-    let s = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(t().heads[1])}: ${num(Ph.start)} → ${num(last)}">`;
+    let s = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(t().heads[0])}: ${num(Ph.start)} → ${num(last)}">`;
     // day separators and labels
     Ph.days.forEach((d, j) => {
       const idx = P.map((p, i) => [p, i]).filter(([p]) => (p.t ? p.t.session_date : p.day ? p.day.session_date : null) === d.date).map(([, i]) => i);
       if (!idx.length) return;
       const a = Math.min(...idx), b = Math.max(...idx);
-      if (j) s += `<line x1="${X(a - 0.5)}" x2="${X(a - 0.5)}" y1="${pt}" y2="${h - pb}" stroke="#3a2a10" stroke-dasharray="1 3"/>`;
-      s += `<text x="${(X(a) + X(b)) / 2}" y="${h - 7}" font-size="10" fill="#A08D6C" text-anchor="middle">${t().day.slice(0, 1)}${d.no}</text>`;
+      if (j) s += `<line x1="${X(a - 0.5)}" x2="${X(a - 0.5)}" y1="${pt}" y2="${h - pb}" stroke="rgba(255,255,255,.09)" stroke-dasharray="1 3"/>`;
+      s += `<text x="${(X(a) + X(b)) / 2}" y="${h - 7}" font-size="10" fill="#8F887E" text-anchor="middle">${t().day.slice(0, 1)}${d.no}</text>`;
     });
     const lvl = (v, col, dash, name) => {
       s += `<line x1="${pl}" x2="${w - pr + 4}" y1="${Y(v)}" y2="${Y(v)}" stroke="${col}" ${dash ? `stroke-dasharray="${dash}"` : ''}/>`;
       s += `<text x="${pl + 2}" y="${Y(v) - 4}" font-size="9.5" fill="${col}" letter-spacing=".06em">${name}</text>`;
       s += `<text x="${w - pr + 8}" y="${Y(v) + 4}" font-size="10.5" fill="${col}">${nf(v, 0)}</text>`;
     };
-    lvl(goal, '#3BD47A', '4 3', F ? t().payout1 : t().target); lvl(Ph.start, '#A08D6C', '1 3', t().start); lvl(Ph.floor, '#FF5149', '', t().floor);
+    lvl(goal, '#4BE08D', '4 3', F ? t().payout1 : t().target); lvl(Ph.start, '#8F887E', '1 3', t().start); lvl(Ph.floor, '#FF5A5F', '', t().floor);
     // how this phase ended: evaluation passed, or account lost (its last days are not logged, so the curve stops at the last known trade)
     const endTxt = (txt, col, below) => { const y = below ? Math.min(Y(last) + 20, h - pb - 4) : Math.max(Y(last) - 10, pt + 10); s += `<text x="${w - pr - 2}" y="${y.toFixed(1)}" font-size="10.5" font-weight="700" fill="${col}" text-anchor="end" letter-spacing=".06em">${txt}</text>`; };
-    if (endLost) endTxt(`✗ ${t().lostTag} · ${esc(dayMonth(sel.r.lost)).toUpperCase()}`, '#FF5149', true);
-    else if (endPassed && sel.r.passed) endTxt(`✓ ${t().passedTag} · ${esc(dayMonth(sel.r.passed)).toUpperCase()}`, '#3BD47A');
+    if (endLost) endTxt(`✗ ${t().lostTag} · ${esc(dayMonth(sel.r.lost)).toUpperCase()}`, '#FF5A5F', true);
+    else if (endPassed && sel.r.passed) endTxt(`✓ ${t().passedTag} · ${esc(dayMonth(sel.r.passed)).toUpperCase()}`, '#4BE08D');
     const d = P.map((p, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(p.b).toFixed(1)}`).join('');
-    s += `<path class="ln" pathLength="1" d="${d}" fill="none" stroke="#FFA41C" stroke-width="1.8" stroke-linejoin="round"/>`;
+    const ga = 'eqg' + Math.random().toString(36).slice(2, 7);
+    s += `<defs><linearGradient id="${ga}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFA41C" stop-opacity=".30"/><stop offset="1" stop-color="#FFA41C" stop-opacity="0"/></linearGradient><filter id="${ga}b" x="-10%" y="-30%" width="120%" height="160%"><feGaussianBlur stdDeviation="5"/></filter></defs>`;
+    if (P.length > 1) s += `<path class="ar" d="${d}L${X(P.length - 1).toFixed(1)},${h - pb}L${X(0).toFixed(1)},${h - pb}Z" fill="url(#${ga})"/>`;
+    s += `<path class="ln gl" pathLength="1" d="${d}" fill="none" stroke="#FFA41C" stroke-width="7" stroke-opacity=".45" filter="url(#${ga}b)"/>`;
+    s += `<path class="ln" pathLength="1" d="${d}" fill="none" stroke="#FFB43C" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>`;
     if (P.length < 2) s += `<circle cx="${X(0)}" cy="${Y(P[0].b)}" r="3" fill="#FFA41C"/>`;
-    P.forEach((p, i) => { if (!i) return; const v = p.t ? p.t.pnl_net : p.day ? p.day.pnl_lucid : 0; s += `<circle class="dot" cx="${X(i)}" cy="${Y(p.b)}" r="2.2" fill="${v > 0 ? '#3BD47A' : v < 0 ? '#FF5149' : '#A08D6C'}" style="transition-delay:${(i / P.length * 1.3).toFixed(2)}s"/>`; });
-    s += `<g class="tag"><rect x="${w - pr + 4}" y="${Y(last) - 10}" width="${pr - 4}" height="20" fill="${endLost ? '#A08D6C' : '#FFA41C'}"/><text x="${w - pr + 8}" y="${Y(last) + 4}" font-size="11" font-weight="700" fill="#000">${nf(last, 0)}</text></g>`;
-    s += `<g class="xh" opacity="0"><line y1="${pt}" y2="${h - pb}" stroke="#F3E7CF" stroke-opacity=".35"/><circle r="4.5" fill="none" stroke="#F3E7CF" stroke-width="1.5"/></g>`;
+    P.forEach((p, i) => { if (!i) return; const v = p.t ? p.t.pnl_net : p.day ? p.day.pnl_lucid : 0; s += `<circle class="dot" cx="${X(i)}" cy="${Y(p.b)}" r="2.6" fill="${v > 0 ? '#4BE08D' : v < 0 ? '#FF5A5F' : '#8F887E'}" style="transition-delay:${(i / P.length * 1.3).toFixed(2)}s"/>`; });
+    s += `<g class="tag"><rect x="${w - pr + 4}" y="${Y(last) - 10}" width="${pr - 4}" height="20" rx="6" fill="${endLost ? '#8F887E' : '#FFA41C'}"/><text x="${w - pr + 8}" y="${Y(last) + 4}" font-size="11" font-weight="700" fill="#000">${nf(last, 0)}</text></g>`;
+    s += `<g class="xh" opacity="0"><line y1="${pt}" y2="${h - pb}" stroke="#FFF3E0" stroke-opacity=".35"/><circle r="5" fill="#070605" stroke="#FFB43C" stroke-width="2"/></g>`;
     s += `<rect class="hit" x="0" y="0" width="${w - pr}" height="${h}" fill="transparent"/></svg>`;
     host.innerHTML = s;
     const svg = $('svg', host), xh = $('.xh', svg), ln = $('line', xh), cc = $('circle', xh), rd = $('#rd');
@@ -363,11 +405,12 @@
       svg.addEventListener('pointerleave', () => { xh.setAttribute('opacity', 0); rd.textContent = t().hint; });
     } else rd.textContent = '';
     if (redraw) return;
-    const lnp = $('.ln', svg), dots = $$('.dot', svg), tag = $('.tag', svg);
+    const lns = $$('.ln', svg), ar = $('.ar', svg), dots = $$('.dot', svg), tag = $('.tag', svg);
+    const show = on => { lns.forEach(l => l.style.setProperty('--off', on ? 0 : 1)); if (ar) ar.style.setProperty('--op', on ? 1 : 0); dots.forEach(c => c.style.setProperty('--op', on ? 1 : 0)); tag.style.setProperty('--op', on ? 1 : 0); };
     when(host, instant => {
-      if (instant || !ANIM) { lnp.style.setProperty('--off', 0); dots.forEach(c => c.style.setProperty('--op', 1)); tag.style.setProperty('--op', 1); return; }
-      requestAnimationFrame(() => requestAnimationFrame(() => { lnp.style.transition = ''; lnp.style.setProperty('--off', 0); dots.forEach(c => c.style.setProperty('--op', 1)); tag.style.setProperty('--op', 1); }));
-    }, () => { lnp.style.transition = 'none'; lnp.style.setProperty('--off', 1); dots.forEach(c => c.style.setProperty('--op', 0)); tag.style.setProperty('--op', 0); });
+      if (instant || !ANIM) { show(true); return; }
+      requestAnimationFrame(() => requestAnimationFrame(() => { lns.forEach(l => { l.style.transition = ''; }); if (ar) ar.style.transition = ''; show(true); }));
+    }, () => { lns.forEach(l => { l.style.transition = 'none'; }); if (ar) ar.style.transition = 'none'; show(false); });
   }
 
   /* ---------- 3 log ---------- */
@@ -511,22 +554,21 @@
     if (io) { pending.forEach(el => io.unobserve(el)); pending.clear(); }
     document.documentElement.lang = LANG;
     $$('.lang button').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === LANG ? 'true' : 'false'));
-    $('#intro').textContent = t().intro; $('#foot').textContent = t().foot;
+    $('#foot').textContent = t().foot;
     const dc = $('#dcStrip'); if (dc) dc.textContent = t().dcStrip;
     heads(); keys(); status(); accounts(); balance(); log(); trades(); stats(); if (window.R5S) R5S.watch(); nexts();
     $$('.panel').forEach(sec => when(sec, instant => headIn(sec), () => headPrep(sec)));
   }
   function boot(done) {
-    const ov = $('#boot'), pre = $('#bootTxt');
-    if (!ANIM || document.hidden || sess.get('r5l-boot')) { done(); return; }
+    const ov = $('#boot');
+    if (!ov || !ANIM || document.hidden || sess.get('r5l-boot')) { if (ov) ov.remove(); done(); return; }
     sess.set('r5l-boot', '1'); BOOTING = true; ov.classList.add('on');
-    const lines = t().boot({ n: M.trades.length, s: M.days.length, last: M.days.length ? dayLabel(M.days[M.days.length - 1].date) : '' });
-    const full = lines.join('\n'); let k = 0, fin = false;
-    const end = () => { if (fin) return; fin = true; pre.innerHTML = esc(full); ov.classList.add('done'); BOOTING = false; setTimeout(() => ov.remove(), 400); done(); };
-    const t0 = performance.now(), total = 1000; // typed by elapsed time, so a slow or throttled timer cannot stretch it
-    const id = setInterval(() => { k = Math.min(full.length, Math.ceil((performance.now() - t0) / total * full.length)); pre.innerHTML = esc(full.slice(0, k)) + '<i></i>'; if (k >= full.length) { clearInterval(id); setTimeout(end, 260); } }, 16);
-    setTimeout(() => { clearInterval(id); end(); }, total + 900);
-    ov.addEventListener('click', () => { clearInterval(id); end(); }); addEventListener('keydown', () => { clearInterval(id); end(); }, { once: true });
+    $('#bootTxt').textContent = t().bootS({ n: M.trades.length, s: M.days.length, last: M.days.length ? dayLabel(M.days[M.days.length - 1].date) : '' });
+    countTo($('#bootBal'), M.balance - M.start, v => usd(M.start + v), 850);
+    let fin = false;
+    const end = () => { if (fin) return; fin = true; ov.classList.add('done'); BOOTING = false; setTimeout(() => ov.remove(), 650); done(); };
+    setTimeout(end, 1250);
+    ov.addEventListener('click', end); addEventListener('keydown', end, { once: true });
   }
   function bind() {
     $$('.lang button').forEach(b => b.addEventListener('click', () => { if (b.dataset.lang === LANG) return; LANG = b.dataset.lang; local.set('r5l-lang', LANG); const a = ANIM; ANIM = false; render(); ANIM = a; }));
@@ -545,7 +587,7 @@
       const meta = await get('meta').catch(() => ({}));
       const watch = await get('watch').catch(() => null);
       M = model({ trades, days, rules, accounts, meta }); M.watch = watch;
-    } catch (e) { $('#intro').textContent = 'The journal could not load its data. Refresh the page to try again.'; return; }
+    } catch (e) { $('#balBody').innerHTML = '<p class="intro">The journal could not load its data. Refresh the page to try again.</p>'; return; }
     bind(); boot(() => { kick(); });
     render(); spy();
     if (location.hash) { const id = location.hash.slice(1); if (document.getElementById(id)) setTimeout(() => go(id), 50); }

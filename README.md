@@ -10,5 +10,7 @@ My live trading journal: from one Lucid Trading 25K evaluation to five live acco
 - Every trade with its 1-minute chart, session VWAP and bands.
 
 Data: MotiveWave trade report (Quantower since Nov 12), Lucid balances, 1-minute MNQ candles (Yahoo Finance) and a session VWAP recomputed on NQ. A day whose trades are not detailed shows only its Lucid result (`pnl_lucid` in `data/days.json`).
-Font: IBM Plex Mono (SIL Open Font License, see `fonts/OFL.txt`).
+Fonts: Nojah Sans, a subset of Mona Sans (SIL Open Font License, see `fonts/OFL-NojahSans.txt`), for the words; IBM Plex Mono (SIL Open Font License, see `fonts/OFL.txt`) for the numbers.
+The amber light behind the page is drawn by `rubans.js` (WebGL); without WebGL the page keeps two soft CSS glows.
+The all-time P&L at the top adds up every account and phase since Oct 28; the LucidPro funded account lost on Nov 6 counts at its floor (−$1,000), since the trades of its last days are not logged.
 Not financial advice.

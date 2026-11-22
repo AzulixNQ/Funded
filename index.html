@@ -7,18 +7,20 @@
 <meta name="description" content="My live trading journal: from one Lucid Trading 25K evaluation to five live accounts. Every trade logged, nothing deleted. Updated every evening.">
 <meta property="og:title" content="Road to 5 Live">
 <meta property="og:description" content="My live trading journal: from one 25K evaluation to five live accounts. Every trade logged, nothing deleted.">
-<meta name="theme-color" content="#000000">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23000'/%3E%3Crect x='10' y='10' width='44' height='44' fill='%23FFA41C'/%3E%3Ctext x='32' y='46' font-family='monospace' font-weight='700' font-size='38' text-anchor='middle' fill='%23000'%3E5%3C/text%3E%3C/svg%3E">
-<link rel="preload" href="fonts/PlexMono-400.woff" as="font" type="font/woff" crossorigin>
-<link rel="preload" href="fonts/PlexMono-700.woff" as="font" type="font/woff" crossorigin>
-<link rel="stylesheet" href="style.css?v=72430c61">
+<meta name="theme-color" content="#070605">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070605'/%3E%3Ccircle cx='32' cy='32' r='20' fill='none' stroke='%23FFA41C' stroke-width='5'/%3E%3Ctext x='32' y='41' font-family='Arial' font-weight='700' font-size='24' text-anchor='middle' fill='%23FFA41C'%3E5%3C/text%3E%3C/svg%3E">
+<link rel="preload" href="fonts/nojah-sans.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/PlexMono-500.woff" as="font" type="font/woff" crossorigin>
+<link rel="stylesheet" href="style.css?v=02c0e2f6">
 </head>
 <body>
-<div id="boot" aria-hidden="true"><pre id="bootTxt"></pre></div>
+<canvas id="rubans" data-teinte="ambre" data-eclat="0.9" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<div id="boot" aria-hidden="true"><div class="bt"><span class="bt-k">ROAD TO 5 LIVE</span><b id="bootBal"></b><span class="bt-s" id="bootTxt"></span></div></div>
 
-<a class="dc-strip" href="https://discord.gg/n42wftjvFe" target="_blank" rel="noopener"><span id="dcStrip">AZULIX COMMUNITY · JOIN THE DISCORD</span><span aria-hidden="true"> ↗</span></a>
+<div class="page">
 <header class="top">
-  <div class="brand" id="brand">ROAD TO 5 LIVE<i class="bc" aria-hidden="true"></i></div>
+  <div class="brand" id="brand"><span class="mk" aria-hidden="true">5</span>Road to 5 Live</div>
   <div class="status" id="status"></div>
   <div class="lang" role="group" aria-label="Language">
     <button type="button" data-lang="en">EN</button><button type="button" data-lang="fr">FR</button>
@@ -27,18 +29,19 @@
 <nav class="keys" id="keys" aria-label="Sections"></nav>
 
 <main class="screen">
-  <p class="intro" id="intro"></p>
-  <section id="acc" class="panel"><h2 data-k="1"></h2><div id="accBody"></div></section>
-  <section id="bal" class="panel"><h2 data-k="2"></h2><div id="balBody"></div></section>
+  <section id="bal" class="panel hero-p"><i class="foyer" data-foyer aria-hidden="true"></i><h2 data-k="1"></h2><div id="balBody"></div></section>
+  <section id="acc" class="panel"><h2 data-k="2"></h2><div id="accBody"></div></section>
   <section id="log" class="panel"><h2 data-k="3"></h2><div id="logBody"></div></section>
   <section id="tr" class="panel"><h2 data-k="4"></h2><div id="trBody"></div></section>
   <section id="st" class="panel"><h2 data-k="5"></h2><div id="stBody"></div></section>
   <section id="wt" class="panel"><h2 data-k="6"></h2><div id="wtBody"></div></section>
   <footer class="foot" id="foot"></footer>
 </main>
+</div>
 
 <noscript><p class="intro">This journal needs JavaScript to show the trades.</p></noscript>
-<script src="app.js?v=db7a632c"></script>
-<script src="stats.js?v=4453e872"></script>
+<script src="rubans.js?v=f9409106" defer></script>
+<script src="app.js?v=074791c9"></script>
+<script src="stats.js?v=18ebb10b"></script>
 </body>
 </html>

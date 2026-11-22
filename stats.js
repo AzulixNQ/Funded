@@ -166,7 +166,7 @@
   const sg = (v, d = 2) => (v == null || !isFinite(v) ? '—' : X.sg(v, d));
   const pc = (v, d = 0) => (v == null || !isFinite(v) ? '—' : X.nf(v * 100, d) + (X.LANG === 'fr' ? ' %' : '%'));
   const cl = v => X.cls(v || 0);
-  const blocks = (v, mx, n = 14) => '█'.repeat(v ? Math.max(1, Math.round(Math.abs(v) / (mx || 1) * n)) : 0);
+  const blocks = (v, mx) => (v ? `<i class="hb" style="--w:${Math.max(3, Math.min(100, Math.abs(v) / (mx || 1) * 100)).toFixed(1)}%"></i>` : '');
 
   // one row per trade; on "all accounts", copies of the same trade (same copy_id) count once and their dollars add up
   function aggregate(ts) {
@@ -221,7 +221,7 @@
       const ln = $$('.ln', el); if (X.ANIM && ln.length) { ln.forEach(l => { l.style.transition = 'none'; l.style.setProperty('--off', 1); }); requestAnimationFrame(() => requestAnimationFrame(() => ln.forEach(l => { l.style.transition = ''; l.style.setProperty('--off', 0); }))); }
     });
   }
-  const C = { amb: '#FFA41C', up: '#3BD47A', dn: '#FF5149', mute: '#A08D6C', grid: '#2A1B03', txt: '#F3E7CF', asia: '#8C7CFF', london: '#FFA41C', ny: '#2EC5FF' };
+  const C = { amb: '#FFA41C', up: '#4BE08D', dn: '#FF5A5F', mute: '#8F887E', grid: 'rgba(255,255,255,.07)', txt: '#EDE6DA', asia: '#A493FF', london: '#FFA41C', ny: '#45C8FF' };
   const svg = (wd, h, body, label) => `<svg viewBox="0 0 ${wd} ${h}" role="img" aria-label="${esc(label || '')}">${body}</svg>`;
   const txt = (x, y, s, o = {}) => `<text x="${x}" y="${y}" font-size="${o.fs || 10}" fill="${o.c || C.mute}"${o.a ? ` text-anchor="${o.a}"` : ''}${o.b ? ' font-weight="700"' : ''}>${s}</text>`;
   const ticks = (lo, hi, n = 4) => { const span = hi - lo || 1, raw = span / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), st = [1, 2, 2.5, 5, 10].map(k => k * mag).find(k => span / k <= n + 1) || mag * 10; const out = []; for (let v = Math.ceil(lo / st) * st; v <= hi + 1e-9; v += st) out.push(+v.toFixed(6)); return out; };
@@ -234,7 +234,10 @@
       const Y1 = v => top + (h1 - top) * (hi - v) / ((hi - lo) || 1);
       let b = ticks(lo, hi).map(v => `<line x1="${pl}" x2="${wd - pr}" y1="${Y1(v)}" y2="${Y1(v)}" stroke="${C.grid}"/>${txt(wd - pr + 6, Y1(v) + 3.5, nf(v, 0))}`).join('');
       b += `<line x1="${pl}" x2="${wd - pr}" y1="${Y1(0)}" y2="${Y1(0)}" stroke="${C.mute}" stroke-dasharray="1 3"/>`;
-      b += `<path class="ln" pathLength="1" d="${cum.map((v, i) => `${i ? 'L' : 'M'}${X1(i).toFixed(1)},${Y1(v).toFixed(1)}`).join('')}" fill="none" stroke="${C.amb}" stroke-width="1.8"/>`;
+      const dd = cum.map((v, i) => `${i ? 'L' : 'M'}${X1(i).toFixed(1)},${Y1(v).toFixed(1)}`).join(''), gid = 'cg' + chId + Math.round(wd);
+      b += `<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${C.amb}" stop-opacity=".26"/><stop offset="1" stop-color="${C.amb}" stop-opacity="0"/></linearGradient></defs>`;
+      if (cum.length > 1) b += `<path d="${dd}L${X1(cum.length - 1).toFixed(1)},${Y1(Math.min(0, lo)).toFixed(1)}L${X1(0).toFixed(1)},${Y1(Math.min(0, lo)).toFixed(1)}Z" fill="url(#${gid})"/>`;
+      b += `<path class="ln" pathLength="1" d="${dd}" fill="none" stroke="#FFB43C" stroke-width="2.2" stroke-linejoin="round"/>`;
       const mx = Math.max(1, ...ts.map(t => Math.abs(P(t)))), y0 = h1 + gap + h2 / 2, bw = Math.max(1.5, (wd - pl - pr) / ts.length * 0.62);
       b += `<line x1="${pl}" x2="${wd - pr}" y1="${y0}" y2="${y0}" stroke="${C.grid}"/>`;
       ts.forEach((t, i) => { const v = P(t), hh = Math.abs(v) / mx * h2 / 2; b += `<rect x="${X1(i) - bw / 2}" y="${v >= 0 ? y0 - hh : y0}" width="${bw}" height="${Math.max(1, hh)}" fill="${v >= 0 ? C.up : C.dn}"><title>#${lab(t)} ${sg(v)}</title></rect>`; });
@@ -262,7 +265,7 @@
       const pl = 4, pr = 50, top = 10, bot = 26;
       const fx = o.logx ? v => Math.log10(Math.max(1, v)) : v => v;
       const xlo = fx(o.xlo), xhi = fx(o.xhi), Xs = v => pl + (wd - pl - pr) * (fx(v) - xlo) / ((xhi - xlo) || 1), Ys = v => top + (h - top - bot) * (o.yhi - v) / ((o.yhi - o.ylo) || 1);
-      let b = (o.yt || ticks(o.ylo, o.yhi)).map(v => `<line x1="${pl}" x2="${wd - pr}" y1="${Ys(v)}" y2="${Ys(v)}" stroke="${v === 0 ? '#4a320a' : C.grid}"/>${txt(wd - pr + 6, Ys(v) + 3.5, o.yf ? o.yf(v) : nf(v, 0))}`).join('');
+      let b = (o.yt || ticks(o.ylo, o.yhi)).map(v => `<line x1="${pl}" x2="${wd - pr}" y1="${Ys(v)}" y2="${Ys(v)}" stroke="${v === 0 ? 'rgba(255,255,255,.2)' : C.grid}"/>${txt(wd - pr + 6, Ys(v) + 3.5, o.yf ? o.yf(v) : nf(v, 0))}`).join('');
       (o.xt || ticks(o.xlo, o.xhi)).forEach(v => { b += `<line x1="${Xs(v)}" x2="${Xs(v)}" y1="${top}" y2="${h - bot}" stroke="${C.grid}"/>` + txt(Xs(v), h - 9, o.xf ? o.xf(v) : nf(v, 0), { a: 'middle' }); });
       pts.forEach(p => { b += `<circle cx="${Xs(p.x).toFixed(1)}" cy="${Ys(p.y).toFixed(1)}" r="3.4" fill="${p.col}" fill-opacity=".85" data-open="${p.id}" style="cursor:pointer"><title>#${esc(String(p.lab || p.id))}</title></circle>`; });
       if (o.xlab) b += txt(pl + 2, h - bot - 4, o.xlab, { fs: 9 });
@@ -342,12 +345,12 @@
       let lo = Math.min(...bars.map(b => b.l)), hi = Math.max(...bars.map(b => b.h)); const pad = (hi - lo) * 0.06; lo -= pad; hi += pad;
       const Xs = m => pl + (wd - pl - pr) * (m - m0) / (m1 - m0), Ys = v => top + (h - top - bot) * (hi - v) / (hi - lo);
       let b = `<defs><clipPath id="sc${day}"><rect x="${pl}" y="${top}" width="${wd - pl - pr}" height="${h - top - bot}"/></clipPath></defs>`;
-      ticks(lo, hi, 4).forEach(v => { b += `<line x1="${pl}" x2="${wd - pr}" y1="${Ys(v)}" y2="${Ys(v)}" stroke="#1d1305"/>${txt(wd - pr + 6, Ys(v) + 3.5, nf(v, 0))}`; });
+      ticks(lo, hi, 4).forEach(v => { b += `<line x1="${pl}" x2="${wd - pr}" y1="${Ys(v)}" y2="${Ys(v)}" stroke="rgba(255,255,255,.06)"/>${txt(wd - pr + 6, Ys(v) + 3.5, nf(v, 0))}`; });
       bars.forEach(q => { const hh = +q.t.slice(11, 13), mm = +q.t.slice(14, 16); if (mm === 0 && hh % 3 === 0) b += txt(Xs(X.minOf(q.t)), h - 7, q.t.slice(11, 16), { a: 'middle', fs: 9.5 }); });
       const line = (f, col, dash) => { const pts = bars.filter(q => f(q) != null && isFinite(f(q))).map(q => `${Xs(X.minOf(q.t) + 0.5).toFixed(1)},${Ys(f(q)).toFixed(1)}`); return pts.length > 1 ? `<polyline clip-path="url(#sc${day})" points="${pts.join(' ')}" fill="none" stroke="${col}" stroke-width="1"${dash ? ` stroke-dasharray="${dash}"` : ''}/>` : ''; };
-      b += line(q => q.vw + 2 * q.sd, '#4a320a', '1 3') + line(q => q.vw - 2 * q.sd, '#4a320a', '1 3') + line(q => q.vw + q.sd, '#6E4608', '3 3') + line(q => q.vw - q.sd, '#6E4608', '3 3');
+      b += line(q => q.vw + 2 * q.sd, 'rgba(255,164,28,.32)', '1 3') + line(q => q.vw - 2 * q.sd, 'rgba(255,164,28,.32)', '1 3') + line(q => q.vw + q.sd, 'rgba(255,164,28,.55)', '3 3') + line(q => q.vw - q.sd, 'rgba(255,164,28,.55)', '3 3');
       let lastY = -99; lv.slice().sort((p, q) => q[1] - p[1]).forEach(([k, v]) => { if (v > lo && v < hi) { const y = Ys(v); b += `<line x1="${pl}" x2="${wd - pr}" y1="${y}" y2="${y}" stroke="${C.asia}" stroke-opacity=".55" stroke-dasharray="2 4"/>`; if (y - lastY > 11) { b += txt(pl + 2, y - 3, w().lvl[k], { fs: 8.5, c: C.asia }); lastY = y; } } });
-      b += line(q => q.c, '#CFC3AA') + line(q => q.vw, C.amb);
+      b += line(q => q.c, '#D9D2C6') + line(q => q.vw, C.amb);
       ts.filter(t => t.session_date === day).forEach(t => {
         const xe = Xs(X.minOf(t.entry_time)), ye = Ys(t.entry_price), xx = Xs(X.minOf(t.exit_time)), yx = Ys(t.exit_price), col = P(t) > 0 ? C.up : P(t) < 0 ? C.dn : C.mute;
         const tri = t.side === 'long' ? `M${xe - 4.5},${ye + 7}L${xe + 4.5},${ye + 7}L${xe},${ye}Z` : `M${xe - 4.5},${ye - 7}L${xe + 4.5},${ye - 7}L${xe},${ye}Z`;
@@ -460,7 +463,7 @@
       kv(w().cushNow, nf(a.bal - a.floor)), kv(w().cushWorst, a.wc == null ? '—' : nf(a.wc)), `<p class="hint">${w().cushWorst1}</p>`,
       kv(w().daysT, String(a.days.length)), kv(w().toMake, nf(a.toGo)), a.est ? `<p class="hint">${w().pace(nf(a.est, 1))}</p>` : ''
     ].join('') + '</div>';
-    h += sub(F ? w().targetF : w().target) + `<div class="tbar"><span class="am">${'█'.repeat(filled)}</span><span class="mu">${'░'.repeat(cells - filled)}</span> <b>${pc(pct, 1)}</b></div>` +
+    h += sub(F ? w().targetF : w().target) + `<div class="tbar"><span class="pbar"><i style="--w:${Math.max(0, Math.min(100, pct * 100)).toFixed(1)}%"></i></span><b>${pc(pct, 1)}</b></div>` +
       '<div class="blk">' + kv(w().perDay, `<span class="${cl(a.avgDay)}">${sg(a.avgDay)}</span>`) + kv(w().bestDay, `<span class="${cl(a.best)}">${sg(a.best)}</span>`) + '</div>';
     h += sub(F ? w().rulesF : w().rules) + '<div class="blk">' + [
       row(chk(a.profit >= R.profit_target, true), F ? w().rTargetF(nf(R.payout_threshold || R.start_balance + R.profit_target, 0)) : w().rTarget(nf(R.profit_target, 0)), pc(pct, 1)),

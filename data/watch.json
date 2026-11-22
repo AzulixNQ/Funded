@@ -916,7 +916,489 @@
      }
     }
    ],
-   "published": "2026-11-16T11:17+01:00"
+   "published": "2026-11-16T11:17+01:00",
+   "result": {
+    "chg_pct": -10.43,
+    "close": 25028.98,
+    "prev_close": 27943.74,
+    "index": "Nasdaq-100",
+    "from": "2026-11-13",
+    "to": "2026-11-20",
+    "src": "The Glass Desk, Weekly Market Review Nov 20 2026",
+    "url": "https://theglassdesk.substack.com/p/weekly-market-review-nov-20-2026"
+   }
+  },
+  {
+   "week": "2026-11-23",
+   "summary": {
+    "en": "Neutral. Last week the Nasdaq-100 fell 10.4%, its worst week since 2020, and now sits almost 20% under its October high; Nvidia lost 23%. Fear is extreme (CNN index at 9.7, VIX near 36) and positioning is light, which has often come before sharp rebounds. But trend followers and hedge funds are still selling, and the Fed is set to hike in December. Short week: PCE inflation and GDP on Wednesday at 14:30, markets closed on Thursday, half day on Friday (close at 19:00). Expect very wide swings, both ways.",
+    "fr": "Neutre. La semaine dernière, le Nasdaq-100 a perdu 10,4 %, sa pire semaine depuis 2020, et se retrouve presque 20 % sous son plus haut d’octobre ; Nvidia a perdu 23 %. La peur est extrême (indice CNN à 9,7, VIX près de 36) et les investisseurs sont peu exposés, ce qui a souvent précédé de forts rebonds. Mais les suiveurs de tendance et les hedge funds vendent encore, et la Fed s’apprête à monter ses taux en décembre. Semaine courte : inflation PCE et PIB mercredi à 14 h 30, marchés fermés jeudi, demi-séance vendredi (clôture à 19 h). Attention aux très grands écarts, dans les deux sens."
+   },
+   "cats": [
+    {
+     "key": "banks",
+     "items": [
+      {
+       "src": "Goldman Sachs",
+       "stance": 1,
+       "date": "2026-11-22",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-time-for-a-bounce",
+       "text": {
+        "en": "“Technical indicators point to a potential near-term bounce”: its panic index hit a record 9.8, and readings above 9.5 have come before short-term relief. But it says positioning has not been washed out enough for a lasting bottom, and the market needs clarity on the Fed and AI.",
+        "fr": "« Les indicateurs techniques annoncent un possible rebond à court terme » : son indice de panique a atteint un record de 9,8, et au-dessus de 9,5 il a précédé un répit à court terme. Mais selon la banque, le positionnement n’est pas assez nettoyé pour un vrai point bas, et le marché attend d’y voir clair sur la Fed et l’IA."
+       }
+      },
+      {
+       "src": "Morgan Stanley (Michael Wilson)",
+       "stance": 1,
+       "date": "2026-11-21",
+       "url": "https://fortune.com/2026/11/21/stock-market-correction-sp500-2027-forecasts-ai-boom-fed-rate-hikes/",
+       "text": {
+        "en": "Target of 8,700 for the S&P 500 at the end of 2027, about 26% above current levels. He sees the mid-cycle transition ending, with “a more stable mid-cycle backdrop evolving in 2027”.",
+        "fr": "Objectif de 8 700 pour le S&P 500 fin 2027, environ 26 % au-dessus des niveaux actuels. Il voit la transition de milieu de cycle se terminer, avec « un contexte plus stable qui se met en place en 2027 »."
+       }
+      },
+      {
+       "src": "Deutsche Bank",
+       "stance": -1,
+       "date": "2026-11-22",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-time-for-a-bounce",
+       "text": {
+        "en": "Calls it a “vol shock”: pricing and positioning are “halfway to a typical recession selloff” (median post-war drop: −24%). In past vol shocks, stocks took 6 to 8 weeks to bottom, which points to early or mid-January. It still expects a rebound after that.",
+        "fr": "Parle d’un « choc de volatilité » : les prix et le positionnement sont « à mi-chemin d’une baisse typique de récession » (baisse médiane depuis la guerre : −24 %). Lors des chocs passés, les actions ont mis 6 à 8 semaines à toucher le fond, ce qui mène à début ou mi-janvier. La banque attend tout de même un rebond ensuite."
+       }
+      },
+      {
+       "src": "BofA (Michael Hartnett)",
+       "stance": 0,
+       "date": "2026-11-22",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-time-for-a-bounce",
+       "text": {
+        "en": "“We need to see more positioning capitulation before giving all-clear to buy risk.” But his Global Breadth Rule, a contrarian buy signal, is likely to trigger in the coming days. Fund managers cut their tech overweight to 12% from 37%.",
+        "fr": "« Il faut voir davantage de capitulation dans le positionnement avant de donner le feu vert pour acheter. » Mais sa règle de largeur de marché, un signal d’achat à contre-courant, devrait se déclencher dans les prochains jours. Les gérants ont réduit leur surpondération de la tech à 12 %, contre 37 %."
+       }
+      }
+     ]
+    },
+    {
+     "key": "funds",
+     "items": [
+      {
+       "src": {
+        "en": "Goldman Sachs prime book",
+        "fr": "Prime book de Goldman Sachs"
+       },
+       "stance": -1,
+       "date": "2026-11-22",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-time-for-a-bounce",
+       "text": {
+        "en": "Hedge funds net sold US stocks for a third week. They shorted single stocks every day: the biggest week of shorting since June 2022. Over six weeks they sold tech at the fastest pace on record, and their gross leverage is at a 3-year low.",
+        "fr": "Les hedge funds ont été vendeurs nets d’actions US pour la 3e semaine. Ils ont vendu à découvert des actions chaque jour : la plus grosse semaine de ventes à découvert depuis juin 2022. Sur six semaines, ils ont vendu la tech au rythme le plus rapide jamais mesuré, et leur levier brut est au plus bas depuis 3 ans."
+       }
+      },
+      {
+       "src": {
+        "en": "Trend-following funds (CTAs)",
+        "fr": "Fonds suiveurs de tendance (CTA)"
+       },
+       "stance": -1,
+       "date": "2026-11-22",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-time-for-a-bounce",
+       "text": {
+        "en": "Goldman puts them net short about $19 billion of US stocks after selling $57 billion in a month, and sees more selling next week “in every scenario”; their Nasdaq-100 futures position is near the bottom of its 10-year range. BofA: about $39 billion of selling if the market is flat, $31 billion if it falls, $2 billion if it rises.",
+        "fr": "Goldman les estime vendeurs nets d’environ 19 milliards de dollars d’actions US, après 57 milliards de ventes en un mois, et voit encore des ventes cette semaine « dans tous les scénarios » ; leur position sur les futures du Nasdaq-100 est près du bas de sa fourchette sur 10 ans. BofA : environ 39 milliards de ventes si le marché est stable, 31 milliards s’il baisse, 2 milliards s’il monte."
+       }
+      },
+      {
+       "src": {
+        "en": "Positioning (Deutsche Bank)",
+        "fr": "Positionnement (Deutsche Bank)"
+       },
+       "stance": 1,
+       "date": "2026-11-22",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-time-for-a-bounce",
+       "text": {
+        "en": "Equity positioning fell to the 11th percentile (from the 26th), its lowest since May 2025; discretionary investors are at the 5th. Light positioning leaves room to buy back.",
+        "fr": "Le positionnement en actions est tombé au 11e centile (contre le 26e), au plus bas depuis mai 2025 ; les investisseurs discrétionnaires sont au 5e. Un positionnement léger laisse de la place pour racheter."
+       }
+      },
+      {
+       "src": {
+        "en": "Fund flows (EPFR, BofA)",
+        "fr": "Flux des fonds (EPFR, BofA)"
+       },
+       "stance": 0,
+       "date": "2026-11-22",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-time-for-a-bounce",
+       "text": {
+        "en": "Money kept coming in: $66.6 billion into equity funds in the week to November 18, and an eighth straight week of inflows for tech funds; US growth funds took in $9.1 billion, the most since December 2024. But BofA private clients hold 65.7% in stocks, near the record, and 9.4% in cash, near the record low: no sign of small investors giving up yet.",
+        "fr": "L’argent continue d’entrer : 66,6 milliards de dollars dans les fonds actions dans la semaine au 18 novembre, et une 8e semaine d’entrées d’affilée pour les fonds tech ; les fonds US de croissance ont reçu 9,1 milliards, du jamais vu depuis décembre 2024. Mais les clients privés de BofA ont 65,7 % en actions, près du record, et 9,4 % en liquidités, près du plus bas : pas encore de signe que les particuliers abandonnent."
+       }
+      },
+      {
+       "src": {
+        "en": "Buybacks (Citadel, Deutsche Bank)",
+        "fr": "Rachats d’actions (Citadel, Deutsche Bank)"
+       },
+       "stance": 1,
+       "date": "2026-11-22",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-time-for-a-bounce",
+       "text": {
+        "en": "About 91% of the S&P 500 (by weight) can buy back its own shares from Monday, rising to about 97% in mid-December. Buybacks announced over three months reached about $360 billion, twice last year’s. BofA notes its corporate clients slowed their buying for a second week.",
+        "fr": "Environ 91 % du S&P 500 (en poids) peut racheter ses propres actions à partir de lundi, jusqu’à environ 97 % mi-décembre. Les rachats annoncés sur trois mois atteignent environ 360 milliards de dollars, le double de l’an dernier. BofA note que ses entreprises clientes ont ralenti leurs achats pour la 2e semaine."
+       }
+      },
+      {
+       "src": {
+        "en": "CFTC report (Nasdaq-100 futures)",
+        "fr": "Rapport de la CFTC (futures du Nasdaq-100)"
+       },
+       "stance": -1,
+       "date": "2026-11-17",
+       "url": "https://publicreporting.cftc.gov/Commitments-of-Traders/TFF-Futures-Only/gpe5-46if",
+       "text": {
+        "en": "On Tuesday, November 17, leveraged funds flipped to net short 10,928 contracts, from net long 13,967 a week earlier (+19,568 shorts). Asset managers raised their net long to 82,900 contracts (+10,115). These positions date from before the Wednesday to Friday drop.",
+        "fr": "Le mardi 17 novembre, les fonds à effet de levier sont passés vendeurs nets de 10 928 contrats, contre acheteurs nets de 13 967 une semaine plus tôt (+19 568 ventes). Les gérants d’actifs ont porté leurs achats nets à 82 900 contrats (+10 115). Ces positions datent d’avant la chute de mercredi à vendredi."
+       }
+      }
+     ]
+    },
+    {
+     "key": "surveys",
+     "items": [
+      {
+       "src": {
+        "en": "AAII sentiment survey",
+        "fr": "Sondage AAII"
+       },
+       "stance": -1,
+       "date": "2026-11-19",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-time-for-a-bounce",
+       "text": {
+        "en": "Bears 42.2% (from 51.4%), bulls 33.3% (from 30.8%). Still more bears than bulls, but less extreme than a week earlier.",
+        "fr": "42,2 % de baissiers (contre 51,4 %), 33,3 % de haussiers (contre 30,8 %). Toujours plus de baissiers que de haussiers, mais moins extrême que la semaine d’avant."
+       }
+      },
+      {
+       "src": {
+        "en": "CNN Fear & Greed Index",
+        "fr": "Indice Fear & Greed de CNN"
+       },
+       "stance": -2,
+       "date": "2026-11-20",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-time-for-a-bounce",
+       "text": {
+        "en": "9.7 on Friday, Extreme Fear: its lowest since March 30, from 37.4 a week earlier. Six of its seven components are in Extreme Fear.",
+        "fr": "9,7 vendredi, peur extrême : au plus bas depuis le 30 mars, contre 37,4 une semaine plus tôt. Six de ses sept composantes sont en peur extrême."
+       }
+      },
+      {
+       "src": {
+        "en": "NAAIM exposure index",
+        "fr": "Indice d’exposition NAAIM"
+       },
+       "stance": -1,
+       "date": "2026-11-19",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-time-for-a-bounce",
+       "text": {
+        "en": "51.2, from 72.9: active managers cut their stock exposure to the lowest level, with the biggest weekly drop, since April 2025.",
+        "fr": "51,2, contre 72,9 : les gérants actifs ont réduit leur exposition aux actions au plus bas, avec la plus forte baisse en une semaine, depuis avril 2025."
+       }
+      },
+      {
+       "src": {
+        "en": "BofA Bull & Bear Indicator",
+        "fr": "Indicateur Bull & Bear de BofA"
+       },
+       "stance": 0,
+       "date": "2026-11-20",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-time-for-a-bounce",
+       "text": {
+        "en": "7.1 (from 7.4): neutral, not a fear reading (sell signal above 8, buy signal below 2). Professionals are less scared than small investors.",
+        "fr": "7,1 (contre 7,4) : neutre, pas une lecture de peur (signal de vente au-dessus de 8, d’achat sous 2). Les professionnels ont moins peur que les particuliers."
+       }
+      }
+     ]
+    },
+    {
+     "key": "events",
+     "items": [
+      {
+       "src": {
+        "en": "Thanksgiving week",
+        "fr": "Semaine de Thanksgiving"
+       },
+       "stance": 1,
+       "date": "2026-11-22",
+       "url": "https://pro.thestreet.com/market-commentary/the-week-ahead-time-for-a-bounce",
+       "text": {
+        "en": "Markets are closed on Thursday and close at 19:00 Paris time on Friday: thin trading. Since 1950, this week has risen 53 times out of 76 (+0.71% on average). A weak signal: this year has had the worst November start for a midterm year since 1930.",
+        "fr": "Marchés fermés jeudi et clôture à 19 h (heure de Paris) vendredi : peu de volume. Depuis 1950, cette semaine a monté 53 fois sur 76 (+0,71 % en moyenne). Signal faible : cette année a connu le pire début de novembre pour une année de mi-mandat depuis 1930."
+       }
+      },
+      {
+       "src": {
+        "en": "Inflation and GDP (Wednesday)",
+        "fr": "Inflation et PIB (mercredi)"
+       },
+       "stance": -1,
+       "date": "2026-11-22",
+       "url": "https://www.tradingkey.com/analysis/stocks/us-stocks/262316778-week-ahead-us-gdp-pce-dell-hpe-report-anthropic-tradingkey",
+       "text": {
+        "en": "At 14:30: second estimate of Q3 GDP (expected 3.5%), October PCE inflation (core expected to rise to 3.2% a year, headline to 3.8%), durable goods and jobless claims; Beige Book at 20:00. Inflation picking up again, just before a Fed hike.",
+        "fr": "À 14 h 30 : 2e estimation du PIB du 3e trimestre (3,5 % attendu), inflation PCE d’octobre (sous-jacente attendue en hausse à 3,2 % sur un an, globale à 3,8 %), commandes de biens durables et inscriptions au chômage ; Livre beige à 20 h. Une inflation qui remonte, juste avant une hausse des taux de la Fed."
+       }
+      },
+      {
+       "src": {
+        "en": "AI hardware earnings",
+        "fr": "Résultats du matériel pour l’IA"
+       },
+       "stance": 0,
+       "date": "2026-11-22",
+       "url": "https://www.stocktitan.net/articles/earnings-calendar-week-of-november-23-2026",
+       "text": {
+        "en": "HPE on Monday night, then Dell, HP, Workday and Autodesk on Tuesday night: the first big test of AI server demand after Nvidia’s collapse. Could go either way.",
+        "fr": "HPE lundi soir, puis Dell, HP, Workday et Autodesk mardi soir : le premier grand test de la demande de serveurs pour l’IA après l’effondrement de Nvidia. Peut partir dans les deux sens."
+       }
+      },
+      {
+       "src": {
+        "en": "The Fed",
+        "fr": "La Fed"
+       },
+       "stance": -1,
+       "date": "2026-11-20",
+       "url": "https://theglassdesk.substack.com/p/weekly-market-review-nov-20-2026",
+       "text": {
+        "en": "The minutes showed nearly all officials expect a quarter-point hike in December; JPMorgan expects hikes in December, January and March. NY Fed President Williams speaks on Monday at 22:00, the last scheduled speech before the pre-meeting quiet period starts on Saturday night (meeting on December 8 and 9).",
+        "fr": "Les minutes montrent que presque tous les responsables attendent une hausse d’un quart de point en décembre ; JPMorgan en attend en décembre, janvier et mars. John Williams (Fed de New York) parle lundi à 22 h, dernier discours prévu avant la période de silence qui commence samedi soir (réunion les 8 et 9 décembre)."
+       }
+      },
+      {
+       "src": "Anthropic",
+       "stance": 0,
+       "date": "2026-11-20",
+       "url": "https://theglassdesk.substack.com/p/weekly-market-review-nov-20-2026",
+       "text": {
+        "en": "First full week of trading. The IPO priced at $83, above its $70 to $78 range; the stock rose 17.1% on Thursday, then fell about 8.5% on Friday.",
+        "fr": "Première semaine complète de cotation. L’introduction s’est faite à 83 $, au-dessus de la fourchette de 70 à 78 $ ; l’action a pris 17,1 % jeudi, puis perdu environ 8,5 % vendredi."
+       }
+      }
+     ]
+    },
+    {
+     "key": "nq",
+     "items": [
+      {
+       "src": "Nasdaq-100",
+       "stance": -2,
+       "date": "2026-11-20",
+       "url": "https://theglassdesk.substack.com/p/weekly-market-review-nov-20-2026",
+       "text": {
+        "en": "−10.43% last week (25,028.98), its worst week since 2020, and 19.8% under its October 6 high: right at the edge of a bear market. The S&P 500 fell for seven sessions in a row and is in correction (−8.6% on the week).",
+        "fr": "−10,43 % la semaine dernière (25 028,98), sa pire semaine depuis 2020, et 19,8 % sous son plus haut du 6 octobre : juste au seuil d’un marché baissier. Le S&P 500 a baissé sept séances d’affilée et est en correction (−8,6 % sur la semaine)."
+       }
+      },
+      {
+       "src": {
+        "en": "Nvidia and chips",
+        "fr": "Nvidia et semi-conducteurs"
+       },
+       "stance": -2,
+       "date": "2026-11-20",
+       "url": "https://theglassdesk.substack.com/p/weekly-market-review-nov-20-2026",
+       "text": {
+        "en": "Nvidia fell 22.9% despite revenue of $115.8 billion, above forecasts. Its board does not plan to bring back Jensen Huang as CEO, and on Friday (−14%) Reuters reported that SEC staff are looking at possible accounting issues, which does not prove any wrongdoing. The chip ETF SMH lost 17.8%.",
+        "fr": "Nvidia a perdu 22,9 % malgré un chiffre d’affaires de 115,8 milliards de dollars, au-dessus des attentes. Son conseil n’envisage pas de faire revenir Jensen Huang comme patron, et vendredi (−14 %), Reuters a rapporté que le gendarme de la Bourse (SEC) examine de possibles problèmes comptables, ce qui ne prouve aucune faute. L’ETF des semi-conducteurs SMH a perdu 17,8 %."
+       }
+      },
+      {
+       "src": {
+        "en": "Rates and oil",
+        "fr": "Taux et pétrole"
+       },
+       "stance": 1,
+       "date": "2026-11-20",
+       "url": "https://theglassdesk.substack.com/p/weekly-market-review-nov-20-2026",
+       "text": {
+        "en": "Some relief: the 10-year yield fell to 4.91% from 5.15%, WTI oil to about $83.6 (−5.6%) and Brent to about $89.9. Still above the levels BofA wants before turning positive (4.5% and $70).",
+        "fr": "Un peu d’air : le taux à 10 ans est redescendu à 4,91 % contre 5,15 %, le pétrole WTI vers 83,6 $ (−5,6 %) et le Brent vers 89,9 $. Encore au-dessus des niveaux que BofA attend pour redevenir positif (4,5 % et 70 $)."
+       }
+      }
+     ]
+    },
+    {
+     "key": "stress",
+     "items": [
+      {
+       "src": {
+        "en": "Distance from the 1-year high",
+        "fr": "Écart sous le plus haut d’un an"
+       },
+       "val": {
+        "en": "NDX −19.8%",
+        "fr": "NDX −19,8 %"
+       },
+       "date": "2026-11-20",
+       "text": {
+        "en": "Nasdaq-100 19.8% under its October 6 high, S&P 500 11.6% under. −10% is called a correction, −20% a bear market.",
+        "fr": "Nasdaq-100 19,8 % sous son plus haut du 6 octobre, S&P 500 11,6 % dessous. On parle de correction à −10 %, de marché baissier à −20 %."
+       }
+      },
+      {
+       "src": {
+        "en": "Losing streak",
+        "fr": "Série de baisses"
+       },
+       "val": {
+        "en": "7 DAYS",
+        "fr": "7 JOURS"
+       },
+       "date": "2026-11-20",
+       "text": {
+        "en": "The S&P 500 closed lower seven sessions in a row (November 12 to 20). After 6 losing days in a row (117 times since 1950), the next month did about as well as any other month: little signal.",
+        "fr": "Le S&P 500 a clôturé en baisse sept séances d’affilée (du 12 au 20 novembre). Après 6 jours de baisse d’affilée (117 fois depuis 1950), le mois suivant a fait à peu près comme n’importe quel mois : peu de signal."
+       }
+      },
+      {
+       "src": {
+        "en": "VIX (the price of insurance against a drop)",
+        "fr": "VIX (le prix de l’assurance contre la baisse)"
+       },
+       "val": {
+        "en": "35.89",
+        "fr": "35,89"
+       },
+       "date": "2026-11-20",
+       "text": {
+        "en": "From 16.68 on October 21, +115% in 22 sessions; first close above 30. About 15 means calm, 30 and more means panic. A VIX of 36 prices daily moves of about ±2.3% on the S&P 500, more on the Nasdaq. After a first day at 30 or more (93 times since 1990), the S&P 500 was higher a month later 69% of the time, but first fell another 4.1% (median) within three months.",
+        "fr": "Contre 16,68 le 21 octobre, +115 % en 22 séances ; première clôture au-dessus de 30. Autour de 15, c’est le calme ; à 30 et plus, la panique. Un VIX à 36 correspond à des journées d’environ ±2,3 % sur le S&P 500, davantage sur le Nasdaq. Après un premier jour à 30 ou plus (93 fois depuis 1990), le S&P 500 était plus haut un mois après 69 fois sur 100, mais il a d’abord encore baissé de 4,1 % (médiane) dans les trois mois."
+       }
+      },
+      {
+       "src": {
+        "en": "VIX at 30+ on a monthly expiration day",
+        "fr": "VIX à 30 ou plus un jour d’échéance mensuelle"
+       },
+       "val": {
+        "en": "YES",
+        "fr": "OUI"
+       },
+       "date": "2026-11-20",
+       "text": {
+        "en": "Friday, November 20 was the monthly options expiration, with the VIX above 30 (31st time since 1990). In the 30 earlier cases, the next day was a coin flip, and a month later the S&P 500 was up 4.4% (median, 77% of the time). But within three months it first fell further (median worst close −4.9%, −40% in 2008). The 30 cases come from only 10 episodes.",
+        "fr": "Le vendredi 20 novembre était l’échéance mensuelle des options, avec un VIX au-dessus de 30 (31e fois depuis 1990). Dans les 30 cas précédents, le lendemain était à pile ou face, et un mois après le S&P 500 avait pris 4,4 % (médiane, 77 fois sur 100). Mais dans les trois mois, il a d’abord encore baissé (pire clôture médiane −4,9 %, −40 % en 2008). Ces 30 cas ne viennent que de 10 épisodes."
+       }
+      },
+      {
+       "src": {
+        "en": "Midterm year",
+        "fr": "Année de mi-mandat"
+       },
+       "val": "2026",
+       "date": "2026-11-20",
+       "text": {
+        "en": "In US midterm years, autumn has often marked a low: from the 188th session of the year to a year later, the S&P 500 rose 18 times out of 19 since 1950 (+22.3% median). This year the 188th session was October 1, at 7,666; the S&P 500 is now 9.9% below.",
+        "fr": "Les années de mi-mandat aux États-Unis, l’automne a souvent marqué un creux : de la 188e séance de l’année à un an plus tard, le S&P 500 a monté 18 fois sur 19 depuis 1950 (+22,3 % en médiane). Cette année, la 188e séance était le 1er octobre, à 7 666 ; le S&P 500 est aujourd’hui 9,9 % dessous."
+       }
+      }
+     ]
+    }
+   ],
+   "events": [
+    {
+     "d": "2026-11-23",
+     "t": "15:45",
+     "imp": 1,
+     "what": {
+      "en": "US flash PMIs (November)",
+      "fr": "Indices PMI flash américains (novembre)"
+     }
+    },
+    {
+     "d": "2026-11-23",
+     "t": "22:00",
+     "imp": 2,
+     "what": {
+      "en": "NY Fed President John Williams speaks",
+      "fr": "Discours de John Williams (Fed de New York)"
+     }
+    },
+    {
+     "d": "2026-11-23",
+     "t": "",
+     "imp": 2,
+     "what": {
+      "en": "HPE earnings, after the US close",
+      "fr": "Résultats de HPE, après la clôture"
+     }
+    },
+    {
+     "d": "2026-11-24",
+     "t": "16:00",
+     "imp": 1,
+     "what": {
+      "en": "Consumer confidence (Conference Board)",
+      "fr": "Confiance des consommateurs (Conference Board)"
+     }
+    },
+    {
+     "d": "2026-11-24",
+     "t": "",
+     "imp": 2,
+     "what": {
+      "en": "Dell, HP, Workday and Autodesk earnings, after the US close",
+      "fr": "Résultats de Dell, HP, Workday et Autodesk, après la clôture"
+     }
+    },
+    {
+     "d": "2026-11-25",
+     "t": "14:30",
+     "imp": 3,
+     "what": {
+      "en": "Q3 GDP (2nd estimate), October PCE inflation, durable goods, jobless claims",
+      "fr": "PIB du 3e trimestre (2e estimation), inflation PCE d’octobre, biens durables, inscriptions au chômage"
+     }
+    },
+    {
+     "d": "2026-11-25",
+     "t": "16:00",
+     "imp": 1,
+     "what": {
+      "en": "New home sales (October)",
+      "fr": "Ventes de logements neufs (octobre)"
+     }
+    },
+    {
+     "d": "2026-11-25",
+     "t": "20:00",
+     "imp": 2,
+     "what": {
+      "en": "Fed Beige Book",
+      "fr": "Livre beige de la Fed"
+     }
+    },
+    {
+     "d": "2026-11-26",
+     "t": "",
+     "imp": 2,
+     "what": {
+      "en": "Thanksgiving: US markets closed",
+      "fr": "Thanksgiving : marchés américains fermés"
+     }
+    },
+    {
+     "d": "2026-11-27",
+     "t": "19:00",
+     "imp": 2,
+     "what": {
+      "en": "Half day: US stocks close early (Black Friday)",
+      "fr": "Demi-séance : clôture anticipée des actions US (Black Friday)"
+     }
+    }
+   ],
+   "published": "2026-11-22T22:57+01:00"
   }
  ]
 }

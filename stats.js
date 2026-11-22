@@ -73,7 +73,8 @@
       wHow: 'HOW IT WORKS', wHowTxt: 'Every Monday I read what banks, hedge funds and sentiment surveys say about US stocks for the week, plus the events that can move the Nasdaq. Each source gets a score from −2 (very bearish) to +2 (very bullish). The gauge is the weighted average, from −100 to +100.',
       wWeights: 'Weights: banks 30%, hedge funds and positioning 25%, sentiment surveys 15%, events of the week 15%, Nasdaq context 15%.',
       wPublic: 'Public sources only, summed up in my own words. Not financial advice.',
-      bear: 'BEARISH', neutral: 'NEUTRAL', bull: 'BULLISH', cats: { banks: 'BANKS', funds: 'HEDGE FUNDS AND POSITIONING', surveys: 'SENTIMENT SURVEYS', events: 'EVENTS OF THE WEEK', nq: 'NASDAQ CONTEXT' },
+      bear: 'BEARISH', neutral: 'NEUTRAL', bull: 'BULLISH', cats: { banks: 'BANKS', funds: 'HEDGE FUNDS AND POSITIONING', surveys: 'SENTIMENT SURVEYS', events: 'EVENTS OF THE WEEK', nq: 'NASDAQ CONTEXT', stress: 'STRESS THERMOMETER' },
+      stressNote: 'Not in the gauge. These numbers measure how scared the market is, not where it goes this week. The history is for the S&P 500 over 1 to 12 months; over a single week it says almost nothing.',
       tags: { '-2': 'BEAR+', '-1': 'BEAR', '0': 'NEUTRAL', '1': 'BULL', '2': 'BULL+' }, events: 'CALENDAR (PARIS TIME)', history: 'PAST WEEKS', nqWeek: 'NQ week', right: 'Right?',
       published: d => `Published ${d}`, imp: ['', 'low', 'medium', 'high'], open: 'Read'
     },
@@ -136,7 +137,8 @@
       wHow: 'COMMENT ÇA MARCHE', wHowTxt: 'Chaque lundi, je lis ce que disent les banques, les hedge funds et les sondages de sentiment sur les actions US pour la semaine, et les annonces qui peuvent faire bouger le Nasdaq. Chaque source reçoit une note de −2 (très bearish) à +2 (très bullish). La jauge est la moyenne pondérée, de −100 à +100.',
       wWeights: 'Poids : banques 30 %, hedge funds et positionnement 25 %, sondages 15 %, annonces de la semaine 15 %, contexte du Nasdaq 15 %.',
       wPublic: 'Sources publiques uniquement, résumées avec mes mots. Ceci n’est pas un conseil financier.',
-      bear: 'BEARISH', neutral: 'NEUTRE', bull: 'BULLISH', cats: { banks: 'BANQUES', funds: 'HEDGE FUNDS ET POSITIONNEMENT', surveys: 'SONDAGES DE SENTIMENT', events: 'ANNONCES DE LA SEMAINE', nq: 'CONTEXTE DU NASDAQ' },
+      bear: 'BEARISH', neutral: 'NEUTRE', bull: 'BULLISH', cats: { banks: 'BANQUES', funds: 'HEDGE FUNDS ET POSITIONNEMENT', surveys: 'SONDAGES DE SENTIMENT', events: 'ANNONCES DE LA SEMAINE', nq: 'CONTEXTE DU NASDAQ', stress: 'THERMOMÈTRE DE STRESS' },
+      stressNote: 'Hors jauge. Ces chiffres mesurent la peur du marché, pas son sens pour la semaine. L’historique porte sur le S&P 500 à 1 à 12 mois ; sur une seule semaine, il ne dit presque rien.',
       tags: { '-2': 'BEAR+', '-1': 'BEAR', '0': 'NEUTRE', '1': 'BULL', '2': 'BULL+' }, events: 'CALENDRIER (HEURE DE PARIS)', history: 'SEMAINES PASSÉES', nqWeek: 'NQ semaine', right: 'Juste ?',
       published: d => `Publiée ${d}`, imp: ['', 'faible', 'moyen', 'fort'], open: 'Lire'
     }
@@ -579,10 +581,11 @@
     const pub = wk.published ? new Intl.DateTimeFormat(loc(), { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Paris' }).format(new Date(wk.published)) : '';
     let h = `<p class="hint">${w().published(esc(pub))}</p>` + gauge(sc, true) + (wk.summary ? `<p class="lead">${esc(tr(wk.summary))}</p>` : '');
     (wk.cats || []).forEach(c => {
-      const cs = catScore(c);
-      h += `<div class="sub">${w().cats[c.key] || esc(c.key)}</div>` + (cs != null ? gauge(Math.round(cs), false) : '') + '<div class="blk">' + (c.items || []).map(i => {
+      const cs = catScore(c), info = WEIGHTS[c.key] == null; // info blocks (stress thermometer) stay out of the gauge
+      h += `<div class="sub">${w().cats[c.key] || esc(c.key)}</div>` + (info ? `<p class="hint">${w().stressNote}</p>` : cs != null ? gauge(Math.round(cs), false) : '') + '<div class="blk">' + (c.items || []).map(i => {
         const st = Math.max(-2, Math.min(2, Math.round(+i.stance || 0)));
-        return `<div class="src"><div class="src-h"><b>${esc(i.src || '')}</b><span class="tag ${st > 0 ? 'up' : st < 0 ? 'dn' : 'mu'}">${w().tags[String(st)]}</span></div><p>${esc(tr(i.text))}</p>${i.url ? `<a class="more" href="${esc(i.url)}" target="_blank" rel="noopener">${w().open} ↗</a>` : ''}${i.date ? ` <span class="mu">${shortDay(i.date)}</span>` : ''}</div>`;
+        const tag = info ? (i.val ? `<span class="tag am">${esc(tr(i.val))}</span>` : '') : `<span class="tag ${st > 0 ? 'up' : st < 0 ? 'dn' : 'mu'}">${w().tags[String(st)]}</span>`;
+        return `<div class="src"><div class="src-h"><b>${esc(tr(i.src) || '')}</b>${tag}</div><p>${esc(tr(i.text))}</p>${i.url ? `<a class="more" href="${esc(i.url)}" target="_blank" rel="noopener">${w().open} ↗</a>` : ''}${i.date ? ` <span class="mu">${shortDay(i.date)}</span>` : ''}</div>`;
       }).join('') + '</div>';
     });
     if ((wk.events || []).length) {

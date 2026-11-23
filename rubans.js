@@ -38,6 +38,7 @@
   var eclat = parseFloat(toile.getAttribute('data-eclat')) || 1;      // la force des rubans du haut (1 sur la page de vente)
   var argent = toile.getAttribute('data-teinte') === 'argent';        // Noweiz HUB : des rubans blancs et argentés, sans vert
   var ambre = toile.getAttribute('data-teinte') === 'ambre';          // Road to 5 Live : des rubans ambre et blanc chaud
+  var violet = toile.getAttribute('data-teinte') === 'violet';        // Road to 5 Live dans l'espace (23/11 au soir) : violet et bleu glacier
   var suit = toile.hasAttribute('data-foyer-fixe') ? 0 : 1;            // 0 : les rubans du haut ne défilent pas avec la page
   var sansLueur = toile.getAttribute('data-lueur') === 'non';
   var fondNoir = toile.getAttribute('data-fond') === 'noir';
@@ -131,6 +132,7 @@
     'vec4 ecran(vec2 p) { return vec4(p.x / u_taille.x * 2.0 - 1.0, 1.0 - p.y / u_taille.y * 2.0, 0.0, 1.0); }'
   ].join('\n');
   // Road to 5 Live : l'ambre (#FFA41C) à la place du vert, un blanc chaud à la place du blanc froid
+  if (violet) COMMUN = COMMUN.replace('vec3(0.13, 0.31, 0.03)', 'vec3(0.17, 0.06, 0.38)').replace('vec3(0.776, 0.957, 0.196)', 'vec3(0.62, 0.49, 1.0)');
   if (ambre) COMMUN = COMMUN.replace('vec3(0.13, 0.31, 0.03)', 'vec3(0.32, 0.16, 0.02)').replace('vec3(0.776, 0.957, 0.196)', 'vec3(1.0, 0.643, 0.11)')
     .replace('vec3(0.2, 0.25, 0.34)', 'vec3(0.3, 0.22, 0.14)').replace('vec3(0.9, 0.94, 1.0)', 'vec3(1.0, 0.9, 0.74)');
 
@@ -503,12 +505,14 @@
       gl.uniform2f(lueur.lieux.u_rayon, base * 0.5 * souffle, base * 0.42 * souffle);
       if (argent) gl.uniform3f(lueur.lieux.u_couleur, 0.07 * eclat, 0.075 * eclat, 0.085 * eclat);
       else if (ambre) gl.uniform3f(lueur.lieux.u_couleur, 0.15 * eclat, 0.085 * eclat, 0.015 * eclat);
+      else if (violet) gl.uniform3f(lueur.lieux.u_couleur, 0.08 * eclat, 0.06 * eclat, 0.16 * eclat);
       else gl.uniform3f(lueur.lieux.u_couleur, 0.1 * eclat, 0.14 * eclat, 0.02 * eclat);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
       gl.uniform2f(lueur.lieux.u_centre, foyer.x, fy);
       gl.uniform2f(lueur.lieux.u_rayon, petit * 0.2 * souffle, petit * 0.17 * souffle);
       if (argent) gl.uniform3f(lueur.lieux.u_couleur, 0.22 * eclat, 0.23 * eclat, 0.26 * eclat);
       else if (ambre) gl.uniform3f(lueur.lieux.u_couleur, 0.42 * eclat, 0.25 * eclat, 0.05 * eclat);
+      else if (violet) gl.uniform3f(lueur.lieux.u_couleur, 0.22 * eclat, 0.16 * eclat, 0.45 * eclat);
       else gl.uniform3f(lueur.lieux.u_couleur, 0.3 * eclat, 0.37 * eclat, 0.1 * eclat);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
@@ -570,7 +574,8 @@
     demande = requestAnimationFrame(tour);
     image++;
     if (image % (calme ? 2 : NIVEAUX[niveau].cadence) !== 0) return;
-    if (maintenant - foyerLu > 1000) lireFoyer();
+    if (window.ESP && ESP.actif && ESP.foyer) { foyer.x = ESP.foyer.x * px; foyer.y = ESP.foyer.y * px; }   // dans l'espace : le foyer suit le trou noir à chaque image
+    else if (maintenant - foyerLu > 1000) lireFoyer();
     var ecart = dernier ? maintenant - dernier : 16;
     dernier = maintenant;
     if (ecart < 250) { temps += ecart / 1000; surveiller(ecart); }   // au retour d'un autre onglet, le temps ne saute pas

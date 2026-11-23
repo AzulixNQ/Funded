@@ -1,12 +1,8 @@
-Nojah Sans (fonts/nojah-sans.woff2) is a subsetted, axis-limited version of Mona Sans,
-renamed because "Mona" is a Reserved Font Name. Change: the tabular-figures feature keeps the plain zero.
-Original: https://github.com/github/mona-sans
-
-Copyright 2022 The Mona Sans Project Authors (https://github.com/github/mona-sans), with Reserved Font Name "Mona"
+Copyright 2020 The Inter Project Authors (https://github.com/rsms/inter)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:
-https://openfontlicense.org
+https://scripts.sil.org/OFL
 
 
 -----------------------------------------------------------

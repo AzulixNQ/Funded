@@ -15,7 +15,7 @@
     en: {
       intro: 'My live trading journal. The goal: five live 25K accounts at Lucid Trading. Every trade goes here, nothing gets deleted.',
       dcStrip: 'AZULIX COMMUNITY · JOIN THE DISCORD',
-      keys: ['BALANCE', 'ACCTS', 'LOG', 'TRADES', 'STATS', 'WATCH'], heads: ['Balance', 'Accounts', 'Log', 'Trades', 'Stats', 'Weekly watch'],
+      keys: ['BALANCE', 'METRICS', 'ACCOUNTS', 'LOG', 'TRADES', 'STATS', 'WATCH'], heads: ['Balance', 'Metrics', 'Accounts', 'Log', 'Trades', 'Stats', 'Weekly watch'], hMass: 'the black hole grows with the balance',
       hAcc: (n, name, ph) => `Account ${n} · ${name} · ${ph}`, phLong: { eval: 'evaluation', funded: 'funded' }, hOnAcc: v => `${v} on this account`,
       hAll: 'ALL-TIME P&L', hAllN: 'every account since Oct 28, the lost one included', hLast: 'LAST SESSION', hWr: 'WIN RATE', hWrN: (w, n) => `${w} of ${n} trades`,
       hTgt: 'TO THE TARGET', hTgtF: 'TO THE 1ST PAYOUT', hTgtN: go => `${go} to go`, hDone: 'target reached', bootS: d => `${d.n} trades · ${d.s} sessions · last ${d.last}`,
@@ -51,7 +51,7 @@
     fr: {
       intro: 'Mon journal de trading en direct. L’objectif : cinq comptes live de 25K chez Lucid Trading. Chaque trade est ici, rien n’est supprimé.',
       dcStrip: 'AZULIX COMMUNITY · REJOINS LE DISCORD',
-      keys: ['SOLDE', 'COMPTES', 'JOURNAL', 'TRADES', 'STATS', 'VEILLE'], heads: ['Solde', 'Comptes', 'Journal', 'Trades', 'Stats', 'Veille du lundi'],
+      keys: ['SOLDE', 'INDICATEURS', 'COMPTES', 'JOURNAL', 'TRADES', 'STATS', 'VEILLE'], heads: ['Solde', 'Indicateurs', 'Comptes', 'Journal', 'Trades', 'Stats', 'Veille du lundi'], hMass: 'le trou noir grossit avec le solde',
       hAcc: (n, name, ph) => `Compte ${n} · ${name} · ${ph}`, phLong: { eval: 'évaluation', funded: 'funded' }, hOnAcc: v => `${v} sur ce compte`,
       hAll: 'P&L DEPUIS LE DÉBUT', hAllN: 'tous les comptes depuis le 28 oct., le compte perdu compris', hLast: 'DERNIÈRE SÉANCE', hWr: 'RÉUSSITE', hWrN: (w, n) => `${w} trades gagnants sur ${n}`,
       hTgt: 'JUSQU’À L’OBJECTIF', hTgtF: 'JUSQU’AU 1ER PAYOUT', hTgtN: go => `encore ${go}`, hDone: 'objectif atteint', bootS: d => `${d.n} trades · ${d.s} séances · dernière ${d.last}`,
@@ -107,7 +107,7 @@
   /* ---------- model ---------- */
   let M = null, BARS = null, barsP = null, BOOTING = false, ANIM = !RM;
   const ui = { res: 'all', sess: 'all', all: false, open: null, dayOpen: {}, noteOpen: {}, acc: null };
-  const IDS = ['bal', 'acc', 'log', 'tr', 'st', 'wt'];
+  const IDS = ['bal', 'ind', 'acc', 'log', 'tr', 'st', 'wt'];
 
   // a run is one account bought on a slot (slot 1: LucidPro "pro1", lost on Nov 6, then LucidFlex "flex1"); data without "run" belongs to pro1
   const runId = x => x.run || 'pro1';
@@ -242,10 +242,12 @@
   function markKey(id) { curKey = id; $$('#keys a').forEach(a => a.setAttribute('aria-current', a.getAttribute('href') === '#' + id ? 'true' : 'false')); }
   function go(id) {
     const el = document.getElementById(id); if (!el) return;
-    el.scrollIntoView({ behavior: ANIM ? 'smooth' : 'auto', block: 'start' }); markKey(id);
+    if (window.ESP && ESP.actif) ESP.aller(id); else el.scrollIntoView({ behavior: ANIM ? 'smooth' : 'auto', block: 'start' });
+    markKey(id);
     if (history.replaceState) history.replaceState(null, '', '#' + id);
   }
   function spy() {
+    if (window.ESP && ESP.actif) return;
     const ids = IDS;
     const pick = () => {
       const mid = innerHeight * 0.35; let best = ids[0], bt = -1e9;
@@ -258,7 +260,7 @@
   function heads() {
     IDS.forEach((id, i) => {
       const h = $(`#${id} h2`); if (!h) return;
-      const right = { acc: t().started(M.accounts.filter(a => a.stage !== 'none').length), bal: balHead(), log: t().logR, tr: t().trR(M.trades.length), st: t().stR, wt: window.R5S ? R5S.watchMeta() : '' }[id];
+      const right = { acc: t().started(M.accounts.filter(a => a.stage !== 'none').length), bal: balHead(), ind: window.R5I ? R5I.meta() : '', log: t().logR, tr: t().trR(M.trades.length), st: t().stR, wt: window.R5S ? R5S.watchMeta() : '' }[id];
       h.innerHTML = `<span class="k">${i + 1}</span><span class="tt" data-t="${t().heads[i]}">${t().heads[i]}</span><span class="r" data-t="${esc(right)}">${esc(right)}</span>`;
     });
   }
@@ -325,8 +327,9 @@
     const lastN = last ? `${esc(dayLabel(last.date))}${last.n != null ? ' · ' + esc(t().tw(last.n, last.w ?? 0)) : ''}` : '';
     return `<div class="hero" id="hero"><div class="h-main">
       <div class="h-acc">${esc(t().hAcc(M.run.n, M.run.name || '', t().phLong[M.phase]))}</div>
-      <div class="h-bal" id="hBal" data-tn-ancre data-foyer>${usd(M.balance)}</div>
+      <div class="h-bal" id="hBal">${usd(M.balance)}</div>
       <div class="h-sub ${cls(M.net)}">${esc(t().hOnAcc(usd(M.net, 2, true)))}</div>
+      <div class="h-mass"><i></i>${esc(t().hMass)}</div>
       <p class="intro">${esc(t().intro)}</p></div>
       <div class="h-kpis" id="hK">
         ${tile(t().hAll, usd(all, 2, true), t().hAllN, cls(all), 'hAll')}
@@ -354,6 +357,24 @@
     $$('[data-ph]', box).forEach(b => b.addEventListener('click', () => { if (ui.ph === b.dataset.ph) return; ui.ph = b.dataset.ph; balance(); const r = $('#bal h2 .r'); if (r) { r.textContent = balHead(); r.dataset.t = r.textContent; } }));
     drawEq(false);
   }
+  // a smooth curve through the points (monotone cubic: no overshoot between two trades)
+  function smoothPath(P) {
+    const f = v => v.toFixed(1), n = P.length;
+    if (!n) return ''; if (n < 3) return P.map((p, i) => `${i ? 'L' : 'M'}${f(p[0])},${f(p[1])}`).join('');
+    const dx = [], m = [], tg = [];
+    for (let i = 0; i < n - 1; i++) { dx[i] = P[i + 1][0] - P[i][0] || 1e-6; m[i] = (P[i + 1][1] - P[i][1]) / dx[i]; }
+    tg[0] = m[0]; tg[n - 1] = m[n - 2];
+    for (let i = 1; i < n - 1; i++) { if (m[i - 1] * m[i] <= 0) tg[i] = 0; else { const w1 = 2 * dx[i] + dx[i - 1], w2 = dx[i] + 2 * dx[i - 1]; tg[i] = (w1 + w2) / (w1 / m[i - 1] + w2 / m[i]); } }
+    let d = `M${f(P[0][0])},${f(P[0][1])}`;
+    for (let i = 0; i < n - 1; i++) { const h = dx[i] / 3; d += `C${f(P[i][0] + h)},${f(P[i][1] + tg[i] * h)} ${f(P[i + 1][0] - h)},${f(P[i + 1][1] - tg[i + 1] * h)} ${f(P[i + 1][0])},${f(P[i + 1][1])}`; }
+    return d;
+  }
+  // the light of the curves: violet to ice blue, with a soft glow under the line
+  function curveDefs(id, x0, x1) {
+    return `<linearGradient id="${id}s" gradientUnits="userSpaceOnUse" x1="${x0}" x2="${x1}" y1="0" y2="0"><stop offset="0" stop-color="#6E4DFF"/><stop offset=".55" stop-color="#B9A6FF"/><stop offset="1" stop-color="#7FD8FF"/></linearGradient>`
+      + `<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9D7CFF" stop-opacity=".38"/><stop offset=".55" stop-color="#6E4DFF" stop-opacity=".1"/><stop offset="1" stop-color="#6E4DFF" stop-opacity="0"/></linearGradient>`
+      + `<filter id="${id}b" x="-10%" y="-40%" width="120%" height="180%"><feGaussianBlur stdDeviation="6"/></filter>`;
+  }
   function drawEq(redraw) {
     const host = $('#eqc'); if (!host) return;
     const w = Math.max(300, Math.round(host.clientWidth || 358)), h = w > 760 ? Math.round(Math.max(260, Math.min(440, innerHeight - 600))) : w > 600 ? 300 : 250, pl = 4, pr = 64, pt = 18, pb = 26;
@@ -368,28 +389,29 @@
       if (!idx.length) return;
       const a = Math.min(...idx), b = Math.max(...idx);
       if (j) s += `<line x1="${X(a - 0.5)}" x2="${X(a - 0.5)}" y1="${pt}" y2="${h - pb}" stroke="rgba(255,255,255,.09)" stroke-dasharray="1 3"/>`;
-      s += `<text x="${(X(a) + X(b)) / 2}" y="${h - 7}" font-size="10" fill="#8F887E" text-anchor="middle">${t().day.slice(0, 1)}${d.no}</text>`;
+      s += `<text x="${(X(a) + X(b)) / 2}" y="${h - 7}" font-size="10" fill="#8A86A8" text-anchor="middle">${t().day.slice(0, 1)}${d.no}</text>`;
     });
     const lvl = (v, col, dash, name) => {
       s += `<line x1="${pl}" x2="${w - pr + 4}" y1="${Y(v)}" y2="${Y(v)}" stroke="${col}" ${dash ? `stroke-dasharray="${dash}"` : ''}/>`;
       s += `<text x="${pl + 2}" y="${Y(v) - 4}" font-size="9.5" fill="${col}" letter-spacing=".06em">${name}</text>`;
       s += `<text x="${w - pr + 8}" y="${Y(v) + 4}" font-size="10.5" fill="${col}">${nf(v, 0)}</text>`;
     };
-    lvl(goal, '#4BE08D', '4 3', F ? t().payout1 : t().target); lvl(Ph.start, '#8F887E', '1 3', t().start); lvl(Ph.floor, '#FF5A5F', '', t().floor);
+    lvl(goal, '#4BE08D', '4 3', F ? t().payout1 : t().target); lvl(Ph.start, '#8A86A8', '1 3', t().start); lvl(Ph.floor, '#FF5A7A', '', t().floor);
     // how this phase ended: evaluation passed, or account lost (its last days are not logged, so the curve stops at the last known trade)
     const endTxt = (txt, col, below) => { const y = below ? Math.min(Y(last) + 20, h - pb - 4) : Math.max(Y(last) - 10, pt + 10); s += `<text x="${w - pr - 2}" y="${y.toFixed(1)}" font-size="10.5" font-weight="700" fill="${col}" text-anchor="end" letter-spacing=".06em">${txt}</text>`; };
-    if (endLost) endTxt(`✗ ${t().lostTag} · ${esc(dayMonth(sel.r.lost)).toUpperCase()}`, '#FF5A5F', true);
+    if (endLost) endTxt(`✗ ${t().lostTag} · ${esc(dayMonth(sel.r.lost)).toUpperCase()}`, '#FF5A7A', true);
     else if (endPassed && sel.r.passed) endTxt(`✓ ${t().passedTag} · ${esc(dayMonth(sel.r.passed)).toUpperCase()}`, '#4BE08D');
-    const d = P.map((p, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(p.b).toFixed(1)}`).join('');
+    const d = smoothPath(P.map((p, i) => [X(i), Y(p.b)]));
     const ga = 'eqg' + Math.random().toString(36).slice(2, 7);
-    s += `<defs><linearGradient id="${ga}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFA41C" stop-opacity=".30"/><stop offset="1" stop-color="#FFA41C" stop-opacity="0"/></linearGradient><filter id="${ga}b" x="-10%" y="-30%" width="120%" height="160%"><feGaussianBlur stdDeviation="5"/></filter></defs>`;
+    s += `<defs>${curveDefs(ga, pl, w - pr)}</defs>`;
     if (P.length > 1) s += `<path class="ar" d="${d}L${X(P.length - 1).toFixed(1)},${h - pb}L${X(0).toFixed(1)},${h - pb}Z" fill="url(#${ga})"/>`;
-    s += `<path class="ln gl" pathLength="1" d="${d}" fill="none" stroke="#FFA41C" stroke-width="7" stroke-opacity=".45" filter="url(#${ga}b)"/>`;
-    s += `<path class="ln" pathLength="1" d="${d}" fill="none" stroke="#FFB43C" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>`;
-    if (P.length < 2) s += `<circle cx="${X(0)}" cy="${Y(P[0].b)}" r="3" fill="#FFA41C"/>`;
-    P.forEach((p, i) => { if (!i) return; const v = p.t ? p.t.pnl_net : p.day ? p.day.pnl_lucid : 0; s += `<circle class="dot" cx="${X(i)}" cy="${Y(p.b)}" r="2.6" fill="${v > 0 ? '#4BE08D' : v < 0 ? '#FF5A5F' : '#8F887E'}" style="transition-delay:${(i / P.length * 1.3).toFixed(2)}s"/>`; });
-    s += `<g class="tag"><rect x="${w - pr + 4}" y="${Y(last) - 10}" width="${pr - 4}" height="20" rx="6" fill="${endLost ? '#8F887E' : '#FFA41C'}"/><text x="${w - pr + 8}" y="${Y(last) + 4}" font-size="11" font-weight="700" fill="#000">${nf(last, 0)}</text></g>`;
-    s += `<g class="xh" opacity="0"><line y1="${pt}" y2="${h - pb}" stroke="#FFF3E0" stroke-opacity=".35"/><circle r="5" fill="#070605" stroke="#FFB43C" stroke-width="2"/></g>`;
+    s += `<path class="ln gl" pathLength="1" d="${d}" fill="none" stroke="url(#${ga}s)" stroke-width="9" stroke-opacity=".55" filter="url(#${ga}b)"/>`;
+    s += `<path class="ln" pathLength="1" d="${d}" fill="none" stroke="url(#${ga}s)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>`;
+    if (P.length > 1) s += `<circle class="pulse" cx="${X(P.length - 1).toFixed(1)}" cy="${Y(last).toFixed(1)}" r="5" fill="#7FD8FF"/>`;
+    if (P.length < 2) s += `<circle cx="${X(0)}" cy="${Y(P[0].b)}" r="3" fill="#9D7CFF"/>`;
+    P.forEach((p, i) => { if (!i) return; const v = p.t ? p.t.pnl_net : p.day ? p.day.pnl_lucid : 0; s += `<circle class="dot" cx="${X(i)}" cy="${Y(p.b)}" r="2.2" fill="${v > 0 ? '#4BE08D' : v < 0 ? '#FF5A7A' : '#8A86A8'}" style="transition-delay:${(i / P.length * 1.3).toFixed(2)}s"/>`; });
+    s += `<g class="tag"><rect x="${w - pr + 4}" y="${Y(last) - 10}" width="${pr - 4}" height="20" rx="6" fill="${endLost ? '#8A86A8' : '#9D7CFF'}"/><text x="${w - pr + 8}" y="${Y(last) + 4}" font-size="11" font-weight="700" fill="#000">${nf(last, 0)}</text></g>`;
+    s += `<g class="xh" opacity="0"><line y1="${pt}" y2="${h - pb}" stroke="#EEF4FF" stroke-opacity=".35"/><circle r="5" fill="#04030A" stroke="#C9B8FF" stroke-width="2"/></g>`;
     s += `<rect class="hit" x="0" y="0" width="${w - pr}" height="${h}" fill="transparent"/></svg>`;
     host.innerHTML = s;
     const svg = $('svg', host), xh = $('.xh', svg), ln = $('line', xh), cc = $('circle', xh), rd = $('#rd');
@@ -507,21 +529,21 @@
     const m0 = bs[0].m, m1 = bs[bs.length - 1].m + 1, X = m => pl + (w - pl - pr) * (m - m0) / (m1 - m0), Y = v => pt + (h - pt - pb) * (hi - v) / (hi - lo), cw = (w - pl - pr) / (m1 - m0);
     let s = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="#${esc(x.label || x.id)}"><defs><clipPath id="cp${x.id}"><rect x="${pl}" y="${pt}" width="${w - pl - pr}" height="${h - pt - pb}"/></clipPath></defs>`;
     const step = [1, 2, 2.5, 5, 10, 20, 25, 50, 100].find(v => (hi - lo) / v <= 5) || 100;
-    for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) s += `<line x1="${pl}" x2="${w - pr}" y1="${Y(v)}" y2="${Y(v)}" stroke="#1d1305"/><text x="${w - pr + 6}" y="${Y(v) + 3.5}" font-size="10" fill="#A08D6C">${nf(v, step < 1 ? 2 : 0)}</text>`;
+    for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) s += `<line x1="${pl}" x2="${w - pr}" y1="${Y(v)}" y2="${Y(v)}" stroke="#0D0A20"/><text x="${w - pr + 6}" y="${Y(v) + 3.5}" font-size="10" fill="#8E89B4">${nf(v, step < 1 ? 2 : 0)}</text>`;
     const every = (m1 - m0) / ((w - pl - pr) / 46) > 10 ? ((m1 - m0) / ((w - pl - pr) / 46) > 20 ? 30 : 20) : 10;
-    bs.forEach(q => { const mm = +q.t.slice(14, 16); if (mm % every === 0) { const tt = q.t.slice(11, 16); s += `<line x1="${X(q.m + 0.5)}" x2="${X(q.m + 0.5)}" y1="${h - pb}" y2="${h - pb + 3}" stroke="#6E4608"/><text x="${X(q.m + 0.5)}" y="${h - 6}" font-size="9.5" fill="#A08D6C" text-anchor="middle">${tt}</text>`; } });
+    bs.forEach(q => { const mm = +q.t.slice(14, 16); if (mm % every === 0) { const tt = q.t.slice(11, 16); s += `<line x1="${X(q.m + 0.5)}" x2="${X(q.m + 0.5)}" y1="${h - pb}" y2="${h - pb + 3}" stroke="#3B2A7A"/><text x="${X(q.m + 0.5)}" y="${h - 6}" font-size="9.5" fill="#8E89B4" text-anchor="middle">${tt}</text>`; } });
     const band = (k, dash, col) => { const pts = bs.filter(q => q.vw && q.sd).map(q => `${X(q.m + 0.5).toFixed(1)},${Y(q.vw + k * q.sd).toFixed(1)}`); if (pts.length > 1) s += `<polyline clip-path="url(#cp${x.id})" points="${pts.join(' ')}" fill="none" stroke="${col}" stroke-width="1" ${dash ? `stroke-dasharray="${dash}"` : ''}/>`; };
-    band(2, '1 3', '#4a320a'); band(-2, '1 3', '#4a320a'); band(1, '3 3', '#6E4608'); band(-1, '3 3', '#6E4608'); band(0, '', '#FFA41C');
+    band(2, '1 3', '#2A1F5C'); band(-2, '1 3', '#2A1F5C'); band(1, '3 3', '#3B2A7A'); band(-1, '3 3', '#3B2A7A'); band(0, '', '#9D7CFF');
     bs.forEach(q => {
       const up = q.c >= q.o, col = up ? '#2E8A57' : '#A8423C', cx = X(q.m + 0.5);
       s += `<line x1="${cx}" x2="${cx}" y1="${Y(q.h)}" y2="${Y(q.l)}" stroke="${col}"/><rect x="${cx - cw * 0.32}" y="${Y(Math.max(q.o, q.c))}" width="${Math.max(1, cw * 0.64)}" height="${Math.max(1, Math.abs(Y(q.o) - Y(q.c)))}" fill="${col}"/>`;
     });
-    const xe = X(e0), ye = Y(x.entry_price), xx = X(e1), yx = Y(x.exit_price), res = x.pnl_net > 0 ? '#3BD47A' : x.pnl_net < 0 ? '#FF5149' : '#A08D6C';
+    const xe = X(e0), ye = Y(x.entry_price), xx = X(e1), yx = Y(x.exit_price), res = x.pnl_net > 0 ? '#3BD47A' : x.pnl_net < 0 ? '#FF5149' : '#8E89B4';
     s += `<path class="ln" pathLength="1" d="M${xe},${ye}L${xx},${yx}" stroke="${res}" stroke-width="1.6" stroke-dasharray="1" fill="none"/>`;
     const tri = x.side === 'long' ? `M${xe - 6},${ye + 9}L${xe + 6},${ye + 9}L${xe},${ye}Z` : `M${xe - 6},${ye - 9}L${xe + 6},${ye - 9}L${xe},${ye}Z`;
-    s += `<path d="${tri}" fill="#F3E7CF"/><rect x="${xx - 4}" y="${yx - 4}" width="8" height="8" fill="${res}"/>`;
+    s += `<path d="${tri}" fill="#E9E6FA"/><rect x="${xx - 4}" y="${yx - 4}" width="8" height="8" fill="${res}"/>`;
     const tag = (y, txt, bg, fg) => `<rect x="${w - pr + 2}" y="${y - 9}" width="${pr - 2}" height="18" fill="${bg}"/><text x="${w - pr + 6}" y="${y + 4}" font-size="10.5" font-weight="700" fill="${fg}">${txt}</text>`;
-    s += tag(ye, nf(x.entry_price, 2), '#F3E7CF', '#000') + tag(Math.abs(yx - ye) < 18 ? yx + (yx > ye ? 18 : -18) : yx, nf(x.exit_price, 2), res, '#000');
+    s += tag(ye, nf(x.entry_price, 2), '#E9E6FA', '#000') + tag(Math.abs(yx - ye) < 18 ? yx + (yx > ye ? 18 : -18) : yx, nf(x.exit_price, 2), res, '#000');
     return s + '</svg>';
   }
 
@@ -556,12 +578,22 @@
     $$('.lang button').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === LANG ? 'true' : 'false'));
     $('#foot').textContent = t().foot;
     const dc = $('#dcStrip'); if (dc) dc.textContent = t().dcStrip;
-    heads(); keys(); status(); accounts(); balance(); log(); trades(); stats(); if (window.R5S) R5S.watch(); nexts();
+    heads(); keys(); status(); accounts(); balance(); log(); trades(); stats(); if (window.R5S) R5S.watch(); if (window.R5I) R5I.render(); nexts();
     $$('.panel').forEach(sec => when(sec, instant => headIn(sec), () => headPrep(sec)));
   }
   // the intro: with the black hole (trounoir.js), the camera comes from far away and dives into it, then the page shows
   const showPage = () => { document.documentElement.classList.remove('tn-intro'); if (window.TN) TN.sortir(); };
   function boot(done) {
+    if (window.ESP && ESP.actif) {
+      const ov = $('#boot');
+      if (!ANIM || document.hidden || sess.get('r5l-boot')) { if (ov) ov.remove(); showPage(); ESP.arriver(); done(); return; }
+      sess.set('r5l-boot', '1'); BOOTING = true;
+      const last = M.days.length ? M.days[M.days.length - 1] : null;
+      ESP.intro({ balance: M.balance, start: M.start, net: last ? last.net : 0, n: M.trades.length, s: M.days.length,
+        txt: t().bootS({ n: M.trades.length, s: M.days.length, last: last ? dayLabel(last.date) : '' }), usd,
+        fin: () => { BOOTING = false; if (ov) ov.remove(); showPage(); done(); } });
+      return;
+    }
     const ov = $('#boot'), tn = !!(window.TN && TN.actif);
     if (!ov || !ANIM || document.hidden || sess.get('r5l-boot')) { if (ov) ov.remove(); showPage(); done(); return; }
     sess.set('r5l-boot', '1'); BOOTING = true; ov.classList.add('on'); if (tn) ov.classList.add('tn');
@@ -578,7 +610,7 @@
     $$('.lang button').forEach(b => b.addEventListener('click', () => { if (b.dataset.lang === LANG) return; LANG = b.dataset.lang; local.set('r5l-lang', LANG); const a = ANIM; ANIM = false; render(); ANIM = a; }));
     addEventListener('keydown', e => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      const i = '123456'.indexOf(e.key); if (i >= 0 && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || '')) { go(IDS[i]); }
+      const i = '1234567'.indexOf(e.key); if (i >= 0 && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || '')) { go(IDS[i]); }
       if (e.key === 'Escape' && ui.open != null) { ui.open = null; trades(); }
     });
     let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (M) { drawEq(true); if (ui.open != null) fillDetail(ui.open); } }, 200); });
@@ -600,6 +632,6 @@
     setTimeout(loadBars, 2500);
   }
   // shared with stats.js (statistics, account rules, weekly watch)
-  window.R5 = { get M() { return M; }, get LANG() { return LANG; }, get ANIM() { return ANIM; }, get BARS() { return BARS; }, ui, t, nf, num, sg, usd, cls, esc, $, $$, when, hide, printRows, countTo, blockBar, typeIn, openTrade, go, loadBars, dayLabel, dayMonth, shortDate, minOf, ymd, firstSentences, rerender: () => { const a = ANIM; ANIM = false; render(); ANIM = a; } };
+  window.R5 = { IDS, markKey, smoothPath, curveDefs, get M() { return M; }, get LANG() { return LANG; }, get ANIM() { return ANIM; }, get BARS() { return BARS; }, ui, t, nf, num, sg, usd, cls, esc, $, $$, when, hide, printRows, countTo, blockBar, typeIn, openTrade, go, loadBars, dayLabel, dayMonth, shortDate, minOf, ymd, firstSentences, rerender: () => { const a = ANIM; ANIM = false; render(); ANIM = a; } };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', main); else main();
 })();

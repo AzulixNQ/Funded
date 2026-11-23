@@ -7,44 +7,46 @@
 <meta name="description" content="My live trading journal: from one Lucid Trading 25K evaluation to five live accounts. Every trade logged, nothing deleted. Updated every evening.">
 <meta property="og:title" content="Road to 5 Live">
 <meta property="og:description" content="My live trading journal: from one 25K evaluation to five live accounts. Every trade logged, nothing deleted.">
-<meta name="theme-color" content="#070605">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070605'/%3E%3Ccircle cx='32' cy='32' r='20' fill='none' stroke='%23FFA41C' stroke-width='5'/%3E%3Ctext x='32' y='41' font-family='Arial' font-weight='700' font-size='24' text-anchor='middle' fill='%23FFA41C'%3E5%3C/text%3E%3C/svg%3E">
-<link rel="preload" href="fonts/nojah-sans.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="fonts/PlexMono-500.woff" as="font" type="font/woff" crossorigin>
-<link rel="stylesheet" href="style.css?v=31d4e556">
-<script>try{if(!sessionStorage.getItem("r5l-boot")&&!matchMedia("(prefers-reduced-motion: reduce)").matches){document.documentElement.classList.add("tn-intro");setTimeout(function(){document.documentElement.classList.remove("tn-intro")},7000)}}catch(e){}</script>
+<meta name="theme-color" content="#04030A">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2304030A'/%3E%3Ccircle cx='32' cy='32' r='12' fill='%23000'/%3E%3Cellipse cx='32' cy='32' rx='27' ry='7' fill='none' stroke='%239D7CFF' stroke-width='4'/%3E%3Ccircle cx='32' cy='32' r='13.5' fill='none' stroke='%237FD8FF' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preload" href="fonts/inter.woff" as="font" type="font/woff" crossorigin>
+<link rel="stylesheet" href="style.css?v=67dc2950">
+<script>try{if(!sessionStorage.getItem("r5l-boot")&&!matchMedia("(prefers-reduced-motion: reduce)").matches&&innerWidth>=900){document.documentElement.classList.add("tn-intro","esp-intro");setTimeout(function(){document.documentElement.classList.remove("tn-intro","esp-intro")},12000)}}catch(e){}</script>
 </head>
 <body>
 <canvas id="trounoir" aria-hidden="true"></canvas>
-<canvas id="rubans" data-teinte="ambre" data-eclat="1" data-foyer-fixe data-lueur="non" data-fond="noir" aria-hidden="true"></canvas>
+<canvas id="rubans" data-teinte="violet" data-eclat="1" data-foyer-fixe data-lueur="non" data-fond="noir" aria-hidden="true"></canvas>
+<canvas id="vitesse" aria-hidden="true"></canvas>
 <div class="grain" aria-hidden="true"></div>
-<div id="boot" aria-hidden="true"><div class="bt"><span class="bt-k">ROAD TO 5 LIVE</span><b id="bootBal"></b><span class="bt-s" id="bootTxt"></span></div></div>
+<div id="boot" aria-hidden="true"><div class="bt"><span class="bt-k">Road to 5 Live</span><b id="bootBal"></b><span class="bt-s" id="bootTxt"></span><span class="bt-skip">click to skip</span></div></div>
 
 <div class="page">
-<header class="top">
-  <div class="brand" id="brand"><span class="mk" aria-hidden="true">5</span>Road to 5 Live</div>
+<header class="top hud">
+  <div class="brand" id="brand"><span class="mk" aria-hidden="true"><i></i></span>Road to 5 Live</div>
   <div class="status" id="status"></div>
   <div class="lang" role="group" aria-label="Language">
     <button type="button" data-lang="en">EN</button><button type="button" data-lang="fr">FR</button>
   </div>
 </header>
-<nav class="keys" id="keys" aria-label="Sections"></nav>
+<nav class="keys hud" id="keys" aria-label="Sections"></nav>
+<div class="aide hud" aria-hidden="true"><span>⇅</span> · <b>1–7</b> · <b>← →</b></div>
 
-<main class="screen">
+<main class="screen" id="espace">
   <section id="bal" class="panel hero-p"><h2 data-k="1"></h2><div id="balBody"></div></section>
-  <section id="acc" class="panel"><h2 data-k="2"></h2><div id="accBody"></div></section>
-  <section id="log" class="panel"><h2 data-k="3"></h2><div id="logBody"></div></section>
-  <section id="tr" class="panel"><h2 data-k="4"></h2><div id="trBody"></div></section>
-  <section id="st" class="panel"><h2 data-k="5"></h2><div id="stBody"></div></section>
-  <section id="wt" class="panel"><h2 data-k="6"></h2><div id="wtBody"></div></section>
-  <footer class="foot" id="foot"></footer>
+  <section id="ind" class="panel"><h2 data-k="2"></h2><div id="indBody"></div></section>
+  <section id="acc" class="panel"><h2 data-k="3"></h2><div id="accBody"></div></section>
+  <section id="log" class="panel"><h2 data-k="4"></h2><div id="logBody"></div></section>
+  <section id="tr" class="panel"><h2 data-k="5"></h2><div id="trBody"></div></section>
+  <section id="st" class="panel"><h2 data-k="6"></h2><div id="stBody"></div></section>
+  <section id="wt" class="panel"><h2 data-k="7"></h2><div id="wtBody"></div><footer class="foot" id="foot"></footer></section>
 </main>
 </div>
 
 <noscript><p class="intro">This journal needs JavaScript to show the trades.</p></noscript>
-<script src="trounoir.js?v=8fa919be" defer></script>
-<script src="rubans.js?v=7e47b3d8" defer></script>
-<script src="app.js?v=354a528d"></script>
-<script src="stats.js?v=9c7fa6df"></script>
+<script src="rubans.js?v=66f77cf7" defer></script>
+<script src="espace.js?v=31bdb6a1"></script>
+<script src="app.js?v=b479e230"></script>
+<script src="stats.js?v=c0395391"></script>
+<script src="indic.js?v=7dbd40aa"></script>
 </body>
 </html>

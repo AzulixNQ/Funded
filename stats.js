@@ -223,7 +223,7 @@
       const ln = $$('.ln', el); if (X.ANIM && ln.length) { ln.forEach(l => { l.style.transition = 'none'; l.style.setProperty('--off', 1); }); requestAnimationFrame(() => requestAnimationFrame(() => ln.forEach(l => { l.style.transition = ''; l.style.setProperty('--off', 0); }))); }
     });
   }
-  const C = { amb: '#FFA41C', up: '#4BE08D', dn: '#FF5A5F', mute: '#8F887E', grid: 'rgba(255,255,255,.07)', txt: '#EDE6DA', asia: '#A493FF', london: '#FFA41C', ny: '#45C8FF' };
+  const C = { amb: '#9D7CFF', up: '#4BE08D', dn: '#FF5A7A', mute: '#8A86A8', grid: 'rgba(255,255,255,.07)', txt: '#E6E4F6', asia: '#A493FF', london: '#9D7CFF', ny: '#45C8FF' };
   const svg = (wd, h, body, label) => `<svg viewBox="0 0 ${wd} ${h}" role="img" aria-label="${esc(label || '')}">${body}</svg>`;
   const txt = (x, y, s, o = {}) => `<text x="${x}" y="${y}" font-size="${o.fs || 10}" fill="${o.c || C.mute}"${o.a ? ` text-anchor="${o.a}"` : ''}${o.b ? ' font-weight="700"' : ''}>${s}</text>`;
   const ticks = (lo, hi, n = 4) => { const span = hi - lo || 1, raw = span / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), st = [1, 2, 2.5, 5, 10].map(k => k * mag).find(k => span / k <= n + 1) || mag * 10; const out = []; for (let v = Math.ceil(lo / st) * st; v <= hi + 1e-9; v += st) out.push(+v.toFixed(6)); return out; };
@@ -236,10 +236,11 @@
       const Y1 = v => top + (h1 - top) * (hi - v) / ((hi - lo) || 1);
       let b = ticks(lo, hi).map(v => `<line x1="${pl}" x2="${wd - pr}" y1="${Y1(v)}" y2="${Y1(v)}" stroke="${C.grid}"/>${txt(wd - pr + 6, Y1(v) + 3.5, nf(v, 0))}`).join('');
       b += `<line x1="${pl}" x2="${wd - pr}" y1="${Y1(0)}" y2="${Y1(0)}" stroke="${C.mute}" stroke-dasharray="1 3"/>`;
-      const dd = cum.map((v, i) => `${i ? 'L' : 'M'}${X1(i).toFixed(1)},${Y1(v).toFixed(1)}`).join(''), gid = 'cg' + chId + Math.round(wd);
-      b += `<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${C.amb}" stop-opacity=".26"/><stop offset="1" stop-color="${C.amb}" stop-opacity="0"/></linearGradient></defs>`;
+      const dd = X.smoothPath(cum.map((v, i) => [X1(i), Y1(v)])), gid = 'cg' + chId + Math.round(wd);
+      b += `<defs>${X.curveDefs(gid, pl, wd - pr)}</defs>`;
       if (cum.length > 1) b += `<path d="${dd}L${X1(cum.length - 1).toFixed(1)},${Y1(Math.min(0, lo)).toFixed(1)}L${X1(0).toFixed(1)},${Y1(Math.min(0, lo)).toFixed(1)}Z" fill="url(#${gid})"/>`;
-      b += `<path class="ln" pathLength="1" d="${dd}" fill="none" stroke="#FFB43C" stroke-width="2.2" stroke-linejoin="round"/>`;
+      b += `<path class="ln" pathLength="1" d="${dd}" fill="none" stroke="url(#${gid}s)" stroke-width="8" stroke-opacity=".5" filter="url(#${gid}b)"/>`;
+      b += `<path class="ln" pathLength="1" d="${dd}" fill="none" stroke="url(#${gid}s)" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>`;
       const mx = Math.max(1, ...ts.map(t => Math.abs(P(t)))), y0 = h1 + gap + h2 / 2, bw = Math.max(1.5, (wd - pl - pr) / ts.length * 0.62);
       b += `<line x1="${pl}" x2="${wd - pr}" y1="${y0}" y2="${y0}" stroke="${C.grid}"/>`;
       ts.forEach((t, i) => { const v = P(t), hh = Math.abs(v) / mx * h2 / 2; b += `<rect x="${X1(i) - bw / 2}" y="${v >= 0 ? y0 - hh : y0}" width="${bw}" height="${Math.max(1, hh)}" fill="${v >= 0 ? C.up : C.dn}"><title>#${lab(t)} ${sg(v)}</title></rect>`; });
@@ -350,9 +351,9 @@
       ticks(lo, hi, 4).forEach(v => { b += `<line x1="${pl}" x2="${wd - pr}" y1="${Ys(v)}" y2="${Ys(v)}" stroke="rgba(255,255,255,.06)"/>${txt(wd - pr + 6, Ys(v) + 3.5, nf(v, 0))}`; });
       bars.forEach(q => { const hh = +q.t.slice(11, 13), mm = +q.t.slice(14, 16); if (mm === 0 && hh % 3 === 0) b += txt(Xs(X.minOf(q.t)), h - 7, q.t.slice(11, 16), { a: 'middle', fs: 9.5 }); });
       const line = (f, col, dash) => { const pts = bars.filter(q => f(q) != null && isFinite(f(q))).map(q => `${Xs(X.minOf(q.t) + 0.5).toFixed(1)},${Ys(f(q)).toFixed(1)}`); return pts.length > 1 ? `<polyline clip-path="url(#sc${day})" points="${pts.join(' ')}" fill="none" stroke="${col}" stroke-width="1"${dash ? ` stroke-dasharray="${dash}"` : ''}/>` : ''; };
-      b += line(q => q.vw + 2 * q.sd, 'rgba(255,164,28,.32)', '1 3') + line(q => q.vw - 2 * q.sd, 'rgba(255,164,28,.32)', '1 3') + line(q => q.vw + q.sd, 'rgba(255,164,28,.55)', '3 3') + line(q => q.vw - q.sd, 'rgba(255,164,28,.55)', '3 3');
+      b += line(q => q.vw + 2 * q.sd, 'rgba(157,124,255,.32)', '1 3') + line(q => q.vw - 2 * q.sd, 'rgba(157,124,255,.32)', '1 3') + line(q => q.vw + q.sd, 'rgba(157,124,255,.55)', '3 3') + line(q => q.vw - q.sd, 'rgba(157,124,255,.55)', '3 3');
       let lastY = -99; lv.slice().sort((p, q) => q[1] - p[1]).forEach(([k, v]) => { if (v > lo && v < hi) { const y = Ys(v); b += `<line x1="${pl}" x2="${wd - pr}" y1="${y}" y2="${y}" stroke="${C.asia}" stroke-opacity=".55" stroke-dasharray="2 4"/>`; if (y - lastY > 11) { b += txt(pl + 2, y - 3, w().lvl[k], { fs: 8.5, c: C.asia }); lastY = y; } } });
-      b += line(q => q.c, '#D9D2C6') + line(q => q.vw, C.amb);
+      b += line(q => q.c, '#CFCBEA') + line(q => q.vw, C.amb);
       ts.filter(t => t.session_date === day).forEach(t => {
         const xe = Xs(X.minOf(t.entry_time)), ye = Ys(t.entry_price), xx = Xs(X.minOf(t.exit_time)), yx = Ys(t.exit_price), col = P(t) > 0 ? C.up : P(t) < 0 ? C.dn : C.mute;
         const tri = t.side === 'long' ? `M${xe - 4.5},${ye + 7}L${xe + 4.5},${ye + 7}L${xe},${ye}Z` : `M${xe - 4.5},${ye - 7}L${xe + 4.5},${ye - 7}L${xe},${ye}Z`;

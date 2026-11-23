@@ -59,6 +59,8 @@
     'uniform float u_eclat;',     // 0 = noir (intro), 1 = plein
     'uniform float u_pas;',       // nombre de pas de calcul par rayon
     'uniform float u_pasr;',      // la taille d'un pas, relative à la distance au trou
+    'uniform float u_oct;',       // le détail du disque (3 ou 4 couches de bruit)
+    'uniform float u_fil;',       // la force des fils fins dans le disque
     'const float PI = 3.14159265;',
     'const float RIN = 3.0;',     // la dernière orbite stable : le bord intérieur du disque
     'const float ROUT = 15.0;',   // le bord extérieur
@@ -71,7 +73,7 @@
     '  float y0 = mod(i.y, P), y1 = mod(i.y + 1.0, P);',
     '  return mix(mix(h12(vec2(i.x, y0)), h12(vec2(i.x + 1.0, y0)), u.x), mix(h12(vec2(i.x, y1)), h12(vec2(i.x + 1.0, y1)), u.x), u.y);',
     '}',
-    'float fbmP(vec2 p, float P) { float s = 0.0, a = 0.55; for (int k = 0; k < 3; k++) { s += a * bruitP(p, P); p = p * 2.0 + vec2(1.7, 0.0); P *= 2.0; a *= 0.5; } return s; }',
+    'float fbmP(vec2 p, float P) { float s = 0.0, a = 0.55; for (int k = 0; k < 4; k++) { if (float(k) >= u_oct) break; s += a * bruitP(p, P); p = p * 2.0 + vec2(1.7, 0.0); P *= 2.0; a *= 0.5; } return s; }',
     'float bruit3(vec3 p) {',
     '  vec3 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);',
     '  return mix(mix(mix(h13(i), h13(i + vec3(1.0, 0.0, 0.0)), f.x), mix(h13(i + vec3(0.0, 1.0, 0.0)), h13(i + vec3(1.0, 1.0, 0.0)), f.x), f.y),',
@@ -94,7 +96,9 @@
     '  float n2 = fbmP(vec2(x + 41.0, (a0 - (om - oref) * f2 * T) / (2.0 * PI) * P), P);',
     '  float n = mix(n2, n1, w1);',
     '  float anneaux = 0.5 + 0.5 * sin(r * 7.0 + n * 5.0);',
-    '  return clamp(n * 1.35 - 0.2, 0.0, 1.0) * (0.55 + 0.45 * anneaux);',
+    // des fils fins et brillants qui suivent le courant du disque
+    '  float fils = pow(0.5 + 0.5 * sin(r * 14.0 + n * 11.0), 6.0) * smoothstep(0.22, 0.6, n);',
+    '  return clamp(n * 1.35 - 0.2, 0.0, 1.0) * (0.5 + 0.4 * anneaux) + u_fil * 0.6 * fils;',
     '}',
     // le ciel : une brume ambre très faible et des étoiles chaudes (au moins un pixel et demi, pour ne pas clignoter)
     'vec3 ciel(vec3 d) {',
@@ -195,13 +199,13 @@
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
   var ap = gl.getAttribLocation(prog, 'a_p'); gl.enableVertexAttribArray(ap); gl.vertexAttribPointer(ap, 2, gl.FLOAT, false, 0, 0);
   var U = {};
-  ['u_res', 'u_t', 'u_ciel', 'u_cam', 'u_roulis', 'u_centre', 'u_zoom', 'u_humeur', 'u_eclat', 'u_pas', 'u_pasr'].forEach(function (n) { U[n] = gl.getUniformLocation(prog, n); });
+  ['u_res', 'u_t', 'u_ciel', 'u_cam', 'u_roulis', 'u_centre', 'u_zoom', 'u_humeur', 'u_eclat', 'u_pas', 'u_pasr', 'u_oct', 'u_fil'].forEach(function (n) { U[n] = gl.getUniformLocation(prog, n); });
 
   /* ---------- la qualité : la part des pixels de la page qu'on calcule, et les pas par rayon ---------- */
   // q : la part des pixels de l'écran (pixels réels) ; max : le plafond de pixels calculés
   var NIV = petit
-    ? [{ q: 0.55, pas: 90, pasr: 0.085, max: 800000 }, { q: 0.48, pas: 86, pasr: 0.09, max: 520000 }, { q: 0.4, pas: 80, pasr: 0.095, max: 330000 }, { q: 0.3, pas: 70, pasr: 0.11, max: 200000 }, { q: 0.22, pas: 64, pasr: 0.12, max: 110000 }]
-    : [{ q: 1, pas: 150, pasr: 0.055, max: 3200000 }, { q: 0.8, pas: 140, pasr: 0.06, max: 1700000 }, { q: 0.62, pas: 120, pasr: 0.07, max: 1000000 }, { q: 0.48, pas: 100, pasr: 0.085, max: 600000 }, { q: 0.36, pas: 84, pasr: 0.1, max: 340000 }];
+    ? [{ q: 0.6, pas: 90, pasr: 0.085, max: 1000000, oct: 4, fil: 1 }, { q: 0.5, pas: 86, pasr: 0.09, max: 640000, oct: 3, fil: 1 }, { q: 0.4, pas: 80, pasr: 0.095, max: 360000, oct: 3, fil: 0.7 }, { q: 0.3, pas: 70, pasr: 0.11, max: 200000, oct: 3, fil: 0.5 }, { q: 0.22, pas: 64, pasr: 0.12, max: 110000, oct: 3, fil: 0.4 }]
+    : [{ q: 1, pas: 160, pasr: 0.05, max: 4000000, oct: 4, fil: 1 }, { q: 0.85, pas: 140, pasr: 0.06, max: 2200000, oct: 4, fil: 1 }, { q: 0.66, pas: 120, pasr: 0.07, max: 1200000, oct: 3, fil: 0.85 }, { q: 0.5, pas: 100, pasr: 0.085, max: 650000, oct: 3, fil: 0.6 }, { q: 0.36, pas: 84, pasr: 0.1, max: 340000, oct: 3, fil: 0.4 }];
   var bloque = /\d/.test(param) ? Math.min(+param.replace(/\D/g, '')[0], NIV.length - 1) : -1;
   // on part d'un niveau moyen ; on monte tant que l'appareil suit, on redescend dès qu'il peine
   var niv = bloque >= 0 ? bloque : petit ? 1 : 2, monter = bloque < 0;
@@ -229,7 +233,7 @@
     if (!el) { ancre = null; return; }
     var r = el.getBoundingClientRect();
     if (!r.width) { ancre = null; return; }
-    ancre = { x: (r.left + r.width / 2) / innerWidth, y: (r.top + scrollY + r.height * 0.55) / innerHeight };
+    ancre = { x: (r.left + r.width / 2) / innerWidth, y: (r.top + scrollY + r.height * 0.5) / innerHeight };
   }
   var regle = {};                                  // réglages de test (TN.regler), vides en temps normal
   function repos() { var R = repos0(), k; for (k in regle) R[k] = regle[k]; return R; }
@@ -264,7 +268,6 @@
     e *= 1 - 0.36 * lisse(0.0, 0.16, defilL);
     // la souris (ou le téléphone)
     p.az += souris.x * 0.22; p.el += souris.y * 0.07;
-    p.cx += souris.x * 0.012; p.cy -= souris.y * 0.012;
     if (intro) {
       var u = intro.fige != null ? intro.fige : cl((maintenant - intro.t0) / intro.ms, 0, 1), k;
       p.cx = 0.5; p.cy = 0.5; p.zoom = Math.max(R.zoom, 0.9);
@@ -285,6 +288,17 @@
     return { p: p, e: e };
   }
 
+  // où est l'ombre du trou noir à l'écran (en pixels de page) : les fils lumineux (rubans.js) y disparaissent
+  var ombreVue = { x: -1, y: -1, r: -1 };
+  function ombre(p) {
+    var H = toile.clientHeight || innerHeight, x = p.cx * innerWidth, y = (1 - p.cy) * H;
+    var r = Math.tan(Math.asin(Math.min(0.99, 2.598 / p.D))) / p.zoom * H;
+    if (Math.abs(x - ombreVue.x) + Math.abs(y - ombreVue.y) + Math.abs(r - ombreVue.r) < 0.6) return;
+    ombreVue = { x: x, y: y, r: r };
+    var st = racine.style;
+    st.setProperty('--tn-x', x.toFixed(1) + 'px'); st.setProperty('--tn-y', y.toFixed(1) + 'px'); st.setProperty('--tn-r', r.toFixed(1) + 'px');
+  }
+
   /* ---------- dessiner une image ---------- */
   function dessiner(maintenant) {
     var P = pose(maintenant || performance.now()), p = P.p, N = NIV[niv];
@@ -299,15 +313,30 @@
     gl.uniform1f(U.u_eclat, P.e);
     gl.uniform1f(U.u_pas, N.pas);
     gl.uniform1f(U.u_pasr, N.pasr);
+    gl.uniform1f(U.u_oct, N.oct);
+    gl.uniform1f(U.u_fil, N.fil);
+    if (!intro) ombre(p);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
 
   /* ---------- la boucle ---------- */
   var raf = 0, dernier = 0, mesures = [], debut = 0, decisions = 0, lents = 0;
+  // l'intervalle propre de l'écran (60, 75, 100, 144 Hz…), mesuré sur les premières images, sans rien calculer
+  var vs = 1000 / 60, brut = [], precedent = 0, essais = 0;
+  var seuil = function () { return 0.75 * 1000 / cadence; };
+  var attendu = function () { return Math.max(1, Math.ceil(seuil() / vs - 0.05)) * vs; };
   function image(maintenant) {
     raf = requestAnimationFrame(image);
+    if (essais < 16) {
+      if (precedent) { var d = maintenant - precedent; if (d > 3 && d < 60) brut.push(d); }
+      precedent = maintenant; essais++;
+      if (essais < 16) return;
+      if (brut.length) vs = Math.max(4, Math.min.apply(null, brut));
+      if (revele) revele = maintenant;
+      dernier = 0; debut = maintenant;
+    }
     var ecart = maintenant - dernier;
-    if (dernier && ecart < 1000 / cadence - 3) return;
+    if (dernier && ecart < seuil()) return;
     var dt = dernier ? Math.min(0.1, ecart / 1000) : 1 / cadence;
     dernier = maintenant;
     // une image toutes les secondes environ, c'est le navigateur qui freine (fenêtre derrière une autre, onglet caché) :
@@ -333,8 +362,8 @@
     var n = decisions < 4 ? 12 : 36;               // les premières décisions vont vite
     if (mesures.length < n) return;
     mesures.sort(function (a, b) { return a - b; });
-    var med = mesures[n >> 1], budget = 1000 / cadence; mesures = []; decisions++;
-    if (med > budget * 1.45) {
+    var med = mesures[n >> 1], budget = attendu(); mesures = []; decisions++;
+    if (med > budget * 1.4) {
       monter = false;
       if (niv < NIV.length - 1) { niv++; taille(); return; }
       if (cadence > 30) { cadence = 30; return; }
@@ -371,7 +400,7 @@
     },
     sortir: sortir,
     regler: function (o) { regle = o || {}; if (fixe) dessiner(); },
-    etat: function () { return { niveau: niv, cadence: cadence, fixe: fixe, toile: toile.width + 'x' + toile.height }; },
+    etat: function () { return { niveau: niv, cadence: cadence, ecran: Math.round(1000 / vs) + ' Hz', fixe: fixe, toile: toile.width + 'x' + toile.height }; },
     figer: function (u) { intro = u == null ? null : { t0: 0, ms: 1, fige: u }; eclatIntro = 1; }   // test : une image de l'intro
   };
   // si la page ne demande rien (données introuvables…), on ne reste pas dans le noir

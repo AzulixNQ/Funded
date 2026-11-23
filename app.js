@@ -325,7 +325,7 @@
     const lastN = last ? `${esc(dayLabel(last.date))}${last.n != null ? ' · ' + esc(t().tw(last.n, last.w ?? 0)) : ''}` : '';
     return `<div class="hero" id="hero"><div class="h-main">
       <div class="h-acc">${esc(t().hAcc(M.run.n, M.run.name || '', t().phLong[M.phase]))}</div>
-      <div class="h-bal" id="hBal" data-tn-ancre>${usd(M.balance)}</div>
+      <div class="h-bal" id="hBal" data-tn-ancre data-foyer>${usd(M.balance)}</div>
       <div class="h-sub ${cls(M.net)}">${esc(t().hOnAcc(usd(M.net, 2, true)))}</div>
       <p class="intro">${esc(t().intro)}</p></div>
       <div class="h-kpis" id="hK">

@@ -294,7 +294,7 @@
     IDS.forEach(function (id) {
       var el = document.getElementById(id); if (!el) return;
       var s = ST[id], p = poseDe(id), B = base(p);
-      var pw = Math.round(Math.min(1060, Math.max(380, W * s.large))), ph = Math.round(H - HAUT - BAS);
+      var pw = Math.round(Math.min(1060, Math.max(Math.min(620, W - 2 * MARGE), W * s.large))), ph = Math.round(H - HAUT - BAS);
       var x0 = s.cote === 'd' ? W - MARGE - pw : MARGE, y0 = HAUT;
       el.style.width = pw + 'px'; el.style.height = ph + 'px';
       var c = Math.cos(p.roulis), sn = Math.sin(p.roulis);

@@ -136,17 +136,11 @@
     '  }',
     '  return c;',
     '}',
-    'void main() {',
-    '  vec2 uv = (gl_FragCoord.xy - u_centre * u_res) / u_res.y;',
-    '  float cr = cos(u_roulis), sr = sin(u_roulis);',
-    '  uv = vec2(cr * uv.x - sr * uv.y, sr * uv.x + cr * uv.y);',
-    '  float D = u_cam.x / u_masse, el = u_cam.y, az = u_cam.z;',
-    '  vec3 pos = D * vec3(cos(el) * sin(az), sin(el), cos(el) * cos(az));',
-    '  vec3 fw = normalize(-pos), rt = normalize(cross(fw, vec3(0.0, 1.0, 0.0))), up = cross(rt, fw);',
-    '  vec3 vel = normalize(fw + (uv.x * rt + uv.y * up) * u_zoom);',
+    // un rayon lumineux, de la caméra jusqu'au ciel, au disque ou à l'horizon
+    'vec3 tracer(vec3 pos, vec3 vel) {',
     '  vec3 col = vec3(0.0), jet = vec3(0.0);',
     '  float opa = 0.0, rmin = 1e4;',
-    '  bool avale = false, loin = false;',
+    '  bool avale = false, loin = false, sorti = false;',
     '  float r0 = length(pos);',
     '  if (r0 > 40.0) {',
     '    float b = dot(pos, vel), disc = b * b - (r0 * r0 - 1600.0);',
@@ -197,16 +191,39 @@
     '        if (rh > 2.5 && rh < 16.5 && u_ntr > 0.5) col += (1.0 - opa * 0.6) * etoiles(hit);',
     '      }',
     '      if (rr < 1.0) { avale = true; break; }',
-    '      if (rn > 42.0 && dot(pos, vel) > 0.0) break;',
+    '      if (rn > 42.0 && dot(pos, vel) > 0.0) { sorti = true; break; }',
     '      if (opa > 0.985) break;',
     '    }',
     '  }',
     '  if (!avale) {',
-    '    col += (1.0 - opa) * ciel(normalize(vel));',
+    // un rayon encore en orbite quand les pas s'épuisent frôle la sphère de photons : on ne lui donne pas le ciel
+    // (sa direction serait au hasard, ça faisait des points qui scintillent sur le bord de l'ombre), seulement la lueur
+    '    if (sorti || loin || opa > 0.985) col += (1.0 - opa) * ciel(normalize(vel));',
     '    float g = max(rmin - 1.5, 0.0);',
     '    col += vec3(0.55, 0.5, 1.0) * (0.34 * exp(-g * 6.0) + 0.07 * exp(-g * 0.8)) * (1.0 - 0.6 * opa);',
     '  }',
-    '  col += jet * u_jet * 0.55;',
+    '  return col + jet * u_jet * 0.55;',
+    '}',
+    'void main() {',
+    '  vec2 uv = (gl_FragCoord.xy - u_centre * u_res) / u_res.y;',
+    '  float cr = cos(u_roulis), sr = sin(u_roulis);',
+    '  uv = vec2(cr * uv.x - sr * uv.y, sr * uv.x + cr * uv.y);',
+    '  float D = u_cam.x / u_masse, el = u_cam.y, az = u_cam.z;',
+    '  vec3 pos = D * vec3(cos(el) * sin(az), sin(el), cos(el) * cos(az));',
+    '  vec3 fw = normalize(-pos), rt = normalize(cross(fw, vec3(0.0, 1.0, 0.0))), up = cross(rt, fw);',
+    '  float px = 1.0 / u_res.y;',
+    // le bord de l'ombre (paramètre d'impact critique 3√3/2) est plus fin qu'un pixel : là seulement, 4 rayons par pixel
+    '  float b0 = length(cross(pos, normalize(fw + (uv.x * rt + uv.y * up) * u_zoom)));',
+    '  float bx = length(cross(pos, normalize(fw + ((uv.x + px) * rt + uv.y * up) * u_zoom)));',
+    '  float by = length(cross(pos, normalize(fw + (uv.x * rt + (uv.y + px) * up) * u_zoom)));',
+    '  float ns = abs(b0 - 2.598) < 2.5 * max(abs(bx - b0), abs(by - b0)) ? 4.0 : 1.0;',
+    '  vec3 col = vec3(0.0);',
+    '  for (int s = 0; s < 4; s++) {',
+    '    if (float(s) >= ns) break;',
+    '    vec2 o = ns < 1.5 ? vec2(0.0) : (s == 0 ? vec2(0.125, 0.375) : (s == 1 ? vec2(0.375, -0.125) : (s == 2 ? vec2(-0.125, -0.375) : vec2(-0.375, 0.125))));',
+    '    col += tracer(pos, normalize(fw + ((uv.x + o.x * px) * rt + (uv.y + o.y * px) * up) * u_zoom));',
+    '  }',
+    '  col /= ns;',
     '  col *= u_eclat * (1.0 + 0.3 * u_humeur);',
     '  col += u_flash * vec3(0.62, 0.55, 1.0);',
     '  col = vec3(1.0) - exp(-col * 1.3);',
@@ -729,12 +746,14 @@
       tqAttente.forEach(function (o) { TQ.deleteQueryEXT(o.q); }); tqAttente = []; tqMesures = []; TQ = null;
     }
   }
+  function intervalle(c) { return Math.max(1, Math.ceil(0.75 * 1000 / c / vs - 0.05)) * vs; }
   function jugerGPU() {
     var n = tqDecisions < 2 ? 10 : 30;
     if (tqMesures.length < n) return;
     tqMesures.sort(function (a, b) { return a - b; });
     var med = tqMesures[n >> 1]; tqMesures = []; tqDecisions++; tqDernier = med;
-    var T = 1000 / cadence, haut = 0.72 * T;
+    // le temps réel entre deux images : un écran à 90 Hz avec une cadence de 60 affiche une image toutes les 2 trames
+    var T = intervalle(cadence), haut = 0.72 * T;
     if (tqEssai) {
       var e = tqEssai; tqEssai = null;
       if (med > haut) { niv = e.niv; cadence = e.cad; taille(); tqPlafond = true; return; }
@@ -747,7 +766,7 @@
     }
     if (tqPlafond) return;
     if (niv > NET && med < 0.45 * T) { tqEssai = { niv: niv, cad: cadence }; niv--; taille(); return; }
-    if (cadence < 60 && med < 0.55 * 1000 / 60) { tqEssai = { niv: niv, cad: cadence }; cadence = 60; return; }
+    if (cadence < 60 && med < 0.6 * intervalle(60)) { tqEssai = { niv: niv, cad: cadence }; cadence = 60; return; }
     if (niv > 0 && med < 0.45 * T) { tqEssai = { niv: niv, cad: cadence }; niv--; taille(); }
   }
   function dessiner(B) {

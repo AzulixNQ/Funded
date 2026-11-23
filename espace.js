@@ -81,7 +81,8 @@
     '  return mix(mix(mix(h13(i), h13(i + vec3(1.0, 0.0, 0.0)), f.x), mix(h13(i + vec3(0.0, 1.0, 0.0)), h13(i + vec3(1.0, 1.0, 0.0)), f.x), f.y),',
     '             mix(mix(h13(i + vec3(0.0, 0.0, 1.0)), h13(i + vec3(1.0, 0.0, 1.0)), f.x), mix(h13(i + vec3(0.0, 1.0, 1.0)), h13(i + vec3(1.0, 1.0, 1.0)), f.x), f.y), f.z);',
     '}',
-    'float fbm3(vec3 p) { float s = 0.0, a = 0.5; for (int k = 0; k < 4; k++) { s += a * bruit3(p); p = p * 2.03 + vec3(3.1, 1.7, 5.3); a *= 0.5; } return s; }',
+    // o octaves calculées, les suivantes remplacées par leur moyenne (la nébuleuse garde la même teinte)
+    'float fbm3(vec3 p, float o) { float s = 0.0, a = 0.5; for (int k = 0; k < 4; k++) { if (float(k) >= o) { s += 0.5 * a; } else { s += a * bruit3(p); p = p * 2.03 + vec3(3.1, 1.7, 5.3); } a *= 0.5; } return s; }',
     // la chaleur du disque : violet profond, violet électrique, bleu glacier, blanc bleuté
     'vec3 rampe(float t) {',
     '  t = clamp(t, 0.0, 1.7);',
@@ -102,7 +103,7 @@
     '}',
     // le ciel : une nébuleuse violette et bleue, des étoiles bleutées
     'vec3 ciel(vec3 d) {',
-    '  float n = fbm3(d * 1.7 + 4.0), n2 = fbm3(d * 4.3 + 11.0), n3 = fbm3(d * 2.6 - 7.0);',
+    '  float n = fbm3(d * 1.7 + 4.0, 4.0), n2 = fbm3(d * 4.3 + 11.0, 3.0), n3 = fbm3(d * 2.6 - 7.0, 2.0);',
     '  vec3 neb = mix(vec3(0.30, 0.08, 0.55), vec3(0.06, 0.20, 0.55), smoothstep(0.35, 0.65, n3));',
     '  vec3 c = neb * pow(n, 3.0) * 0.42 * (0.35 + 1.2 * n2);',
     '  float px = u_zoom / u_res.y;',
@@ -122,13 +123,12 @@
     '  vec3 c = vec3(0.0);',
     '  for (int i = 0; i < ' + NTR + '; i++) {',
     '    if (float(i) >= u_ntr) break;',
-    '    vec4 s = u_tr[i];',
-    '    float th = s.y + u_trt * 1.6 * pow(s.x, -1.5);',
-    '    vec2 sp = s.x * vec2(cos(th), sin(th));',
-    '    vec2 dv = hit.xz - sp;',
+    '    vec4 s = u_tr[i];',          // xy : position sur le disque (calculée par la page à chaque image)
+    '    vec2 dv = hit.xz - s.xy;',
     '    float d2 = dot(dv, dv), sz = s.z;',
     '    float hv = 1.0 - step(0.5, abs(float(i) - u_hov));',
     '    sz *= 1.0 + 0.6 * hv;',
+    '    if (d2 > sz * sz * 9.0) continue;',   // trop loin : sa lumière est nulle ici
     '    float e = exp(-d2 / (sz * sz * 0.16)) * 2.6 + exp(-d2 / (sz * sz)) * 0.5;',
     '    vec3 col = s.w > 0.5 ? vec3(0.35, 1.0, 0.62) : (s.w < -0.5 ? vec3(1.0, 0.32, 0.48) : vec3(0.92, 0.92, 1.0));',
     '    float anneau = hv * exp(-pow(sqrt(d2) - sz * 1.6, 2.0) / (sz * sz * 0.03)) * (0.8 + 0.2 * sin(u_ciel * 8.0));',
@@ -170,10 +170,12 @@
     '      if (u_jet > 0.004) {',
     '        float ay = abs(pos.y), rho2 = pos.x * pos.x + pos.z * pos.z;',
     '        float wj = 0.32 + 0.085 * ay;',
-    '        float ej = exp(-rho2 / (wj * wj)) * smoothstep(1.2, 2.8, ay) * exp(-ay * 0.05);',
-    '        float nz = 0.5 + 0.5 * sin(ay * 1.6 - u_ciel * 7.0 + 2.0 * sin(ay * 0.5 + u_ciel));',
-    '        float core = exp(-rho2 / (wj * wj * 0.12));',
-    '        jet += (1.0 - opa) * (vec3(0.45, 0.35, 1.0) * ej * (0.4 + 0.8 * nz) + vec3(0.75, 0.9, 1.0) * core * ej * 1.2) * dt;',
+    '        if (ay > 1.2 && rho2 < 9.0 * wj * wj) {',   // seulement près de l'axe : ailleurs le jet est invisible
+    '          float ej = exp(-rho2 / (wj * wj)) * smoothstep(1.2, 2.8, ay) * exp(-ay * 0.05);',
+    '          float nz = 0.5 + 0.5 * sin(ay * 1.6 - u_ciel * 7.0 + 2.0 * sin(ay * 0.5 + u_ciel));',
+    '          float core = exp(-rho2 / (wj * wj * 0.12));',
+    '          jet += (1.0 - opa) * (vec3(0.45, 0.35, 1.0) * ej * (0.4 + 0.8 * nz) + vec3(0.75, 0.9, 1.0) * core * ej * 1.2) * dt;',
+    '        }',
     '      }',
     '      if (prev.y * pos.y < 0.0) {',
     '        vec3 hit = mix(prev, pos, prev.y / (prev.y - pos.y));',
@@ -235,12 +237,18 @@
   racine.setAttribute('data-esp', '3d');
 
   /* ------------------------------------------------------------ la qualité ---- */
-  var NIV = [{ q: 1, pas: 160, pasr: 0.05, max: 4000000, oct: 4, fil: 1 }, { q: 0.85, pas: 140, pasr: 0.06, max: 2200000, oct: 4, fil: 1 },
-    { q: 0.66, pas: 120, pasr: 0.07, max: 1200000, oct: 3, fil: 0.85 }, { q: 0.5, pas: 100, pasr: 0.085, max: 650000, oct: 3, fil: 0.6 },
-    { q: 0.36, pas: 84, pasr: 0.1, max: 340000, oct: 3, fil: 0.4 }];
+  // Les trois premiers niveaux gardent tous les pixels de l'écran (image nette) et allègent seulement le calcul
+  // des rayons. On passe à 30 images/s avant de baisser la définition : la netteté d'abord.
+  var NIV = [{ q: 1, pas: 160, pasr: 0.05, max: 5300000, oct: 4, fil: 1 }, { q: 1, pas: 132, pasr: 0.062, max: 5300000, oct: 4, fil: 1 },
+    { q: 1, pas: 112, pasr: 0.074, max: 5300000, oct: 3, fil: 0.85 }, { q: 0.85, pas: 100, pasr: 0.082, max: 3200000, oct: 3, fil: 0.7 },
+    { q: 0.7, pas: 90, pasr: 0.09, max: 2000000, oct: 3, fil: 0.55 }, { q: 0.55, pas: 84, pasr: 0.1, max: 1200000, oct: 3, fil: 0.4 }];
+  var NET = 2;   // le dernier niveau à pleine définition
   if (param.indexOf('e') >= 0) NIV = [{ q: 0.12, pas: 44, pasr: 0.18, max: 50000, oct: 2, fil: 0.4 }];   // test : très léger
   var bloque = /\d/.test(param) ? Math.min(+param.replace(/\D/g, '')[0], NIV.length - 1) : param.indexOf('e') >= 0 ? 0 : -1;
-  var niv = bloque >= 0 ? bloque : 2, monter = bloque < 0, cadence = 60;
+  // le chronomètre de la carte graphique : il mesure le vrai coût d'une image, même quand Chrome ralentit
+  // la page parce qu'une autre fenêtre est devant (sans lui, on prenait ça pour une carte trop lente)
+  var TQ = null; try { TQ = gl.getExtension('EXT_disjoint_timer_query'); } catch (x) {}
+  var niv = bloque >= 0 ? bloque : (TQ ? 0 : 1), monter = bloque < 0, cadence = 60;
   var fixe = param.indexOf('f') >= 0;
   var W = innerWidth, H = innerHeight;
   function taille() {
@@ -451,9 +459,17 @@
       var th0 = k * 2.39996 + 0.7;
       var sz = 0.2 + 0.36 * Math.sqrt(Math.abs(t.pnl_net) / mx);
       var sorte = t.result_class === 'win' ? 1 : t.result_class === 'loss' ? -1 : (t.pnl_net > 0 ? 1 : t.pnl_net < 0 ? -1 : 0);
-      return { t: t, r: r, th0: th0, sz: sz, s: sorte };
+      return { t: t, r: r, th0: th0, sz: sz, s: sorte, w: 1.6 * Math.pow(r, -1.5) };
     });
-    TR.forEach(function (o, i) { trData[i * 4] = o.r; trData[i * 4 + 1] = o.th0; trData[i * 4 + 2] = o.sz; trData[i * 4 + 3] = o.s; });
+    TR.forEach(function (o, i) { trData[i * 4 + 2] = o.sz; trData[i * 4 + 3] = o.s; });
+    placerTrades();
+  }
+  // la position de chaque étoile sur le disque (elles tournent à la vitesse de Kepler)
+  function placerTrades() {
+    for (var i = 0; i < TR.length; i++) {
+      var o = TR[i], th = o.th0 + tTr * o.w;
+      trData[i * 4] = o.r * Math.cos(th); trData[i * 4 + 1] = o.r * Math.sin(th);
+    }
   }
   // le même calcul que la carte graphique, pour un seul rayon (le pixel sous la souris)
   function lancerRayon(B, px, py) {
@@ -637,12 +653,11 @@
     if (dernier && ecart < 0.75 * 1000 / cadence) return;
     var dt = dernier ? Math.min(0.1, ecart / 1000) : 1 / cadence;
     dernier = maintenant;
-    if (ecart >= 900) { mesures = []; lents = 0; }
-    else if (maintenant - debutB > 1500 && bloque < 0 && !vol && !enIntro) {
-      lents = ecart > 250 ? lents + 1 : 0;
-      if (lents >= 3) { niv = Math.min(NIV.length - 1, niv + 2); taille(); lents = 0; }
-      else surveiller(ecart);
-    }
+    if (TQ) relever();
+    // un écart de plus de 100 ms, c'est Chrome qui met la page au ralenti (fenêtre cachée), pas la carte graphique
+    if (ecart > 100) { mesures = []; }
+    else if (!TQ && maintenant - debutB > 1500 && bloque < 0 && !vol && !enIntro) surveiller(ecart);
+    if (tqMesures.length && bloque < 0) jugerGPU();
     humeur += (humeurC - humeur) * (1 - Math.exp(-dt * 1.5));
     tDisque += dt * (1 + 0.38 * humeur + (enIntro ? 1.0 : 0) + (vol ? 1.4 * Math.sin(Math.PI * cl((maintenant - vol.t0) / vol.ms, 0, 1)) : 0));
     tCiel += dt; tTr += dt;
@@ -689,11 +704,51 @@
     }
     if (med > budget * 1.4) {
       monter = false; pasPrec = { niv: niv, med: med, cad: cadence };
-      if (niv < NIV.length - 1) { niv++; taille(); return; }
+      if (niv < NET) { niv++; taille(); return; }
       if (cadence > 30) { cadence = 30; return; }
+      if (niv < NIV.length - 1) { niv++; taille(); return; }
       pasPrec = null; return;
     }
     if (monter && med <= budget * 1.12 && niv > 0) { niv--; taille(); }
+  }
+  /* Avec le chronomètre : chaque image dit combien de millisecondes la carte graphique a travaillé.
+     Au-dessus de 72 % du temps d'une image, on allège ; très en dessous, on essaie le niveau plus beau
+     et on revient en arrière (pour de bon) si c'était trop lourd. */
+  var tqAttente = [], tqMesures = [], tqDecisions = 0, tqEssai = null, tqPlafond = false, tqDernier = 0, tqImages = 0;
+  function relever() {
+    var disj = gl.getParameter(TQ.GPU_DISJOINT_EXT);
+    while (tqAttente.length) {
+      var o = tqAttente[0];
+      if (!TQ.getQueryObjectEXT(o.q, TQ.QUERY_RESULT_AVAILABLE_EXT)) break;
+      var ns = TQ.getQueryObjectEXT(o.q, TQ.QUERY_RESULT_EXT);
+      TQ.deleteQueryEXT(o.q); tqAttente.shift();
+      if (!disj && o.ok && o.niv === niv && ns > 0) tqMesures.push(ns / 1e6);
+    }
+    // un chronomètre qui ne répond presque jamais (certains pilotes) : on revient à la mesure des écarts entre images
+    if (!vol && !enIntro && ++tqImages > 300 && !tqDecisions && tqMesures.length < 5) {
+      tqAttente.forEach(function (o) { TQ.deleteQueryEXT(o.q); }); tqAttente = []; tqMesures = []; TQ = null;
+    }
+  }
+  function jugerGPU() {
+    var n = tqDecisions < 2 ? 10 : 30;
+    if (tqMesures.length < n) return;
+    tqMesures.sort(function (a, b) { return a - b; });
+    var med = tqMesures[n >> 1]; tqMesures = []; tqDecisions++; tqDernier = med;
+    var T = 1000 / cadence, haut = 0.72 * T;
+    if (tqEssai) {
+      var e = tqEssai; tqEssai = null;
+      if (med > haut) { niv = e.niv; cadence = e.cad; taille(); tqPlafond = true; return; }
+    }
+    if (med > haut) {
+      if (niv < NET) { niv++; taille(); return; }
+      if (cadence > 30) { cadence = 30; return; }
+      if (niv < NIV.length - 1) { niv++; taille(); }
+      return;
+    }
+    if (tqPlafond) return;
+    if (niv > NET && med < 0.45 * T) { tqEssai = { niv: niv, cad: cadence }; niv--; taille(); return; }
+    if (cadence < 60 && med < 0.55 * 1000 / 60) { tqEssai = { niv: niv, cad: cadence }; cadence = 60; return; }
+    if (niv > 0 && med < 0.45 * T) { tqEssai = { niv: niv, cad: cadence }; niv--; taille(); }
   }
   function dessiner(B) {
     var p = B.p, N = NIV[niv];
@@ -713,11 +768,14 @@
     gl.uniform1f(U.u_pasr, N.pasr);
     gl.uniform1f(U.u_oct, N.oct);
     gl.uniform1f(U.u_fil, N.fil);
+    placerTrades();
     gl.uniform4fv(U.u_tr, trData);
     gl.uniform1f(U.u_ntr, TR.length);
     gl.uniform1f(U.u_hov, hov);
-    gl.uniform1f(U.u_trt, tTr);
+    var q = null;
+    if (TQ && tqAttente.length < 6) { try { q = TQ.createQueryEXT(); TQ.beginQueryEXT(TQ.TIME_ELAPSED_EXT, q); } catch (x) { q = null; } }
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+    if (q) { TQ.endQueryEXT(TQ.TIME_ELAPSED_EXT); tqAttente.push({ q: q, niv: niv, ok: !vol && !enIntro }); }
   }
   function lancer() { if (!raf && !document.hidden) { dernier = 0; debutB = performance.now(); raf = requestAnimationFrame(image); } }
   function arreter() { if (raf) cancelAnimationFrame(raf); raf = 0; }
@@ -737,7 +795,7 @@
     eruption: eruption,
     get masse() { return masse; },
     get vol() { return !!vol; },
-    etat: function () { return { niveau: niv, cadence: cadence, ecran: Math.round(1000 / vs) + ' Hz', plafond: cible ? Math.round(1000 / cible) + ' i/s' : null, toile: toile.width + 'x' + toile.height, masse: +masse.toFixed(3) }; },
+    etat: function () { return { niveau: niv, cadence: cadence, ecran: Math.round(1000 / vs) + ' Hz', plafond: cible ? Math.round(1000 / cible) + ' i/s' : null, toile: toile.width + 'x' + toile.height, gpu: TQ ? +tqDernier.toFixed(2) + ' ms (' + tqAttente.length + '/' + tqMesures.length + '/' + tqDecisions + ')' : 'sans chrono', masse: +masse.toFixed(3) }; },
     figer: function (id, u) { var a = poseDe(id); pose = a; },
     _dbg: function () { var o = {}; IDS.forEach(function (k) { var P = panneaux[k]; o[k] = P ? P.vu + ' ' + P.el.style.visibility + ' ' + P.el.style.transform.slice(0, 60) : null; }); return { cur: cur, vol: !!vol, posee: posee, enIntro: enIntro, pose: pose, p: o }; }
   };

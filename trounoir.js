@@ -321,6 +321,7 @@
 
   /* ---------- la boucle ---------- */
   var raf = 0, dernier = 0, mesures = [], debut = 0, decisions = 0, lents = 0;
+  var cible = 0, pasPrec = null;               // cible : le rythme réel des images quand le navigateur le plafonne
   // l'intervalle propre de l'écran (60, 75, 100, 144 Hz…), mesuré sur les premières images, sans rien calculer
   var vs = 1000 / 60, brut = [], precedent = 0, essais = 0;
   var seuil = function () { return 0.75 * 1000 / cadence; };
@@ -362,12 +363,19 @@
     var n = decisions < 4 ? 12 : 36;               // les premières décisions vont vite
     if (mesures.length < n) return;
     mesures.sort(function (a, b) { return a - b; });
-    var med = mesures[n >> 1], budget = attendu(); mesures = []; decisions++;
+    var med = mesures[n >> 1], budget = cible || attendu(); mesures = []; decisions++;
+    // on vient de baisser la qualité : si les images ne vont pas plus vite, ce n'est pas la carte graphique,
+    // c'est le navigateur qui plafonne (économiseur d'énergie, fenêtre en arrière-plan…) : on remet la qualité
+    // et ce rythme devient la référence
+    if (pasPrec) {
+      var pp = pasPrec; pasPrec = null;
+      if (med > pp.med * 0.85) { niv = pp.niv; cadence = pp.cad; taille(); cible = med; monter = true; return; }
+    }
     if (med > budget * 1.4) {
-      monter = false;
+      monter = false; pasPrec = { niv: niv, med: med, cad: cadence };
       if (niv < NIV.length - 1) { niv++; taille(); return; }
       if (cadence > 30) { cadence = 30; return; }
-      passerFixe(); return;
+      pasPrec = null; passerFixe(); return;
     }
     if (monter && med <= budget * 1.12 && niv > 0) { niv--; taille(); }
   }
@@ -400,7 +408,7 @@
     },
     sortir: sortir,
     regler: function (o) { regle = o || {}; if (fixe) dessiner(); },
-    etat: function () { return { niveau: niv, cadence: cadence, ecran: Math.round(1000 / vs) + ' Hz', fixe: fixe, toile: toile.width + 'x' + toile.height }; },
+    etat: function () { return { niveau: niv, cadence: cadence, ecran: Math.round(1000 / vs) + ' Hz', plafond: cible ? Math.round(1000 / cible) + ' images/s' : null, fixe: fixe, toile: toile.width + 'x' + toile.height }; },
     figer: function (u) { intro = u == null ? null : { t0: 0, ms: 1, fige: u }; eclatIntro = 1; }   // test : une image de l'intro
   };
   // si la page ne demande rien (données introuvables…), on ne reste pas dans le noir

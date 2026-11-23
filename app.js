@@ -325,7 +325,7 @@
     const lastN = last ? `${esc(dayLabel(last.date))}${last.n != null ? ' · ' + esc(t().tw(last.n, last.w ?? 0)) : ''}` : '';
     return `<div class="hero" id="hero"><div class="h-main">
       <div class="h-acc">${esc(t().hAcc(M.run.n, M.run.name || '', t().phLong[M.phase]))}</div>
-      <div class="h-bal" id="hBal">${usd(M.balance)}</div>
+      <div class="h-bal" id="hBal" data-tn-ancre>${usd(M.balance)}</div>
       <div class="h-sub ${cls(M.net)}">${esc(t().hOnAcc(usd(M.net, 2, true)))}</div>
       <p class="intro">${esc(t().intro)}</p></div>
       <div class="h-kpis" id="hK">
@@ -559,15 +559,19 @@
     heads(); keys(); status(); accounts(); balance(); log(); trades(); stats(); if (window.R5S) R5S.watch(); nexts();
     $$('.panel').forEach(sec => when(sec, instant => headIn(sec), () => headPrep(sec)));
   }
+  // the intro: with the black hole (trounoir.js), the camera comes from far away and dives into it, then the page shows
+  const showPage = () => { document.documentElement.classList.remove('tn-intro'); if (window.TN) TN.sortir(); };
   function boot(done) {
-    const ov = $('#boot');
-    if (!ov || !ANIM || document.hidden || sess.get('r5l-boot')) { if (ov) ov.remove(); done(); return; }
-    sess.set('r5l-boot', '1'); BOOTING = true; ov.classList.add('on');
+    const ov = $('#boot'), tn = !!(window.TN && TN.actif);
+    if (!ov || !ANIM || document.hidden || sess.get('r5l-boot')) { if (ov) ov.remove(); showPage(); done(); return; }
+    sess.set('r5l-boot', '1'); BOOTING = true; ov.classList.add('on'); if (tn) ov.classList.add('tn');
     $('#bootTxt').textContent = t().bootS({ n: M.trades.length, s: M.days.length, last: M.days.length ? dayLabel(M.days[M.days.length - 1].date) : '' });
-    countTo($('#bootBal'), M.balance - M.start, v => usd(M.start + v), 850);
+    const ms = tn ? 2700 : 1250;
+    countTo($('#bootBal'), M.balance - M.start, v => usd(M.start + v), tn ? 1150 : 850);
+    if (tn) { TN.plonger(ms); setTimeout(() => ov.classList.add('loin'), ms * 0.56); }
     let fin = false;
-    const end = () => { if (fin) return; fin = true; ov.classList.add('done'); BOOTING = false; setTimeout(() => ov.remove(), 650); done(); };
-    setTimeout(end, 1250);
+    const end = () => { if (fin) return; fin = true; ov.classList.add('done'); BOOTING = false; showPage(); setTimeout(() => ov.remove(), 650); done(); };
+    setTimeout(end, ms);
     ov.addEventListener('click', end); addEventListener('keydown', end, { once: true });
   }
   function bind() {
@@ -587,7 +591,9 @@
       const meta = await get('meta').catch(() => ({}));
       const watch = await get('watch').catch(() => null);
       M = model({ trades, days, rules, accounts, meta }); M.watch = watch;
-    } catch (e) { $('#balBody').innerHTML = '<p class="intro">The journal could not load its data. Refresh the page to try again.</p>'; return; }
+    } catch (e) { showPage(); $('#balBody').innerHTML = '<p class="intro">The journal could not load its data. Refresh the page to try again.</p>'; return; }
+    // the black hole shines brighter after a winning session, dimmer after a losing one
+    if (window.TN && M.days.length) TN.humeur(M.days[M.days.length - 1].net);
     bind(); boot(() => { kick(); });
     render(); spy();
     if (location.hash) { const id = location.hash.slice(1); if (document.getElementById(id)) setTimeout(() => go(id), 50); }

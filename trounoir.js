@@ -310,13 +310,14 @@
     if (dernier && ecart < 1000 / cadence - 3) return;
     var dt = dernier ? Math.min(0.1, ecart / 1000) : 1 / cadence;
     dernier = maintenant;
-    // une pause isolée (onglet caché, fenêtre recouverte, page occupée) ne dit rien de la carte graphique :
-    // il faut trois images lentes de suite pour descendre tout de suite
-    if (ecart > 1000) mesures = [];
-    if (maintenant - debut > 1500 && bloque < 0) {
+    // une image toutes les secondes environ, c'est le navigateur qui freine (fenêtre derrière une autre, onglet caché) :
+    // ça ne dit rien de la carte graphique. Pareil pour une pause isolée (la page qui se construit).
+    // Il faut trois images lentes de suite (entre 0,25 et 0,9 s) pour descendre tout de suite.
+    if (ecart >= 900) { mesures = []; lents = 0; }
+    else if (maintenant - debut > 1500 && bloque < 0) {
       lents = ecart > 250 ? lents + 1 : 0;
       if (lents >= 3) sauter();
-      else if (!intro && ecart <= 1000) surveiller(ecart);
+      else if (!intro) surveiller(ecart);
     }
     humeur += (humeurC - humeur) * (1 - Math.exp(-dt * 1.5));
     var vitesse = 1 + 0.38 * humeur + (intro ? 1.2 : 0);

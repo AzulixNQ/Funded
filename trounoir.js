@@ -303,16 +303,20 @@
   }
 
   /* ---------- la boucle ---------- */
-  var raf = 0, dernier = 0, mesures = [], debut = 0, decisions = 0;
+  var raf = 0, dernier = 0, mesures = [], debut = 0, decisions = 0, lents = 0;
   function image(maintenant) {
     raf = requestAnimationFrame(image);
     var ecart = maintenant - dernier;
     if (dernier && ecart < 1000 / cadence - 3) return;
     var dt = dernier ? Math.min(0.1, ecart / 1000) : 1 / cadence;
     dernier = maintenant;
-    if (maintenant - debut > 300 && bloque < 0) {
-      if (ecart > 300) sauter();                  // une image de plus de 0,3 s : on descend tout de suite
-      else if (!intro) surveiller(ecart);
+    // une pause isolée (onglet caché, fenêtre recouverte, page occupée) ne dit rien de la carte graphique :
+    // il faut trois images lentes de suite pour descendre tout de suite
+    if (ecart > 1000) mesures = [];
+    if (maintenant - debut > 1500 && bloque < 0) {
+      lents = ecart > 250 ? lents + 1 : 0;
+      if (lents >= 3) sauter();
+      else if (!intro && ecart <= 1000) surveiller(ecart);
     }
     humeur += (humeurC - humeur) * (1 - Math.exp(-dt * 1.5));
     var vitesse = 1 + 0.38 * humeur + (intro ? 1.2 : 0);
@@ -338,7 +342,7 @@
     if (monter && med <= budget * 1.12 && niv > 0) { niv--; taille(); }
   }
   function sauter() {
-    monter = false; mesures = [];
+    monter = false; mesures = []; lents = 0;
     if (niv >= NIV.length - 1) { passerFixe(); return; }
     niv = Math.min(NIV.length - 1, niv + 2); taille();
   }
@@ -366,6 +370,7 @@
     },
     sortir: sortir,
     regler: function (o) { regle = o || {}; if (fixe) dessiner(); },
+    etat: function () { return { niveau: niv, cadence: cadence, fixe: fixe, toile: toile.width + 'x' + toile.height }; },
     figer: function (u) { intro = u == null ? null : { t0: 0, ms: 1, fige: u }; eclatIntro = 1; }   // test : une image de l'intro
   };
   // si la page ne demande rien (données introuvables…), on ne reste pas dans le noir
